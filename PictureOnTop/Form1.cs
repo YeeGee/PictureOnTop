@@ -116,11 +116,20 @@ namespace PictureOnTop
             DialogResult result = ofd.ShowDialog();
             if (result == DialogResult.OK) // Test result.
             {
-                SelectedFile = ofd.FileName;
-                m_selectedFolder = Path.GetDirectoryName(SelectedFile);
-                ofd.InitialDirectory = m_selectedFolder;
-                Properties.Settings.Default.DefaultFolder = m_selectedFolder;
-                Properties.Settings.Default.Save();
+                try
+                {
+                    SelectedFile = ofd.FileName;
+                    m_selectedFolder = Path.GetDirectoryName(SelectedFile);
+                    ofd.InitialDirectory = m_selectedFolder;
+                    Properties.Settings.Default.DefaultFolder = m_selectedFolder;
+                    Properties.Settings.Default.Save();
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
             }
 
             Image image = Image.FromFile(SelectedFile);
