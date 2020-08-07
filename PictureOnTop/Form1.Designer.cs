@@ -48,12 +48,18 @@
             this.FolderDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.rb_point = new System.Windows.Forms.RadioButton();
+            this.rb_colordialog = new System.Windows.Forms.RadioButton();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.trackBar2 = new System.Windows.Forms.TrackBar();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.lbl_color_new = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
-            this.button6 = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.pn_color_new = new System.Windows.Forms.Panel();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -61,10 +67,8 @@
             this.button1 = new System.Windows.Forms.Button();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.trackBar2 = new System.Windows.Forms.TrackBar();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
+            this.lbl_color_old = new System.Windows.Forms.Label();
+            this.pn_color_to_replace = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -72,8 +76,9 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -232,16 +237,18 @@
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.groupBox1.Controls.Add(this.pn_color_to_replace);
+            this.groupBox1.Controls.Add(this.lbl_color_old);
+            this.groupBox1.Controls.Add(this.groupBox2);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Controls.Add(this.label4);
             this.groupBox1.Controls.Add(this.trackBar2);
             this.groupBox1.Controls.Add(this.checkBox1);
-            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.lbl_color_new);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.trackBar1);
-            this.groupBox1.Controls.Add(this.button6);
-            this.groupBox1.Controls.Add(this.panel1);
+            this.groupBox1.Controls.Add(this.pn_color_new);
             this.groupBox1.Controls.Add(this.button5);
             this.groupBox1.Controls.Add(this.button4);
             this.groupBox1.Controls.Add(this.button3);
@@ -255,22 +262,105 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Toolbox";
             // 
-            // label3
+            // groupBox2
             // 
-            this.label3.AutoSize = true;
-            this.label3.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.label3.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label3.Location = new System.Drawing.Point(12, 113);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(49, 13);
-            this.label3.TabIndex = 10;
-            this.label3.Text = "Selected";
+            this.groupBox2.Controls.Add(this.rb_point);
+            this.groupBox2.Controls.Add(this.rb_colordialog);
+            this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.groupBox2.Location = new System.Drawing.Point(7, 157);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(69, 57);
+            this.groupBox2.TabIndex = 15;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Source";
+            // 
+            // rb_point
+            // 
+            this.rb_point.AutoSize = true;
+            this.rb_point.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.rb_point.Location = new System.Drawing.Point(7, 34);
+            this.rb_point.Name = "rb_point";
+            this.rb_point.Size = new System.Drawing.Size(49, 17);
+            this.rb_point.TabIndex = 1;
+            this.rb_point.Text = "Point";
+            this.rb_point.UseVisualStyleBackColor = true;
+            this.rb_point.CheckedChanged += new System.EventHandler(this.rb_point_CheckedChanged);
+            // 
+            // rb_colordialog
+            // 
+            this.rb_colordialog.AutoSize = true;
+            this.rb_colordialog.Checked = true;
+            this.rb_colordialog.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.rb_colordialog.Location = new System.Drawing.Point(7, 11);
+            this.rb_colordialog.Name = "rb_colordialog";
+            this.rb_colordialog.Size = new System.Drawing.Size(47, 17);
+            this.rb_colordialog.TabIndex = 0;
+            this.rb_colordialog.TabStop = true;
+            this.rb_colordialog.Text = "DLG";
+            this.rb_colordialog.UseVisualStyleBackColor = true;
+            this.rb_colordialog.CheckedChanged += new System.EventHandler(this.rb_colordialog_CheckedChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label5.Location = new System.Drawing.Point(67, 360);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(25, 13);
+            this.label5.TabIndex = 14;
+            this.label5.Text = "255";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.label4.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label4.Location = new System.Drawing.Point(7, 410);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(68, 13);
+            this.label4.TabIndex = 13;
+            this.label4.Text = "transparency";
+            // 
+            // trackBar2
+            // 
+            this.trackBar2.Location = new System.Drawing.Point(4, 378);
+            this.trackBar2.Maximum = 255;
+            this.trackBar2.Name = "trackBar2";
+            this.trackBar2.Size = new System.Drawing.Size(80, 45);
+            this.trackBar2.TabIndex = 12;
+            this.trackBar2.TickFrequency = 20;
+            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
+            this.trackBar2.Value = 255;
+            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
+            this.trackBar2.ValueChanged += new System.EventHandler(this.trackBar2_ValueChanged);
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(8, 357);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(42, 17);
+            this.checkBox1.TabIndex = 11;
+            this.checkBox1.Text = "Mix";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
+            // lbl_color_new
+            // 
+            this.lbl_color_new.AutoSize = true;
+            this.lbl_color_new.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.lbl_color_new.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lbl_color_new.Location = new System.Drawing.Point(7, 116);
+            this.lbl_color_new.Name = "lbl_color_new";
+            this.lbl_color_new.Size = new System.Drawing.Size(56, 13);
+            this.lbl_color_new.TabIndex = 10;
+            this.lbl_color_new.Text = "new color ";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label2.Location = new System.Drawing.Point(16, 185);
+            this.label2.Location = new System.Drawing.Point(65, 249);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(13, 13);
             this.label2.TabIndex = 9;
@@ -281,7 +371,7 @@
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.label1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label1.Location = new System.Drawing.Point(12, 295);
+            this.label1.Location = new System.Drawing.Point(7, 318);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(51, 13);
             this.label1.TabIndex = 8;
@@ -289,35 +379,28 @@
             // 
             // trackBar1
             // 
-            this.trackBar1.Location = new System.Drawing.Point(14, 201);
+            this.trackBar1.Location = new System.Drawing.Point(7, 240);
             this.trackBar1.Maximum = 50;
             this.trackBar1.Name = "trackBar1";
             this.trackBar1.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.trackBar1.Size = new System.Drawing.Size(45, 89);
+            this.trackBar1.Size = new System.Drawing.Size(45, 75);
             this.trackBar1.TabIndex = 7;
-            this.trackBar1.Value = 5;
+            this.trackBar1.TickFrequency = 5;
             this.trackBar1.ValueChanged += new System.EventHandler(this.trackBar1_ValueChanged);
             // 
-            // button6
+            // pn_color_new
             // 
-            this.button6.Location = new System.Drawing.Point(12, 156);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(74, 26);
-            this.button6.TabIndex = 6;
-            this.button6.Text = "Pick Color";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.Location = new System.Drawing.Point(14, 129);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(70, 21);
-            this.panel1.TabIndex = 5;
+            this.pn_color_new.BackColor = System.Drawing.SystemColors.ButtonShadow;
+            this.pn_color_new.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pn_color_new.Location = new System.Drawing.Point(7, 132);
+            this.pn_color_new.Name = "pn_color_new";
+            this.pn_color_new.Size = new System.Drawing.Size(70, 21);
+            this.pn_color_new.TabIndex = 5;
+            this.pn_color_new.Click += new System.EventHandler(this.pn_color_new_Click);
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(22, 315);
+            this.button5.Location = new System.Drawing.Point(7, 334);
             this.button5.Margin = new System.Windows.Forms.Padding(4);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(53, 22);
@@ -328,10 +411,10 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(10, 84);
+            this.button4.Location = new System.Drawing.Point(44, 42);
             this.button4.Margin = new System.Windows.Forms.Padding(4);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(44, 22);
+            this.button4.Size = new System.Drawing.Size(44, 20);
             this.button4.TabIndex = 3;
             this.button4.Text = "Flip Y";
             this.button4.UseVisualStyleBackColor = true;
@@ -339,10 +422,10 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(10, 60);
+            this.button3.Location = new System.Drawing.Point(3, 42);
             this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(44, 22);
+            this.button3.Size = new System.Drawing.Size(44, 20);
             this.button3.TabIndex = 2;
             this.button3.Text = "Flip X";
             this.button3.UseVisualStyleBackColor = true;
@@ -350,10 +433,10 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(10, 37);
+            this.button2.Location = new System.Drawing.Point(34, 15);
             this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(44, 22);
+            this.button2.Size = new System.Drawing.Size(27, 22);
             this.button2.TabIndex = 1;
             this.button2.Text = "<";
             this.button2.UseVisualStyleBackColor = true;
@@ -361,59 +444,34 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(10, 15);
+            this.button1.Location = new System.Drawing.Point(4, 15);
             this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(44, 22);
+            this.button1.Size = new System.Drawing.Size(27, 22);
             this.button1.TabIndex = 0;
             this.button1.Text = ">";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // checkBox1
+            // lbl_color_old
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(15, 345);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(42, 17);
-            this.checkBox1.TabIndex = 11;
-            this.checkBox1.Text = "Mix";
-            this.checkBox1.UseVisualStyleBackColor = true;
-            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            this.lbl_color_old.AutoSize = true;
+            this.lbl_color_old.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.lbl_color_old.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lbl_color_old.Location = new System.Drawing.Point(7, 71);
+            this.lbl_color_old.Name = "lbl_color_old";
+            this.lbl_color_old.Size = new System.Drawing.Size(80, 13);
+            this.lbl_color_old.TabIndex = 17;
+            this.lbl_color_old.Text = "color to replace";
             // 
-            // trackBar2
+            // pn_color_to_replace
             // 
-            this.trackBar2.Location = new System.Drawing.Point(6, 368);
-            this.trackBar2.Maximum = 255;
-            this.trackBar2.Name = "trackBar2";
-            this.trackBar2.Size = new System.Drawing.Size(85, 45);
-            this.trackBar2.TabIndex = 12;
-            this.trackBar2.TickFrequency = 5;
-            this.trackBar2.TickStyle = System.Windows.Forms.TickStyle.TopLeft;
-            this.trackBar2.Value = 255;
-            this.trackBar2.Scroll += new System.EventHandler(this.trackBar2_Scroll);
-            this.trackBar2.ValueChanged += new System.EventHandler(this.trackBar2_ValueChanged);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.label4.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label4.Location = new System.Drawing.Point(12, 412);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(68, 13);
-            this.label4.TabIndex = 13;
-            this.label4.Text = "transparency";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label5.Location = new System.Drawing.Point(67, 352);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(25, 13);
-            this.label5.TabIndex = 14;
-            this.label5.Text = "255";
+            this.pn_color_to_replace.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pn_color_to_replace.Location = new System.Drawing.Point(7, 87);
+            this.pn_color_to_replace.Name = "pn_color_to_replace";
+            this.pn_color_to_replace.Size = new System.Drawing.Size(70, 21);
+            this.pn_color_to_replace.TabIndex = 18;
+            this.pn_color_to_replace.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pn_color_to_replace_MouseClick);
             // 
             // Form1
             // 
@@ -436,8 +494,10 @@
             this.splitContainer1.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -464,13 +524,12 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Panel pn_color_new;
         private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TrackBar trackBar1;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lbl_color_new;
         private System.Windows.Forms.ToolStripMenuItem makeBorderlessToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveImageToolStripMenuItem;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
@@ -481,6 +540,11 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TrackBar trackBar2;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton rb_point;
+        private System.Windows.Forms.RadioButton rb_colordialog;
+        private System.Windows.Forms.Panel pn_color_to_replace;
+        private System.Windows.Forms.Label lbl_color_old;
     }
 }
 

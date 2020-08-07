@@ -20,6 +20,13 @@ namespace PictureOnTop
 {
     public partial class Form1 
     {
+        enum enActionType { pickup_color_old, pickup_color_new }
+        enActionType m_enActionType { get; set; }
+
+        enum enColorSource {colordialog,point }
+        enColorSource m_enColorSource { get; set; }
+
+
         #region make form movable
 
         [DllImport("user32", CharSet = CharSet.Auto)]
@@ -80,6 +87,8 @@ namespace PictureOnTop
         public Form1()
         {
             InitializeComponent();
+            m_enColorSource = enColorSource.colordialog;
+            m_enActionType = enActionType.pickup_color_old;
             this.FormClosing += Form1_FormClosing;
             m_undoManager = new UndoManager();
 
@@ -88,11 +97,53 @@ namespace PictureOnTop
             FolderDialog.SelectedPath = SelectedFolder;
             clrDialogSelection = Color.White;
             this.Load += Form1_Load;
+
+            pictureBox1.MouseDown += PictureBox1_MouseDown;
+        }
+
+        private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            // throw new NotImplementedException();
+            if (drag)
+                return;
+
+            Bitmap capcha = (Bitmap)pictureBox1.Image;
+            if (capcha == null)
+                return;
+
+            if (m_enColorSource == enColorSource.point)
+            {
+
+                //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
+                //{
+                Point mDown = Point.Round(stretched(e.Location, pictureBox1));
+                PointF pf = stretched(mDown, pictureBox1);
+
+                //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
+                Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
+                // do your stuff:
+                selectedByMouse = c;
+                colorDialog1.Color = clrDialogSelection = selectedByMouse;
+                //switch (m_enActionType)
+                //{
+                //    case enActionType.pickup_color_old:
+                //        lbl_color_old.BackColor = selectedByMouse;
+                //        break;
+                //    case enActionType.pickup_color_new:
+                //        lbl_color_new.BackColor = selectedByMouse;
+                //        break;
+                //    default:
+                //        break;
+                //}
+                
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            
             transparency = trackBar2.Value;
+            trackBar1.Value = 1;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -272,11 +323,11 @@ namespace PictureOnTop
 
         private void button5_Click(object sender, EventArgs e)
         {
-            Bitmap capcha = new Bitmap(pictureBox1.Image); 
-          //  capcha.MakeTransparent(selectedByMouse);
+            Bitmap capcha = new Bitmap(pictureBox1.Image);
+            //  capcha.MakeTransparent(selectedByMouse);
             //pictureBox1.Image = capcha;
 
-            Color color = m_selectedByMouse;// Color.Black; //Your desired colour
+            Color color = pn_color_to_replace.BackColor;// m_selectedByMouse;// Color.Black; //Your desired colour
             Color clrTransparent = Color.FromArgb(transparency, clrDialogSelection.R, clrDialogSelection.G, clrDialogSelection.B);
             
             Bitmap bmp = new Bitmap(pictureBox1.Image);
@@ -324,7 +375,20 @@ namespace PictureOnTop
                 m_selectedByMouse = value;
                 try
                 {
-                    panel1.BackColor = value;
+                    
+                    switch (m_enActionType)
+                    {
+                        case enActionType.pickup_color_old:
+                            pn_color_to_replace.BackColor = value;
+
+                            break;
+                        case enActionType.pickup_color_new:
+                            pn_color_new.BackColor = value;
+                            break;
+                        default:
+                            break;
+                    }
+
                 }
                 catch (Exception)
                 {
@@ -375,13 +439,14 @@ namespace PictureOnTop
         public Color  clrDialogSelection { get; set; }
         private void button6_Click(object sender, EventArgs e)
         {
-            DialogResult result = colorDialog1.ShowDialog();
-            // See if user pressed ok.
-            if (result == DialogResult.OK)
+            switch (m_enColorSource)
             {
-                // Set form background to the selected color.
-                clrDialogSelection = colorDialog1.Color;
-                button6.BackColor = clrDialogSelection;
+                case enColorSource.colordialog:
+                    break;
+                case enColorSource.point:
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -506,6 +571,73 @@ namespace PictureOnTop
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
+
+        }
+
+        private void rb_colordialog_CheckedChanged(object sender, EventArgs e)
+        {
+            m_enColorSource = enColorSource.colordialog;
+        }
+
+        private void rb_point_CheckedChanged(object sender, EventArgs e)
+        {
+            m_enColorSource = enColorSource.point;
+        }
+
+        private void pn_color_to_replace_MouseClick(object sender, MouseEventArgs e)
+        {
+            m_enActionType = enActionType.pickup_color_old;
+            lbl_color_old.BorderStyle = BorderStyle.Fixed3D;
+            lbl_color_new.BorderStyle = BorderStyle.None;
+            pn_color_new.BorderStyle = BorderStyle.None;
+            pn_color_to_replace.BorderStyle=BorderStyle.Fixed3D;
+//            if( m_enColorSource == enColorSource.colordialog)
+//            {
+//                #region pickup color from dialog
+//                DialogResult result = colorDialog1.ShowDialog();
+//                // See if user pressed ok.
+//                if (result == DialogResult.OK)
+//                {
+//                    // Set form background to the selected color.
+//                    clrDialogSelection = colorDialog1.Color;
+//                    pn_color_to_replace.BackColor = clrDialogSelection;
+//                    pn_color_to_replace.Refresh();
+
+//                }
+//                #endregion
+
+//            }
+//            else
+//            {
+////                pn_color_to_replace.BackColor = selectedByMouse;
+////                pn_color_to_replace.Refresh();
+
+//            }
+        }
+
+        private void pn_color_new_Click(object sender, EventArgs e)
+        {
+            m_enActionType = enActionType.pickup_color_new;
+            lbl_color_new.BorderStyle = BorderStyle.Fixed3D;
+            lbl_color_old.BorderStyle = BorderStyle.None;
+            pn_color_new.BorderStyle = BorderStyle.Fixed3D;
+            pn_color_to_replace.BorderStyle = BorderStyle.None;
+            if (m_enColorSource == enColorSource.colordialog)
+            {
+                #region pickup color from dialog
+                DialogResult result = colorDialog1.ShowDialog();
+                // See if user pressed ok.
+                if (result == DialogResult.OK)
+                {
+                    // Set form background to the selected color.
+                    clrDialogSelection = colorDialog1.Color;
+                    pn_color_new.BackColor = clrDialogSelection;
+                    pn_color_new.Refresh();
+                }
+                #endregion
+
+            }
+
 
         }
     }
