@@ -1,4 +1,4 @@
-﻿namespace PictureOnTop
+namespace PictureOnTop
 {
     partial class Form1: DraggableForm.FormBase
     {
@@ -45,9 +45,15 @@
             this.rotateLeftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.setTopMostToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makeBorderlessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lunchWpfFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FolderDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chImageStretch = new System.Windows.Forms.CheckBox();
+            this.pn_color_to_replace = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lbl_color_old = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.rb_point = new System.Windows.Forms.RadioButton();
             this.rb_colordialog = new System.Windows.Forms.RadioButton();
@@ -60,6 +66,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
             this.pn_color_new = new System.Windows.Forms.Panel();
+            this.label6 = new System.Windows.Forms.Label();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -67,8 +74,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.lbl_color_old = new System.Windows.Forms.Label();
-            this.pn_color_to_replace = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -76,9 +81,11 @@
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.pn_color_to_replace.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            this.pn_color_new.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -90,8 +97,11 @@
             this.pictureBox1.Size = new System.Drawing.Size(570, 434);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.SizeModeChanged += new System.EventHandler(this.pictureBox1_SizeModeChanged);
             this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             // 
             // menuStrip1
             // 
@@ -100,7 +110,8 @@
             this.editToolStripMenuItem,
             this.processToolStripMenuItem,
             this.setTopMostToolStripMenuItem,
-            this.makeBorderlessToolStripMenuItem});
+            this.makeBorderlessToolStripMenuItem,
+            this.lunchWpfFormToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(665, 24);
@@ -216,6 +227,23 @@
             this.makeBorderlessToolStripMenuItem.Text = "Make Borderless";
             this.makeBorderlessToolStripMenuItem.MouseDown += new System.Windows.Forms.MouseEventHandler(this.makeBorderlessToolStripMenuItem_MouseDown);
             // 
+            // lunchWpfFormToolStripMenuItem
+            // 
+            this.lunchWpfFormToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.refreshToolStripMenuItem});
+            this.lunchWpfFormToolStripMenuItem.Name = "lunchWpfFormToolStripMenuItem";
+            this.lunchWpfFormToolStripMenuItem.Size = new System.Drawing.Size(101, 20);
+            this.lunchWpfFormToolStripMenuItem.Text = "lunch wpf form";
+            this.lunchWpfFormToolStripMenuItem.DropDownOpening += new System.EventHandler(this.lunchWpfFormToolStripMenuItem_DropDownOpening);
+            this.lunchWpfFormToolStripMenuItem.Click += new System.EventHandler(this.lunchWpfFormToolStripMenuItem_Click);
+            // 
+            // refreshToolStripMenuItem
+            // 
+            this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+            this.refreshToolStripMenuItem.Text = "Refresh";
+            this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
+            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -237,6 +265,7 @@
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.groupBox1.Controls.Add(this.chImageStretch);
             this.groupBox1.Controls.Add(this.pn_color_to_replace);
             this.groupBox1.Controls.Add(this.lbl_color_old);
             this.groupBox1.Controls.Add(this.groupBox2);
@@ -262,12 +291,56 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Toolbox";
             // 
+            // chImageStretch
+            // 
+            this.chImageStretch.AutoSize = true;
+            this.chImageStretch.Checked = true;
+            this.chImageStretch.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chImageStretch.Location = new System.Drawing.Point(7, 221);
+            this.chImageStretch.Name = "chImageStretch";
+            this.chImageStretch.Size = new System.Drawing.Size(60, 17);
+            this.chImageStretch.TabIndex = 19;
+            this.chImageStretch.Text = "Stretch";
+            this.chImageStretch.UseVisualStyleBackColor = true;
+            this.chImageStretch.CheckedChanged += new System.EventHandler(this.chImageStretch_CheckedChanged);
+            // 
+            // pn_color_to_replace
+            // 
+            this.pn_color_to_replace.Controls.Add(this.label3);
+            this.pn_color_to_replace.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pn_color_to_replace.Location = new System.Drawing.Point(7, 88);
+            this.pn_color_to_replace.Name = "pn_color_to_replace";
+            this.pn_color_to_replace.Size = new System.Drawing.Size(70, 24);
+            this.pn_color_to_replace.TabIndex = 18;
+            this.pn_color_to_replace.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pn_color_to_replace_MouseClick);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(5, 2);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(63, 13);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "pick original";
+            this.label3.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pn_color_to_replace_MouseClick);
+            // 
+            // lbl_color_old
+            // 
+            this.lbl_color_old.AutoSize = true;
+            this.lbl_color_old.BackColor = System.Drawing.SystemColors.ActiveBorder;
+            this.lbl_color_old.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lbl_color_old.Location = new System.Drawing.Point(7, 69);
+            this.lbl_color_old.Name = "lbl_color_old";
+            this.lbl_color_old.Size = new System.Drawing.Size(80, 13);
+            this.lbl_color_old.TabIndex = 17;
+            this.lbl_color_old.Text = "color to replace";
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.rb_point);
             this.groupBox2.Controls.Add(this.rb_colordialog);
             this.groupBox2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.groupBox2.Location = new System.Drawing.Point(7, 157);
+            this.groupBox2.Location = new System.Drawing.Point(7, 162);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(69, 57);
             this.groupBox2.TabIndex = 15;
@@ -350,7 +423,7 @@
             this.lbl_color_new.AutoSize = true;
             this.lbl_color_new.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.lbl_color_new.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.lbl_color_new.Location = new System.Drawing.Point(7, 116);
+            this.lbl_color_new.Location = new System.Drawing.Point(12, 116);
             this.lbl_color_new.Name = "lbl_color_new";
             this.lbl_color_new.Size = new System.Drawing.Size(56, 13);
             this.lbl_color_new.TabIndex = 10;
@@ -391,12 +464,23 @@
             // pn_color_new
             // 
             this.pn_color_new.BackColor = System.Drawing.SystemColors.ButtonShadow;
+            this.pn_color_new.Controls.Add(this.label6);
             this.pn_color_new.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pn_color_new.Location = new System.Drawing.Point(7, 132);
+            this.pn_color_new.Location = new System.Drawing.Point(6, 135);
             this.pn_color_new.Name = "pn_color_new";
-            this.pn_color_new.Size = new System.Drawing.Size(70, 21);
+            this.pn_color_new.Size = new System.Drawing.Size(70, 24);
             this.pn_color_new.TabIndex = 5;
             this.pn_color_new.Click += new System.EventHandler(this.pn_color_new_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 3);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(50, 13);
+            this.label6.TabIndex = 1;
+            this.label6.Text = "pick new";
+            this.label6.Click += new System.EventHandler(this.pn_color_new_Click);
             // 
             // button5
             // 
@@ -453,26 +537,6 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // lbl_color_old
-            // 
-            this.lbl_color_old.AutoSize = true;
-            this.lbl_color_old.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.lbl_color_old.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.lbl_color_old.Location = new System.Drawing.Point(7, 71);
-            this.lbl_color_old.Name = "lbl_color_old";
-            this.lbl_color_old.Size = new System.Drawing.Size(80, 13);
-            this.lbl_color_old.TabIndex = 17;
-            this.lbl_color_old.Text = "color to replace";
-            // 
-            // pn_color_to_replace
-            // 
-            this.pn_color_to_replace.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pn_color_to_replace.Location = new System.Drawing.Point(7, 87);
-            this.pn_color_to_replace.Name = "pn_color_to_replace";
-            this.pn_color_to_replace.Size = new System.Drawing.Size(70, 21);
-            this.pn_color_to_replace.TabIndex = 18;
-            this.pn_color_to_replace.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pn_color_to_replace_MouseClick);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -494,10 +558,14 @@
             this.splitContainer1.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.pn_color_to_replace.ResumeLayout(false);
+            this.pn_color_to_replace.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            this.pn_color_new.ResumeLayout(false);
+            this.pn_color_new.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -545,6 +613,11 @@
         private System.Windows.Forms.RadioButton rb_colordialog;
         private System.Windows.Forms.Panel pn_color_to_replace;
         private System.Windows.Forms.Label lbl_color_old;
+        private System.Windows.Forms.ToolStripMenuItem lunchWpfFormToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem refreshToolStripMenuItem;
+        private System.Windows.Forms.CheckBox chImageStretch;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label6;
     }
 }
 
