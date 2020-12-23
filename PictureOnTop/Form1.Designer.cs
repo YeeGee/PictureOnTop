@@ -29,7 +29,7 @@ namespace PictureOnTop
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.pdCapture = new System.Windows.Forms.PictureBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,6 +50,7 @@ namespace PictureOnTop
             this.FolderDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button10 = new System.Windows.Forms.Button();
             this.chImageStretch = new System.Windows.Forms.CheckBox();
             this.pn_color_to_replace = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
@@ -74,7 +75,7 @@ namespace PictureOnTop
             this.button1 = new System.Windows.Forms.Button();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -88,20 +89,23 @@ namespace PictureOnTop
             this.pn_color_new.SuspendLayout();
             this.SuspendLayout();
             // 
-            // pictureBox1
+            // pdCapture
             // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(5);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(570, 434);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.SizeModeChanged += new System.EventHandler(this.pictureBox1_SizeModeChanged);
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
-            this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
+            this.pdCapture.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.pdCapture.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pdCapture.Location = new System.Drawing.Point(7, 5);
+            this.pdCapture.Margin = new System.Windows.Forms.Padding(5);
+            this.pdCapture.MinimumSize = new System.Drawing.Size(100, 100);
+            this.pdCapture.Name = "pdCapture";
+            this.pdCapture.Padding = new System.Windows.Forms.Padding(5);
+            this.pdCapture.Size = new System.Drawing.Size(200, 100);
+            this.pdCapture.TabIndex = 0;
+            this.pdCapture.TabStop = false;
+            this.pdCapture.SizeModeChanged += new System.EventHandler(this.pictureBox1_SizeModeChanged);
+            this.pdCapture.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pdCapture.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
+            this.pdCapture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.pdCapture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             // 
             // menuStrip1
             // 
@@ -257,14 +261,19 @@ namespace PictureOnTop
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.pictureBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(665, 434);
+            this.splitContainer1.Panel2.AutoScroll = true;
+            this.splitContainer1.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.splitContainer1.Panel2.Controls.Add(this.pdCapture);
+            this.splitContainer1.Panel2.Margin = new System.Windows.Forms.Padding(5);
+            this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(5);
+            this.splitContainer1.Size = new System.Drawing.Size(665, 468);
             this.splitContainer1.SplitterDistance = 91;
             this.splitContainer1.TabIndex = 2;
             // 
             // groupBox1
             // 
-            this.groupBox1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.Controls.Add(this.button10);
             this.groupBox1.Controls.Add(this.chImageStretch);
             this.groupBox1.Controls.Add(this.pn_color_to_replace);
             this.groupBox1.Controls.Add(this.lbl_color_old);
@@ -286,16 +295,24 @@ namespace PictureOnTop
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(91, 434);
+            this.groupBox1.Size = new System.Drawing.Size(91, 468);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Toolbox";
             // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(6, 433);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(75, 23);
+            this.button10.TabIndex = 20;
+            this.button10.Text = "Capture";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
+            // 
             // chImageStretch
             // 
             this.chImageStretch.AutoSize = true;
-            this.chImageStretch.Checked = true;
-            this.chImageStretch.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chImageStretch.Location = new System.Drawing.Point(7, 221);
             this.chImageStretch.Name = "chImageStretch";
             this.chImageStretch.Size = new System.Drawing.Size(60, 17);
@@ -541,7 +558,7 @@ namespace PictureOnTop
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(665, 458);
+            this.ClientSize = new System.Drawing.Size(665, 492);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -549,7 +566,7 @@ namespace PictureOnTop
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "Picture holder";
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -573,7 +590,7 @@ namespace PictureOnTop
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox pdCapture;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openImageToolStripMenuItem;
@@ -618,6 +635,9 @@ namespace PictureOnTop
         private System.Windows.Forms.CheckBox chImageStretch;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button button10;
+
+        
     }
 }
 

@@ -12,16 +12,22 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Windows.Forms.VisualStyles;
+using System.Drawing.Imaging;
 
 namespace PictureOnTop
 {
     enum enActionType { pickup_color_old, pickup_color_new }
     enum enColorSource { colordialog, point }
-    
+
+    public delegate void copyToFatherTextBox(Rectangle r);
 
     public partial class Form1 
     {
+        
+        public event EventHandler copyToFatherTextBox;
 
+
+       
         enActionType m_enActionType { get; set; }
         enColorSource m_enColorSource { get; set; }
 
@@ -57,6 +63,44 @@ namespace PictureOnTop
 
         #endregion
 
+        #region Screenshot by mouse
+
+        /*Start screenshot*/
+        private void button10_Click(object sender, EventArgs e)
+        {
+            //ScreenForm screen = new ScreenForm();
+            //screen.copytoFather += new copyToFatherTextBox(copytoTextBox);
+            //screen.ShowDialog();
+            this.Hide();
+            //Save save = new Save(this.Location.X, this.Location.Y, this.Width, this.Height, this.Size);
+            //save.Show();
+
+            SelectArea area = new SelectArea();
+            this.Hide();
+            area.M_parentForm = this;
+            area.Show();
+
+            /*
+             this.pbCapture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+             * */
+
+        }
+        /*Screenshot of subsequent operations*/
+        public void copytoTextBox(Rectangle rec)
+        {
+            Rectangle rec2 = rec;
+            if (rec.Width > 2 && rec.Height > 2)
+                rec2 = new Rectangle(rec.X + 1, rec.Y + 1, rec.Width - 2, rec.Height - 2);
+            Rectangle r = Screen.PrimaryScreen.Bounds;
+            Image img = new Bitmap(rec2.Width, rec2.Height);
+            Graphics g = Graphics.FromImage(img);
+            g.CopyFromScreen(rec2.Location, new Point(0, 0), rec2.Size);
+            Clipboard.SetDataObject(img, false);
+            //richTextBox1.Paste();
+        }
+
+        #endregion
+
         //FolderBrowserDialog FolderDialog;
 
         private string m_selectedFolder;
@@ -82,6 +126,8 @@ namespace PictureOnTop
 
         UndoManager m_undoManager =null;
 
+        
+       
         public Form1()
         {
             InitializeComponent();
@@ -99,7 +145,8 @@ namespace PictureOnTop
             clrDialogSelection = Color.White;
             this.Load += Form1_Load;
 
-            pictureBox1.MouseDown += PictureBox1_MouseDown;
+            pdCapture.MouseDown += PictureBox1_MouseDown;
+            
         }
 
         private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
@@ -108,7 +155,7 @@ namespace PictureOnTop
             if (drag)
                 return;
 
-            Bitmap capcha = (Bitmap)pictureBox1.Image;
+            Bitmap capcha = (Bitmap)pdCapture.Image;
             if (capcha == null)
                 return;
 
@@ -117,8 +164,8 @@ namespace PictureOnTop
 
                 //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
                 //{
-                Point mDown = Point.Round(stretched(e.Location, pictureBox1));
-                PointF pf = stretched(mDown, pictureBox1);
+                Point mDown = Point.Round(stretched(e.Location, pdCapture));
+                PointF pf = stretched(mDown, pdCapture);
 
                 //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
                 Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
@@ -232,7 +279,7 @@ namespace PictureOnTop
 
         void Flip(enRotate en)
         {
-            Bitmap bitmap1 = (Bitmap)pictureBox1.Image;
+            Bitmap bitmap1 = (Bitmap)pdCapture.Image;
             if (bitmap1 == null)
                 return;
 
@@ -274,7 +321,7 @@ namespace PictureOnTop
                 if (value != null)
                 {
                     // PointF[] points = CreateCirclePointArray(10.0, value);
-                    PictureBox pb = pictureBox1;
+                    PictureBox pb = pdCapture;
                     DrawCircle(60, value, pb);
                     
                 }
@@ -333,19 +380,19 @@ namespace PictureOnTop
             return  points;
         }
 
-        private void SetImageInPicturebox(Bitmap bitmap1)
+        public void SetImageInPicturebox(Bitmap bitmap1)
         {
             m_image = bitmap1;
 
-            pictureBox1.Image = bitmap1;
-            pictureBox1.Height = bitmap1.Height;
-            pictureBox1.Width = bitmap1.Width;
-            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            pdCapture.Image = bitmap1;
+            pdCapture.Height = bitmap1.Height;
+            pdCapture.Width = bitmap1.Width;
+          //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
 
             m_undoManager.AddNewImage(bitmap1);
             UpdateUndoMenuEnability();
             SetStandaloneFormImage(bitmap1);
-            pictureBox1.Invalidate();
+            pdCapture.Invalidate();
         }
 
         public void DrawData(PointF[] points, Bitmap bitmap1)
@@ -360,7 +407,7 @@ namespace PictureOnTop
                 g.DrawCurve(p, points);
             }
 
-            pictureBox1.Invalidate(); // Trigger redraw of the control.
+            pdCapture.Invalidate(); // Trigger redraw of the control.
         }
 
         private void UpdateUndoMenuEnability()
@@ -372,7 +419,7 @@ namespace PictureOnTop
         private void rorateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Flip(enRotate.flipX);
-            Bitmap bitmap1 = (Bitmap)pictureBox1.Image;
+            Bitmap bitmap1 = (Bitmap)pdCapture.Image;
             if (bitmap1 != null)
             {
                 bitmap1.RotateFlip(RotateFlipType.Rotate180FlipNone);
@@ -417,14 +464,14 @@ namespace PictureOnTop
 
         private void button5_Click(object sender, EventArgs e)
         {
-            Bitmap capcha = new Bitmap(pictureBox1.Image);
+            Bitmap capcha = new Bitmap(pdCapture.Image);
             //  capcha.MakeTransparent(selectedByMouse);
             //pictureBox1.Image = capcha;
 
             Color color = pn_color_to_replace.BackColor;// m_selectedByMouse;// Color.Black; //Your desired colour
             Color clrTransparent = Color.FromArgb(transparency, clrDialogSelection.R, clrDialogSelection.G, clrDialogSelection.B);
             
-            Bitmap bmp = new Bitmap(pictureBox1.Image);
+            Bitmap bmp = new Bitmap(pdCapture.Image);
             for (int x = 0; x < bmp.Width; x++)
             {
                 for (int y = 0; y < bmp.Height; y++)
@@ -498,14 +545,14 @@ namespace PictureOnTop
             if (drag)
                 return;
 
-            Bitmap capcha = (Bitmap)pictureBox1.Image;
+            Bitmap capcha = (Bitmap)pdCapture.Image;
             if (capcha == null)
                 return;
 
             //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
             //{
-            Point mDown = Point.Round(stretched(e.Location, pictureBox1));
-            PointF pf = stretched(mDown,pictureBox1);
+            Point mDown = Point.Round(stretched(e.Location, pdCapture));
+            PointF pf = stretched(mDown,pdCapture);
 
             //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
             Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
@@ -584,7 +631,7 @@ namespace PictureOnTop
             if(saveFileDialog1.FileName!=null && !String.IsNullOrEmpty(saveFileDialog1.FileName))
             {
 
-                pictureBox1.Image.Save(saveFileDialog1.FileName);
+                pdCapture.Image.Save(saveFileDialog1.FileName);
             }
         }
 
@@ -597,7 +644,7 @@ namespace PictureOnTop
         {
             System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.undo);
             if (bm != null)
-                pictureBox1.Image = bm;
+                pdCapture.Image = bm;
         }
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -609,7 +656,7 @@ namespace PictureOnTop
         {
             System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.redo);
             if (bm != null)
-                pictureBox1.Image = bm;
+                pdCapture.Image = bm;
         }
 
         private void editToolStripMenuItem_DropDownOpened(object sender, EventArgs e)
@@ -780,8 +827,8 @@ namespace PictureOnTop
                 
                 frmDraggable.Controls.Add(pb1);
 
-                if(pictureBox1.Image!=null)
-                    SetStandaloneFormImage((Bitmap)pictureBox1.Image.Clone());
+                if(pdCapture.Image!=null)
+                    SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
 
 
 
@@ -810,13 +857,13 @@ namespace PictureOnTop
 
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (pictureBox1.Image != null)
-                SetStandaloneFormImage((Bitmap)pictureBox1.Image.Clone());
+            if (pdCapture.Image != null)
+                SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
         }
 
         private void chImageStretch_CheckedChanged(object sender, EventArgs e)
         {
-            pictureBox1.SizeMode = ((CheckBox)sender).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
+            pdCapture.SizeMode = ((CheckBox)sender).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
 
         }
 
@@ -825,7 +872,7 @@ namespace PictureOnTop
              if (frmDraggable != null)
             {
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
-                pb.SizeMode = pictureBox1.SizeMode;
+                pb.SizeMode = pdCapture.SizeMode;
             }
         }
 
@@ -907,5 +954,7 @@ namespace PictureOnTop
             
         }
     }
+
+
 }
 
