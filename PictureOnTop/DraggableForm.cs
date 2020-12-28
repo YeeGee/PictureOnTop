@@ -13,6 +13,7 @@ namespace DraggableForm
         #region broadcast event
 
         public event EventHandler OnDragging;
+        public event EventHandler OnCaptureRequest;
 
         #endregion
 
@@ -67,13 +68,18 @@ namespace DraggableForm
         /// <span class="code-SummaryComment"></SUMMARY></span>
         private void InitializeComponent()
         {
+            this.SuspendLayout();
             // 
             // FormBase
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(369, 182);
             this.Name = "FormBase";
+            this.Opacity = 0.9D;
             this.Text = "AlerterForm";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -204,6 +210,16 @@ namespace DraggableForm
             }
 
             pb.Image = bmp;
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.A))
+            {
+                OnCaptureRequest(this, new EventArgs());
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         #endregion

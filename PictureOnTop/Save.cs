@@ -39,8 +39,11 @@ namespace PictureOnTop
             pbCapture.Image = bmp;
             M_parentForm.SetImageInPicturebox((Bitmap)pbCapture.Image.Clone());
 
-            
-            M_parentForm.Show();
+            if(M_parentForm.frmDraggable!=null)
+            { M_parentForm.frmDraggable.Show(); }
+
+            if (M_parentForm.WindowState!=FormWindowState.Minimized)
+                M_parentForm.Show();
             this.Close();
         }
 

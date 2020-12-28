@@ -565,6 +565,7 @@ namespace PictureOnTop
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
+            this.Opacity = 1D;
             this.Text = "Picture holder";
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).EndInit();
             this.menuStrip1.ResumeLayout(false);

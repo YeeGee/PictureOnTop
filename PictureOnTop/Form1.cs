@@ -68,24 +68,30 @@ namespace PictureOnTop
         /*Start screenshot*/
         private void button10_Click(object sender, EventArgs e)
         {
-            //ScreenForm screen = new ScreenForm();
-            //screen.copytoFather += new copyToFatherTextBox(copytoTextBox);
-            //screen.ShowDialog();
-            this.Hide();
-            //Save save = new Save(this.Location.X, this.Location.Y, this.Width, this.Height, this.Size);
-            //save.Show();
 
+            m_Delegate_fn_show_capture_form.Invoke();
+            //fn_show_capture_form();
+            
+        }
+
+        public delegate void Delegate_fn_show_capture_form();
+
+        public Delegate_fn_show_capture_form m_Delegate_fn_show_capture_form { get;  set; }
+
+
+        private void fn_show_capture_form()
+        {
+            if (frmDraggable != null)
+            {
+                frmDraggable.Hide();
+            }
+            this.Hide();
             SelectArea area = new SelectArea();
             area.KeyPreview = true;
             area.PreviewKeyDown += Area_PreviewKeyDown;
             this.Hide();
             area.M_parentForm = this;
             area.Show();
-
-            /*
-             this.pbCapture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-             * */
-
         }
 
         private void Area_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -154,7 +160,9 @@ namespace PictureOnTop
             this.Load += Form1_Load;
 
             pdCapture.MouseDown += PictureBox1_MouseDown;
-            
+            m_Delegate_fn_show_capture_form = new Delegate_fn_show_capture_form(fn_show_capture_form);
+
+
         }
 
         private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
@@ -805,7 +813,7 @@ namespace PictureOnTop
 
 
 
-        DraggableForm.FormBase frmDraggable { get; set; } 
+       public DraggableForm.FormBase frmDraggable { get; set; } 
         void SetStandaloneFormImage (Bitmap bitmap1)
         {
             
@@ -830,6 +838,8 @@ namespace PictureOnTop
                 frmDraggable.FormBorderStyle = FormBorderStyle.None;
                 frmDraggable.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
                 frmDraggable.FormClosing += FrmDraggable_FormClosing;
+
+                frmDraggable.OnCaptureRequest += FrmDraggable_OnCaptureRequest;
                 frmDraggable.Draggable = true;
                 frmDraggable.TopMost = true;
                 //frmDraggable.Cursor=Cursor.
@@ -854,6 +864,11 @@ namespace PictureOnTop
 
                 frmDraggable.Show();
             }
+        }
+
+        private void FrmDraggable_OnCaptureRequest(object sender, EventArgs e)
+        {
+            m_Delegate_fn_show_capture_form.Invoke();
         }
 
         private void FrmDraggable_Shown(object sender, EventArgs e)
