@@ -76,6 +76,8 @@ namespace PictureOnTop
             //save.Show();
 
             SelectArea area = new SelectArea();
+            area.KeyPreview = true;
+            area.PreviewKeyDown += Area_PreviewKeyDown;
             this.Hide();
             area.M_parentForm = this;
             area.Show();
@@ -85,6 +87,12 @@ namespace PictureOnTop
              * */
 
         }
+
+        private void Area_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            
+        }
+
         /*Screenshot of subsequent operations*/
         public void copytoTextBox(Rectangle rec)
         {
@@ -389,9 +397,9 @@ namespace PictureOnTop
             pdCapture.Width = bitmap1.Width;
           //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
 
-            m_undoManager.AddNewImage(bitmap1);
+            m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
             UpdateUndoMenuEnability();
-            SetStandaloneFormImage(bitmap1);
+            SetStandaloneFormImage((Bitmap)bitmap1.Clone());
             pdCapture.Invalidate();
         }
 
@@ -481,7 +489,7 @@ namespace PictureOnTop
                     int delta_R = Math.Abs(color.R - gotColor.R);
                     int delta_G = Math.Abs(color.G - gotColor.G);
                     int delta_B = Math.Abs(color.B - gotColor.B);
-                    if (delta_R < tolerance && delta_G < tolerance && delta_B < tolerance)
+                    if ((delta_R < tolerance) && (delta_G < tolerance) && (delta_B < tolerance))
                     {
                         if (!bMIxWithOriginalImage)
                         {
@@ -700,6 +708,11 @@ namespace PictureOnTop
         {
             label5.Text = trackBar2.Value.ToString();
             transparency = trackBar2.Value;
+
+            if (frmDraggable != null && frmDraggable.Controls.Count > 0)
+            {
+                frmDraggable.transparency = transparency;
+            }
         }
 
         private int m_transparency;
@@ -798,11 +811,13 @@ namespace PictureOnTop
             
             if (frmDraggable!=null  && frmDraggable.Controls.Count>0)
             {
+                frmDraggable.transparency = transparency;
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
                 pb.Image = bitmap1;
                 pb.Height = bitmap1.Height;
                 pb.Width = bitmap1.Width;
-                pb.SizeMode = PictureBoxSizeMode.StretchImage;
+                pb.SizeMode = chImageStretch.Checked?PictureBoxSizeMode.StretchImage: PictureBoxSizeMode.CenterImage;
+                frmDraggable.UpdateImage();
             }
         }
 
@@ -817,6 +832,7 @@ namespace PictureOnTop
                 frmDraggable.FormClosing += FrmDraggable_FormClosing;
                 frmDraggable.Draggable = true;
                 frmDraggable.TopMost = true;
+                //frmDraggable.Cursor=Cursor.
 
                 //add controls
                 PictureBox pb1 = new PictureBox();
@@ -824,21 +840,59 @@ namespace PictureOnTop
                 pb1.Name = "pb1";
                 pb1.Dock = DockStyle.Fill;pb1.BackColor = Color.DarkGray;
                 pb1.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
+
                 
+
+
+                frmDraggable.ControlAdded += FrmDraggable_ControlAdded;
                 frmDraggable.Controls.Add(pb1);
+                frmDraggable.Shown += FrmDraggable_Shown;
 
-                if(pdCapture.Image!=null)
+                if (pdCapture.Image != null)
                     SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
-
 
 
                 frmDraggable.Show();
             }
         }
 
+        private void FrmDraggable_Shown(object sender, EventArgs e)
+        {
+            frmDraggable.Location = Properties.Settings.Default.DraggableFormStartPostion;
+            frmDraggable.Cursor = Cursors.SizeAll;
+        }
+
+        private void FrmDraggable_ControlAdded(object sender, ControlEventArgs e)
+        {
+            //we know it is picture box :)
+            //align it in a middle
+            //adjust form size to fit
+            PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
+            if (pdCapture.Image != null)
+            {
+                pb.Image = (Bitmap)pdCapture.Image.Clone();
+                pb.Height = pb.Image.Height;
+                pb.Width = pb.Image.Width;
+                frmDraggable.Bounds = new Rectangle(frmDraggable.Left, frmDraggable.Top, (int)pb.Image.Width + 5, (int)pb.Image.Height + 5);
+            }
+            pb.SizeMode = PictureBoxSizeMode.AutoSize;
+            pb.SizeMode = ((CheckBox)chImageStretch).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
+
+
+            
+            frmDraggable.Size= new Size((int)pb.Width + 15, (int)pb.Height + 25);
+            
+        }
+
         private void FrmDraggable_FormClosing(object sender, FormClosingEventArgs e)
         {
+            
+            Properties.Settings.Default.DraggableFormStartPostion = new Point(frmDraggable.Bounds.Location.X, frmDraggable.Bounds.Location.Y);
+            Properties.Settings.Default.Save();
+
             frmDraggable = null;
+            this.WindowState = FormWindowState.Normal;
+            this.Show();
         }
 
         private void FrmDraggable_MouseDoubleClick(object sender, MouseEventArgs e)

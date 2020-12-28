@@ -40,6 +40,12 @@ namespace PictureOnTop
             this.Opacity = .5D; // make trasparent
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.ResizeRedraw, true); // this is to avoid visual artifacts
+            this.PreviewKeyDown += SelectArea_PreviewKeyDown;
+        }
+
+        private void SelectArea_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            
         }
 
         protected override void OnPaint(PaintEventArgs e) // you can safely omit this method if you want
@@ -81,6 +87,20 @@ namespace PictureOnTop
             //save.M_parentForm = M_parentForm;
             //save.Show();
             save.Close();
+        }
+
+        private void SelectArea_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                Close();
+                M_parentForm.Show();
+            }
+        }
+
+        private void btnCaptureThis_KeyDown(object sender, KeyEventArgs e)
+        {
+
         }
 
         Rectangle Bottom { get { return new Rectangle(0, this.ClientSize.Height - _, this.ClientSize.Width, _); } }

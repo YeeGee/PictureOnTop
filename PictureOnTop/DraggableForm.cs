@@ -172,6 +172,40 @@ namespace DraggableForm
             }
         }
 
+        private int m_transparency=255;
+
+        public int transparency
+        {
+            get { return m_transparency; }
+            set { m_transparency = value; }
+        }
+
+
+        public void UpdateImage()
+        {
+            PictureBox pb = (PictureBox)this.Controls.Find("pb1", false)[0];
+
+            Bitmap bmp = new Bitmap(pb.Image);
+
+            for (int x = 0; x < bmp.Width; x++)
+            {
+                for (int y = 0; y < bmp.Height; y++)
+                {
+                   // int tolerance = Tolerance;
+                    Color gotColor = bmp.GetPixel(x, y);
+
+                    int R = gotColor.R;
+                    int G = gotColor.G;
+                    int B = gotColor.B;
+
+                    Color clr = Color.FromArgb(transparency, R, G, B);
+                    bmp.SetPixel(x, y, clr);
+                }
+            }
+
+            pb.Image = bmp;
+        }
+
         #endregion
     }
 }

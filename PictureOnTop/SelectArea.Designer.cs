@@ -31,6 +31,7 @@ namespace PictureOnTop
         {
             this.panelDrag = new System.Windows.Forms.Panel();
             this.btnCaptureThis = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             this.panelDrag.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -40,6 +41,7 @@ namespace PictureOnTop
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panelDrag.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panelDrag.Controls.Add(this.label1);
             this.panelDrag.Controls.Add(this.btnCaptureThis);
             this.panelDrag.Cursor = System.Windows.Forms.Cursors.SizeAll;
             this.panelDrag.Location = new System.Drawing.Point(12, 12);
@@ -58,6 +60,18 @@ namespace PictureOnTop
             this.btnCaptureThis.Text = "Capture this!";
             this.btnCaptureThis.UseVisualStyleBackColor = true;
             this.btnCaptureThis.Click += new System.EventHandler(this.btnCaptureThis_Click);
+            this.btnCaptureThis.KeyDown += new System.Windows.Forms.KeyEventHandler(this.btnCaptureThis_KeyDown);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.label1.Location = new System.Drawing.Point(235, 10);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(124, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "press ESCAPE to cancel";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // SelectArea
             // 
@@ -67,7 +81,9 @@ namespace PictureOnTop
             this.Controls.Add(this.panelDrag);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "SelectArea";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SelectArea_KeyDown);
             this.panelDrag.ResumeLayout(false);
+            this.panelDrag.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -76,5 +92,6 @@ namespace PictureOnTop
 
         private System.Windows.Forms.Panel panelDrag;
         private System.Windows.Forms.Button btnCaptureThis;
+        private System.Windows.Forms.Label label1;
     }
 }
