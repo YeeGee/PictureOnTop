@@ -89,7 +89,7 @@ namespace PictureOnTop
             SelectArea area = new SelectArea();
             area.KeyPreview = true;
             area.PreviewKeyDown += Area_PreviewKeyDown;
-            this.Hide();
+            
             area.M_parentForm = this;
             area.Show();
         }
@@ -837,9 +837,13 @@ namespace PictureOnTop
                 frmDraggable.WindowState = FormWindowState.Normal;
                 frmDraggable.FormBorderStyle = FormBorderStyle.None;
                 frmDraggable.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
+                //events
                 frmDraggable.FormClosing += FrmDraggable_FormClosing;
-
                 frmDraggable.OnCaptureRequest += FrmDraggable_OnCaptureRequest;
+                frmDraggable.OnShowMainFormRequest += FrmDraggable_OnShowMainFormRequest;
+                frmDraggable.Shown += FrmDraggable_Shown;
+                frmDraggable.Load += FrmDraggable_Load;      
+
                 frmDraggable.Draggable = true;
                 frmDraggable.TopMost = true;
                 //frmDraggable.Cursor=Cursor.
@@ -856,7 +860,7 @@ namespace PictureOnTop
 
                 frmDraggable.ControlAdded += FrmDraggable_ControlAdded;
                 frmDraggable.Controls.Add(pb1);
-                frmDraggable.Shown += FrmDraggable_Shown;
+                
 
                 if (pdCapture.Image != null)
                     SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
@@ -864,6 +868,19 @@ namespace PictureOnTop
 
                 frmDraggable.Show();
             }
+        }
+
+        private void FrmDraggable_Load(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void FrmDraggable_OnShowMainFormRequest(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Normal;
+            this.Visible = true;
+            this.Show();
+            this.BringToFront();
         }
 
         private void FrmDraggable_OnCaptureRequest(object sender, EventArgs e)

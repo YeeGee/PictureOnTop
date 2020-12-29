@@ -14,6 +14,7 @@ namespace DraggableForm
 
         public event EventHandler OnDragging;
         public event EventHandler OnCaptureRequest;
+        public event EventHandler OnShowMainFormRequest;
 
         #endregion
 
@@ -78,6 +79,7 @@ namespace DraggableForm
             this.Name = "FormBase";
             this.Opacity = 0.9D;
             this.Text = "AlerterForm";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormBase_FormClosed);
             this.ResumeLayout(false);
 
         }
@@ -214,14 +216,36 @@ namespace DraggableForm
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == (Keys.Control | Keys.A))
+            if (this.Handle == msg.HWnd)
             {
-                OnCaptureRequest(this, new EventArgs());
+                try
+                {
+
+                if (keyData == (Keys.Control | Keys.A))
+                {
+                    OnCaptureRequest(this, new EventArgs());
+                }
+                else if (keyData == (Keys.Control | Keys.S))
+                {
+                    OnShowMainFormRequest(this, new EventArgs());
+                }
+
+                }
+                catch (Exception)
+                {
+
+                  
+                }
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
         #endregion
+
+        private void FormBase_FormClosed(object sender, FormClosedEventArgs e)
+        {
+
+        }
     }
 }
