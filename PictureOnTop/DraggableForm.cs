@@ -15,6 +15,7 @@ namespace DraggableForm
         public event EventHandler OnDragging;
         public event EventHandler OnCaptureRequest;
         public event EventHandler OnShowMainFormRequest;
+        public event EventHandler OnShift;
 
         #endregion
 
@@ -44,6 +45,33 @@ namespace DraggableForm
             this.MouseDown += new MouseEventHandler(Form_MouseDown);
             this.MouseUp += new MouseEventHandler(Form_MouseUp);
             this.MouseMove += new MouseEventHandler(Form_MouseMove);
+            this.KeyDown += FormBase_KeyDown;
+            
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyValue == 16)
+            {
+                bShift = true;
+                if (OnShift != null)
+                    OnShift(true, e);
+            }
+            else
+            {
+                bShift = !true;
+                if (OnShift != null)
+                    OnShift(false, e);
+            }
+
+
+            base.OnKeyDown(e);
+        }
+
+        private void FormBase_KeyDown(object sender, KeyEventArgs e)
+        {
+
+
         }
 
         /// <span class="code-SummaryComment"><SUMMARY></span>
@@ -78,6 +106,8 @@ namespace DraggableForm
             this.ClientSize = new System.Drawing.Size(369, 182);
             this.Name = "FormBase";
             this.Opacity = 0.9D;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "AlerterForm";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.FormBase_FormClosed);
             this.ResumeLayout(false);
@@ -112,6 +142,9 @@ namespace DraggableForm
 
         void Form_MouseDown(object sender, MouseEventArgs e)
         {
+            if (bShift)
+                return;
+
             //
             //On Mouse Down set the flag drag=true and 
             //Store the clicked point to the start_point variable
@@ -126,6 +159,9 @@ namespace DraggableForm
 
         void Form_MouseUp(object sender, MouseEventArgs e)
         {
+            if (bShift)
+                return;
+
             //
             //Set the drag flag = false;
             //
@@ -139,6 +175,9 @@ namespace DraggableForm
 
         void Form_MouseMove(object sender, MouseEventArgs e)
         {
+            if (bShift)
+                return;
+
             //
             //If drag = true, drag the form
             //
@@ -188,6 +227,7 @@ namespace DraggableForm
             set { m_transparency = value; }
         }
 
+        public bool bShift { get; private set; }
 
         public void UpdateImage()
         {

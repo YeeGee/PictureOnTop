@@ -836,13 +836,19 @@ namespace PictureOnTop
                 frmDraggable = new DraggableForm.FormBase();
                 frmDraggable.WindowState = FormWindowState.Normal;
                 frmDraggable.FormBorderStyle = FormBorderStyle.None;
+                
+
                 frmDraggable.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
                 //events
                 frmDraggable.FormClosing += FrmDraggable_FormClosing;
                 frmDraggable.OnCaptureRequest += FrmDraggable_OnCaptureRequest;
                 frmDraggable.OnShowMainFormRequest += FrmDraggable_OnShowMainFormRequest;
                 frmDraggable.Shown += FrmDraggable_Shown;
-                frmDraggable.Load += FrmDraggable_Load;      
+                frmDraggable.Load += FrmDraggable_Load;
+
+                frmDraggable.OnShift += FrmDraggable_OnShift;
+
+
 
                 frmDraggable.Draggable = true;
                 frmDraggable.TopMost = true;
@@ -855,6 +861,12 @@ namespace PictureOnTop
                 pb1.Dock = DockStyle.Fill;pb1.BackColor = Color.DarkGray;
                 pb1.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
 
+                //now, we need some staff to resize image by mouse
+                pb1.Paint += Pb1_Paint;
+                pb1.MouseDown += Pb1_MouseDown;
+                pb1.MouseMove += Pb1_MouseMove;
+                pb1.MouseUp += Pb1_MouseUp;
+                
                 
 
 
@@ -867,6 +879,132 @@ namespace PictureOnTop
 
 
                 frmDraggable.Show();
+            }
+        }
+
+        private void FrmDraggable_OnShift(object sender, EventArgs e)
+        {
+            isMouseDown = (bool)sender;
+        }
+
+        Rectangle rect = new Rectangle(5, 5, 5, 5);
+        Point lastPoint = Point.Empty;
+
+        private Point p1, p2;
+        List<Point> p1List = new List<Point>();
+        List<Point> p2List = new List<Point>();
+        int count = 0;
+
+        private void Pb1_MouseUp(object sender, MouseEventArgs e)
+        {
+             isMouseDown = !true;
+            //lastPoint = Point.Empty;
+
+        }
+
+        private void Pb1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isMouseDown == true)
+            {
+                rect.Location = e.Location;
+                /*
+                if (rect.Right > pdCapture.Width)
+                {
+                    rect.X = pdCapture.Width - rect.Width;
+                }
+                if (rect.Top < 0)
+                {
+                    rect.Y = 0;
+                }
+                if (rect.Left < 0)
+                {
+                    rect.X = 0;
+                }
+                if (rect.Bottom > pdCapture.Height)
+                {
+                    rect.Y = pdCapture.Height - rect.Height;
+                }
+                */
+                PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
+                if (lastPoint != null)//if our last point is not null, which in this case we have assigned above
+
+                {
+
+                    if (pb.Image == null)//if no available bitmap exists on the picturebox to draw on
+
+                    {
+                        //create a new bitmap
+                        Bitmap bmp = new Bitmap(pb.Width, pb.Height);
+
+                        pb.Image = bmp; //assign the picturebox.Image property to the bitmap created
+
+
+                    }
+
+                    using (Graphics g = Graphics.FromImage(pb.Image))
+
+                    {//we need to create a Graphics object to draw on the picture box, its our main tool
+
+                        //when making a Pen object, you can just give it color only or give it color and pen size
+
+                    //    g.DrawLine(new Pen(new SolidBrush(Color.Black),1), lastPoint, e.Location);
+                    //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//.AntiAliasing;
+                        //this is to give the drawing a more smoother, less sharper look
+
+                    }
+
+                    pb.Invalidate();//refreshes the picturebox
+
+                    //lastPoint = e.Location;//keep assigning the lastPoint to the current mouse position
+
+                }
+
+                Refresh();
+            }
+        }
+
+        private void Pb1_MouseDown(object sender, MouseEventArgs e)
+        {
+            isMouseDown = true;
+            lastPoint = e.Location;
+            if (p1.X == 0)
+            {
+                p1.X = e.X;
+                p1.Y = e.Y;
+                count++;
+            }
+            else
+            {
+                p2.X = e.X;
+                p2.Y = e.Y;
+                count++;
+
+                p1List.Add(p1);
+                p2List.Add(p2);
+
+                PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
+                
+                pb.Invalidate();
+                //Refresh();
+                // Sets X to 0 and choose p1 again
+                p1.X = 0;
+            }
+
+
+        }
+
+        private void Pb1_Paint(object sender, PaintEventArgs e)
+        {
+
+            return;
+
+            e.Graphics.FillRectangle(new SolidBrush(Color.RoyalBlue), rect);
+            using (var p = new Pen(Color.Blue, 1))
+            {
+                for (int x = 0; x < p1List.Count; x++)
+                {
+                    e.Graphics.DrawLine(p, p1List[x], p2List[x]);
+                }
             }
         }
 
@@ -891,7 +1029,7 @@ namespace PictureOnTop
         private void FrmDraggable_Shown(object sender, EventArgs e)
         {
             frmDraggable.Location = Properties.Settings.Default.DraggableFormStartPostion;
-            frmDraggable.Cursor = Cursors.SizeAll;
+            //frmDraggable.Cursor = Cursors.SizeAll;
         }
 
         private void FrmDraggable_ControlAdded(object sender, ControlEventArgs e)
@@ -929,7 +1067,7 @@ namespace PictureOnTop
 
         private void FrmDraggable_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if(frmDraggable.FormBorderStyle==FormBorderStyle.None)
+            if(frmDraggable.FormBorderStyle!=FormBorderStyle.Sizable)
             {
                 frmDraggable.FormBorderStyle = FormBorderStyle.Sizable;
             }
@@ -1025,6 +1163,7 @@ namespace PictureOnTop
             private set { cursorPositionmyY = value; }
         }
 
+        public bool isMouseDown { get; private set; }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
