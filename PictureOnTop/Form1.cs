@@ -29,6 +29,7 @@ namespace PictureOnTop
 
        
         enActionType m_enActionType { get; set; }
+
         enColorSource m_enColorSource { get; set; }
 
         #region make form movable
