@@ -724,7 +724,7 @@ namespace PictureOnTop
             }
         }
 
-        private int m_transparency;
+        private int m_transparency=255;
 
         public int transparency
         {
@@ -859,7 +859,7 @@ namespace PictureOnTop
                 PictureBox pb1 = new PictureBox();
                 pb1.Tag = "pb1";
                 pb1.Name = "pb1";
-                pb1.Dock = DockStyle.Fill;pb1.BackColor = Color.DarkGray;
+                pb1.Dock = DockStyle.Fill;pb1.BackColor = Color.Transparent;
                 pb1.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
 
                 //now, we need some staff to resize image by mouse
@@ -1044,14 +1044,14 @@ namespace PictureOnTop
                 pb.Image = (Bitmap)pdCapture.Image.Clone();
                 pb.Height = pb.Image.Height;
                 pb.Width = pb.Image.Width;
-                frmDraggable.Bounds = new Rectangle(frmDraggable.Left, frmDraggable.Top, (int)pb.Image.Width + 5, (int)pb.Image.Height + 5);
+                frmDraggable.Bounds = new Rectangle(frmDraggable.Left, frmDraggable.Top, (int)pb.Image.Width, (int)pb.Image.Height);
             }
             pb.SizeMode = PictureBoxSizeMode.AutoSize;
             pb.SizeMode = ((CheckBox)chImageStretch).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
 
 
             
-            frmDraggable.Size= new Size((int)pb.Width + 15, (int)pb.Height + 25);
+            frmDraggable.Size= new Size((int)pb.Width-10, (int)pb.Height + 0);
             
         }
 
@@ -1104,7 +1104,7 @@ namespace PictureOnTop
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             // Create array of two points.
-            Point[] points = { new Point(0, 0), new Point(100, 50) };
+          //  Point[] points = { new Point(0, 0), new Point(100, 50) };
          //   e.Graphics.DrawLine(new Pen(Color.Blue, 3), points[0], points[1]);
             ////if (CursorPositionmyX ==0  &&  CursorPositionmyY == 0)
             ////    return;
@@ -1170,6 +1170,14 @@ namespace PictureOnTop
         {
             cursorPositionmyX = e.X;
             CursorPositionmyY = e.Y;
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.C)
+            {
+                m_Delegate_fn_show_capture_form.Invoke();
+            }
         }
 
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)

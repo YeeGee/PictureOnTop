@@ -30,8 +30,8 @@ namespace PictureOnTop
         private void InitializeComponent()
         {
             this.panelDrag = new System.Windows.Forms.Panel();
-            this.btnCaptureThis = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnCaptureThis = new System.Windows.Forms.Button();
             this.panelDrag.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -46,9 +46,20 @@ namespace PictureOnTop
             this.panelDrag.Cursor = System.Windows.Forms.Cursors.SizeAll;
             this.panelDrag.Location = new System.Drawing.Point(12, 12);
             this.panelDrag.Name = "panelDrag";
-            this.panelDrag.Size = new System.Drawing.Size(599, 336);
+            this.panelDrag.Size = new System.Drawing.Size(449, 239);
             this.panelDrag.TabIndex = 0;
             this.panelDrag.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelDrag_MouseDown);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label1.Location = new System.Drawing.Point(3, 42);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(124, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "press ESCAPE to cancel";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnCaptureThis
             // 
@@ -61,17 +72,6 @@ namespace PictureOnTop
             this.btnCaptureThis.UseVisualStyleBackColor = true;
             this.btnCaptureThis.Click += new System.EventHandler(this.btnCaptureThis_Click);
             this.btnCaptureThis.KeyDown += new System.Windows.Forms.KeyEventHandler(this.btnCaptureThis_KeyDown);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label1.Location = new System.Drawing.Point(3, 42);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(124, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "press ESCAPE to cancel";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // SelectArea
             // 

@@ -103,9 +103,9 @@ namespace DraggableForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(369, 182);
+            this.ClientSize = new System.Drawing.Size(120, 61);
             this.Name = "FormBase";
-            this.Opacity = 0.9D;
+            this.Opacity = 0.95D;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "AlerterForm";
@@ -224,7 +224,10 @@ namespace DraggableForm
         public int transparency
         {
             get { return m_transparency; }
-            set { m_transparency = value; }
+            set 
+            {
+                m_transparency = value;
+            }
         }
 
         public bool bShift { get; private set; }
