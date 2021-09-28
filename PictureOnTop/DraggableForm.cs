@@ -203,9 +203,10 @@ namespace DraggableForm
             }
             get
             {
-                return this.exclude_list.Trim();
+                return this.exclude_list.Trim()  ;
             }
         }
+
 
         public bool Draggable
         {
