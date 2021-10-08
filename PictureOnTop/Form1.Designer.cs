@@ -28,6 +28,7 @@ namespace PictureOnTop
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.pdCapture = new System.Windows.Forms.PictureBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -47,9 +48,14 @@ namespace PictureOnTop
             this.makeBorderlessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lunchWpfFormToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.refreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.developerTestingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.refreshPictureboxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FolderDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button6 = new System.Windows.Forms.Button();
+            this.lblMouseY = new System.Windows.Forms.Label();
+            this.lblMouseX = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.button10 = new System.Windows.Forms.Button();
             this.chImageStretch = new System.Windows.Forms.CheckBox();
@@ -76,6 +82,8 @@ namespace PictureOnTop
             this.button1 = new System.Windows.Forms.Button();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -88,18 +96,19 @@ namespace PictureOnTop
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.pn_color_new.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pdCapture
             // 
             this.pdCapture.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.pdCapture.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pdCapture.Location = new System.Drawing.Point(7, 5);
-            this.pdCapture.Margin = new System.Windows.Forms.Padding(5);
-            this.pdCapture.MinimumSize = new System.Drawing.Size(100, 100);
+            this.pdCapture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.pdCapture.ContextMenuStrip = this.contextMenuStrip1;
+            this.pdCapture.Location = new System.Drawing.Point(64, 99);
+            this.pdCapture.Margin = new System.Windows.Forms.Padding(0);
+            this.pdCapture.MinimumSize = new System.Drawing.Size(50, 50);
             this.pdCapture.Name = "pdCapture";
-            this.pdCapture.Padding = new System.Windows.Forms.Padding(5);
-            this.pdCapture.Size = new System.Drawing.Size(200, 100);
+            this.pdCapture.Size = new System.Drawing.Size(466, 315);
             this.pdCapture.TabIndex = 0;
             this.pdCapture.TabStop = false;
             this.pdCapture.SizeModeChanged += new System.EventHandler(this.pictureBox1_SizeModeChanged);
@@ -107,6 +116,7 @@ namespace PictureOnTop
             this.pdCapture.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             this.pdCapture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             this.pdCapture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
+            this.pdCapture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pdCapture_MouseUp);
             // 
             // menuStrip1
             // 
@@ -116,7 +126,8 @@ namespace PictureOnTop
             this.processToolStripMenuItem,
             this.setTopMostToolStripMenuItem,
             this.makeBorderlessToolStripMenuItem,
-            this.lunchWpfFormToolStripMenuItem});
+            this.lunchWpfFormToolStripMenuItem,
+            this.developerTestingToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(696, 24);
@@ -245,15 +256,31 @@ namespace PictureOnTop
             // refreshToolStripMenuItem
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
+            // 
+            // developerTestingToolStripMenuItem
+            // 
+            this.developerTestingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.refreshPictureboxToolStripMenuItem});
+            this.developerTestingToolStripMenuItem.Name = "developerTestingToolStripMenuItem";
+            this.developerTestingToolStripMenuItem.Size = new System.Drawing.Size(111, 20);
+            this.developerTestingToolStripMenuItem.Text = "Developer testing";
+            // 
+            // refreshPictureboxToolStripMenuItem
+            // 
+            this.refreshPictureboxToolStripMenuItem.Name = "refreshPictureboxToolStripMenuItem";
+            this.refreshPictureboxToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.refreshPictureboxToolStripMenuItem.Text = "Refresh picturebox";
+            this.refreshPictureboxToolStripMenuItem.Click += new System.EventHandler(this.refreshPictureboxToolStripMenuItem_Click);
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.Location = new System.Drawing.Point(0, 24);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(0);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -263,17 +290,19 @@ namespace PictureOnTop
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.AutoScroll = true;
-            this.splitContainer1.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            this.splitContainer1.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
+            this.splitContainer1.Panel2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.splitContainer1.Panel2.Controls.Add(this.pdCapture);
-            this.splitContainer1.Panel2.Margin = new System.Windows.Forms.Padding(5);
-            this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(5);
-            this.splitContainer1.Size = new System.Drawing.Size(696, 507);
+            this.splitContainer1.Size = new System.Drawing.Size(696, 536);
             this.splitContainer1.SplitterDistance = 91;
             this.splitContainer1.TabIndex = 2;
             // 
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.Controls.Add(this.button6);
+            this.groupBox1.Controls.Add(this.lblMouseY);
+            this.groupBox1.Controls.Add(this.lblMouseX);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.button10);
             this.groupBox1.Controls.Add(this.chImageStretch);
@@ -297,16 +326,47 @@ namespace PictureOnTop
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(91, 507);
+            this.groupBox1.Size = new System.Drawing.Size(91, 536);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Toolbox";
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(9, 507);
+            this.button6.Margin = new System.Windows.Forms.Padding(4);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(53, 22);
+            this.button6.TabIndex = 23;
+            this.button6.Text = "Clear";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click_1);
+            // 
+            // lblMouseY
+            // 
+            this.lblMouseY.AutoSize = true;
+            this.lblMouseY.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lblMouseY.Location = new System.Drawing.Point(7, 490);
+            this.lblMouseY.Name = "lblMouseY";
+            this.lblMouseY.Size = new System.Drawing.Size(13, 13);
+            this.lblMouseY.TabIndex = 10;
+            this.lblMouseY.Text = "0";
+            // 
+            // lblMouseX
+            // 
+            this.lblMouseX.AutoSize = true;
+            this.lblMouseX.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.lblMouseX.Location = new System.Drawing.Point(7, 472);
+            this.lblMouseX.Name = "lblMouseX";
+            this.lblMouseX.Size = new System.Drawing.Size(13, 13);
+            this.lblMouseX.TabIndex = 22;
+            this.lblMouseX.Text = "0";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
             this.label7.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label7.Location = new System.Drawing.Point(15, 449);
+            this.label7.Location = new System.Drawing.Point(20, 445);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(47, 13);
             this.label7.TabIndex = 21;
@@ -566,11 +626,29 @@ namespace PictureOnTop
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // colorDialog1
+            // 
+            this.colorDialog1.Color = System.Drawing.Color.LightGray;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.clearToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(102, 26);
+            // 
+            // clearToolStripMenuItem
+            // 
+            this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
+            this.clearToolStripMenuItem.Text = "Clear";
+            this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(696, 531);
+            this.ClientSize = new System.Drawing.Size(696, 560);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -597,6 +675,7 @@ namespace PictureOnTop
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.pn_color_new.ResumeLayout(false);
             this.pn_color_new.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -651,6 +730,13 @@ namespace PictureOnTop
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ToolStripMenuItem developerTestingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem refreshPictureboxToolStripMenuItem;
+        private System.Windows.Forms.Label lblMouseY;
+        private System.Windows.Forms.Label lblMouseX;
+        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
     }
 }
 

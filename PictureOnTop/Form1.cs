@@ -21,13 +21,35 @@ namespace PictureOnTop
 
     public delegate void copyToFatherTextBox(Rectangle r);
 
-    public partial class Form1 
+    public partial class Form1
     {
         
-        public event EventHandler copyToFatherTextBox;
+        //public event EventHandler copyToFatherTextBox;
+
+        
+        private bool mouseDownPictBox;
+        
+        public bool MouseDownPictBox
+        {
+            get { return mouseDownPictBox; }
+            set 
+            { 
+                if(mouseDownPictBox!=value)
+                {
+                    if(value)
+                    {
+                        segment_id = dict_points.Count;
+                        dict_points.Add(segment_id, new List<Point>());
+                        
+                    }
+                }
+
+                mouseDownPictBox = value;
+            }
+
+        }
 
 
-       
         enActionType m_enActionType { get; set; }
 
         enColorSource m_enColorSource { get; set; }
@@ -46,8 +68,8 @@ namespace PictureOnTop
 
         private const int HT_CAPTION = 0x2; // what does this means
         private const int WM_NCLBUTTONDOWN = 0x00A1; // what does this means
-       
-      
+
+
         protected override void OnMouseDown(MouseEventArgs e)// what does this means
         {
             base.OnMouseDown(e);
@@ -72,12 +94,12 @@ namespace PictureOnTop
 
             m_Delegate_fn_show_capture_form.Invoke();
             //fn_show_capture_form();
-            
+
         }
 
         public delegate void Delegate_fn_show_capture_form();
 
-        public Delegate_fn_show_capture_form m_Delegate_fn_show_capture_form { get;  set; }
+        public Delegate_fn_show_capture_form m_Delegate_fn_show_capture_form { get; set; }
 
 
         private void fn_show_capture_form()
@@ -90,14 +112,14 @@ namespace PictureOnTop
             SelectArea area = new SelectArea();
             area.KeyPreview = true;
             area.PreviewKeyDown += Area_PreviewKeyDown;
-            
+
             area.M_parentForm = this;
             area.Show();
         }
 
         private void Area_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            
+
         }
 
         /*Screenshot of subsequent operations*/
@@ -124,14 +146,14 @@ namespace PictureOnTop
         {
             get { return m_selectedFolder; }
             set
-            { 
+            {
                 m_selectedFolder = value;
                 Properties.Settings.Default.DefaultFolder = value;
                 Properties.Settings.Default.Save();
             }
         }
 
-        private string  m_selectedFile;
+        private string m_selectedFile;
 
         public string SelectedFile
         {
@@ -139,10 +161,10 @@ namespace PictureOnTop
             set { m_selectedFile = value; }
         }
 
-        UndoManager m_undoManager =null;
+        UndoManager m_undoManager = null;
 
-        
-       
+
+
         public Form1()
         {
             InitializeComponent();
@@ -163,6 +185,7 @@ namespace PictureOnTop
             pdCapture.MouseDown += PictureBox1_MouseDown;
             m_Delegate_fn_show_capture_form = new Delegate_fn_show_capture_form(fn_show_capture_form);
 
+           // pdCapture.ContextMenu = contextMenuStrip1;
 
         }
 
@@ -200,13 +223,13 @@ namespace PictureOnTop
                 //    default:
                 //        break;
                 //}
-                
+
             }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+
             transparency = trackBar2.Value;
             trackBar1.Value = 1;
         }
@@ -219,7 +242,7 @@ namespace PictureOnTop
         private void openImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderDialog.SelectedPath = Properties.Settings.Default.DefaultFolder;
-            if (FolderDialog.SelectedPath.Length==0)
+            if (FolderDialog.SelectedPath.Length == 0)
             {
                 if (FolderDialog.ShowDialog() == DialogResult.OK)
                     SelectedFolder = FolderDialog.SelectedPath;
@@ -256,14 +279,16 @@ namespace PictureOnTop
 
         }
 
-        private bool  m_topMostProperty;
+        private bool m_topMostProperty;
 
-        public bool  TopMostProperty
+        public bool TopMostProperty
         {
             get { return m_topMostProperty; }
-            set { 
+            set
+            {
                 m_topMostProperty = value;
-                this.TopMost = value;            }
+                this.TopMost = value;
+            }
         }
 
         private void setTopMostToolStripMenuItem_Click(object sender, EventArgs e)
@@ -280,9 +305,9 @@ namespace PictureOnTop
                 setTopMostToolStripMenuItem.ForeColor = Color.DarkGray;
                 setTopMostToolStripMenuItem.CheckState = CheckState.Unchecked;
             }
-            
 
-            
+
+
 
         }
 
@@ -300,7 +325,7 @@ namespace PictureOnTop
             if (bitmap1 == null)
                 return;
 
-                switch (en)
+            switch (en)
             {
                 case enRotate.left:
                     {
@@ -340,7 +365,7 @@ namespace PictureOnTop
                     // PointF[] points = CreateCirclePointArray(10.0, value);
                     PictureBox pb = pdCapture;
                     DrawCircle(60, value, pb);
-                    
+
                 }
             }
         }
@@ -356,9 +381,9 @@ namespace PictureOnTop
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
 
-                Pen p = new Pen  (new SolidBrush(Color.Red), 0.01f);
+                Pen p = new Pen(new SolidBrush(Color.Red), 0.01f);
                 //g.DrawEllipse(p, bmp.Width/2, bmp.Height/2, circle_diameter, circle_diameter);
-                
+
                 //g.                DrawCurve(_penAxisMain, points);
                 pb.Invalidate();
             }
@@ -371,7 +396,7 @@ namespace PictureOnTop
         /// <returns></returns>
         private PointF[] CreateCirclePointArray(double diameter_in_milimiters, Bitmap bmp)
         {
-            
+
             //let's see total length - circumference of the circle 2*p*r
             double len = diameter_in_milimiters * Math.PI;
             //how many pixels fits that?
@@ -383,7 +408,7 @@ namespace PictureOnTop
             double dpi_mm = dpi / 25.4;
             //now, how many pixels it would take to draw circle
             int pixels = Convert.ToInt32(Math.Round(len / dpi_mm));
-            
+
             //generate array
             PointF[] points = new PointF[pixels];
             //assign value to each point by interpolating circumference path - sort of like placing each point one after another to fill it up...
@@ -394,7 +419,7 @@ namespace PictureOnTop
             double pixel_size = (2.54 / dpi);
             //so , now it gets interesting   
 
-            return  points;
+            return points;
         }
 
         public void SetImageInPicturebox(Bitmap bitmap1)
@@ -404,7 +429,7 @@ namespace PictureOnTop
             pdCapture.Image = bitmap1;
             pdCapture.Height = bitmap1.Height;
             pdCapture.Width = bitmap1.Width;
-          //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
+            //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
 
             m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
             UpdateUndoMenuEnability();
@@ -414,7 +439,7 @@ namespace PictureOnTop
 
         public void DrawData(PointF[] points, Bitmap bitmap1)
         {
-           // b
+            // b
             var bmp = bitmap1;
             using (var g = Graphics.FromImage(bmp))
             {
@@ -487,7 +512,7 @@ namespace PictureOnTop
 
             Color color = pn_color_to_replace.BackColor;// m_selectedByMouse;// Color.Black; //Your desired colour
             Color clrTransparent = Color.FromArgb(transparency, clrDialogSelection.R, clrDialogSelection.G, clrDialogSelection.B);
-            
+
             Bitmap bmp = new Bitmap(pdCapture.Image);
             for (int x = 0; x < bmp.Width; x++)
             {
@@ -506,16 +531,16 @@ namespace PictureOnTop
                         }
                         else
                         {
-                            Byte R=0, G=0, B=0;
-                            R = (Byte)((clrDialogSelection.R + gotColor.R)/2 < (Byte)255 ? clrDialogSelection.R/2 + gotColor.R/2 : (Byte)255);
-                            G = (Byte)((clrDialogSelection.G + gotColor.G)/2 < (Byte)255 ? clrDialogSelection.G/2 + gotColor.G/2 : (Byte)255);
-                            B = (Byte)((clrDialogSelection.B + gotColor.B)/2 < (Byte)255 ? clrDialogSelection.B/2 + gotColor.B/2 : (Byte)255);
+                            Byte R = 0, G = 0, B = 0;
+                            R = (Byte)((clrDialogSelection.R + gotColor.R) / 2 < (Byte)255 ? clrDialogSelection.R / 2 + gotColor.R / 2 : (Byte)255);
+                            G = (Byte)((clrDialogSelection.G + gotColor.G) / 2 < (Byte)255 ? clrDialogSelection.G / 2 + gotColor.G / 2 : (Byte)255);
+                            B = (Byte)((clrDialogSelection.B + gotColor.B) / 2 < (Byte)255 ? clrDialogSelection.B / 2 + gotColor.B / 2 : (Byte)255);
 
-                            Color clr= Color.FromArgb(transparency, R, G, B);
+                            Color clr = Color.FromArgb(transparency, R, G, B);
                             bmp.SetPixel(x, y, clr);// gotColor);
                         }
                     }
-                                                  //gotColor = Color.FromArgb(r, gotColor.G, gotColor.B);
+                    //gotColor = Color.FromArgb(r, gotColor.G, gotColor.B);
 
                 }
             }
@@ -533,7 +558,7 @@ namespace PictureOnTop
                 m_selectedByMouse = value;
                 try
                 {
-                    
+
                     switch (m_enActionType)
                     {
                         case enActionType.pickup_color_old:
@@ -562,6 +587,20 @@ namespace PictureOnTop
             if (drag)
                 return;
 
+            if (e.Button == MouseButtons.Right)
+            {
+                //contextMenuStrip1.Left = ((PictureBox)sender).Location.X;// e.Location.X;
+                ///contextMenuStrip1.Top = ((PictureBox)sender).Location.Y; ;// e.Location.Y;
+                //contextMenuStrip1.TopLevel = true;
+                contextMenuStrip1.Show();
+
+                return;
+            }
+
+
+
+            MouseDownPictBox = true;
+
             Bitmap capcha = (Bitmap)pdCapture.Image;
             if (capcha == null)
                 return;
@@ -569,7 +608,7 @@ namespace PictureOnTop
             //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
             //{
             Point mDown = Point.Round(stretched(e.Location, pdCapture));
-            PointF pf = stretched(mDown,pdCapture);
+            PointF pf = stretched(mDown, pdCapture);
 
             //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
             Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
@@ -577,6 +616,7 @@ namespace PictureOnTop
             selectedByMouse = c;
 
             //}
+            pdCapture.Refresh();
         }
 
         private PointF stretched(Point p0, PictureBox pb)
@@ -594,7 +634,7 @@ namespace PictureOnTop
 
         }
 
-        public Color  clrDialogSelection { get; set; }
+        public Color clrDialogSelection { get; set; }
         private void button6_Click(object sender, EventArgs e)
         {
             switch (m_enColorSource)
@@ -638,14 +678,14 @@ namespace PictureOnTop
 
         private void saveImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(SelectedFolder!=null)
-              saveFileDialog1.InitialDirectory = SelectedFolder;
+            if (SelectedFolder != null)
+                saveFileDialog1.InitialDirectory = SelectedFolder;
 
             saveFileDialog1.FileName = SelectedFile;
 
             saveFileDialog1.ShowDialog();
 
-            if(saveFileDialog1.FileName!=null && !String.IsNullOrEmpty(saveFileDialog1.FileName))
+            if (saveFileDialog1.FileName != null && !String.IsNullOrEmpty(saveFileDialog1.FileName))
             {
 
                 pdCapture.Image.Save(saveFileDialog1.FileName);
@@ -724,7 +764,7 @@ namespace PictureOnTop
             }
         }
 
-        private int m_transparency=255;
+        private int m_transparency = 255;
 
         public int transparency
         {
@@ -753,29 +793,29 @@ namespace PictureOnTop
             lbl_color_old.BorderStyle = BorderStyle.Fixed3D;
             lbl_color_new.BorderStyle = BorderStyle.None;
             pn_color_new.BorderStyle = BorderStyle.None;
-            pn_color_to_replace.BorderStyle=BorderStyle.Fixed3D;
-//            if( m_enColorSource == enColorSource.colordialog)
-//            {
-//                #region pickup color from dialog
-//                DialogResult result = colorDialog1.ShowDialog();
-//                // See if user pressed ok.
-//                if (result == DialogResult.OK)
-//                {
-//                    // Set form background to the selected color.
-//                    clrDialogSelection = colorDialog1.Color;
-//                    pn_color_to_replace.BackColor = clrDialogSelection;
-//                    pn_color_to_replace.Refresh();
+            pn_color_to_replace.BorderStyle = BorderStyle.Fixed3D;
+            //            if( m_enColorSource == enColorSource.colordialog)
+            //            {
+            //                #region pickup color from dialog
+            //                DialogResult result = colorDialog1.ShowDialog();
+            //                // See if user pressed ok.
+            //                if (result == DialogResult.OK)
+            //                {
+            //                    // Set form background to the selected color.
+            //                    clrDialogSelection = colorDialog1.Color;
+            //                    pn_color_to_replace.BackColor = clrDialogSelection;
+            //                    pn_color_to_replace.Refresh();
 
-//                }
-//                #endregion
+            //                }
+            //                #endregion
 
-//            }
-//            else
-//            {
-////                pn_color_to_replace.BackColor = selectedByMouse;
-////                pn_color_to_replace.Refresh();
+            //            }
+            //            else
+            //            {
+            ////                pn_color_to_replace.BackColor = selectedByMouse;
+            ////                pn_color_to_replace.Refresh();
 
-//            }
+            //            }
         }
 
         private void pn_color_new_Click(object sender, EventArgs e)
@@ -814,30 +854,30 @@ namespace PictureOnTop
 
 
 
-       public DraggableForm.FormBase frmDraggable { get; set; } 
-        void SetStandaloneFormImage (Bitmap bitmap1)
+        public DraggableForm.FormBase frmDraggable { get; set; }
+        void SetStandaloneFormImage(Bitmap bitmap1)
         {
-            
-            if (frmDraggable!=null  && frmDraggable.Controls.Count>0)
+
+            if (frmDraggable != null && frmDraggable.Controls.Count > 0)
             {
                 frmDraggable.transparency = transparency;
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
                 pb.Image = bitmap1;
                 pb.Height = bitmap1.Height;
                 pb.Width = bitmap1.Width;
-                pb.SizeMode = chImageStretch.Checked?PictureBoxSizeMode.StretchImage: PictureBoxSizeMode.CenterImage;
+                pb.SizeMode = chImageStretch.Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
                 frmDraggable.UpdateImage();
             }
         }
 
         private void lunchWpfFormToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(frmDraggable==null)
+            if (frmDraggable == null)
             {
                 frmDraggable = new DraggableForm.FormBase();
                 frmDraggable.WindowState = FormWindowState.Normal;
                 frmDraggable.FormBorderStyle = FormBorderStyle.None;
-                
+
 
                 frmDraggable.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
                 //events
@@ -859,7 +899,7 @@ namespace PictureOnTop
                 PictureBox pb1 = new PictureBox();
                 pb1.Tag = "pb1";
                 pb1.Name = "pb1";
-                pb1.Dock = DockStyle.Fill;pb1.BackColor = Color.Transparent;
+                pb1.Dock = DockStyle.Fill; pb1.BackColor = Color.Transparent;
                 pb1.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
 
                 //now, we need some staff to resize image by mouse
@@ -867,13 +907,13 @@ namespace PictureOnTop
                 pb1.MouseDown += Pb1_MouseDown;
                 pb1.MouseMove += Pb1_MouseMove;
                 pb1.MouseUp += Pb1_MouseUp;
-                
-                
+
+
 
 
                 frmDraggable.ControlAdded += FrmDraggable_ControlAdded;
                 frmDraggable.Controls.Add(pb1);
-                
+
 
                 if (pdCapture.Image != null)
                     SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
@@ -898,7 +938,7 @@ namespace PictureOnTop
 
         private void Pb1_MouseUp(object sender, MouseEventArgs e)
         {
-             isMouseDown = !true;
+            isMouseDown = !true;
             //lastPoint = Point.Empty;
 
         }
@@ -948,8 +988,8 @@ namespace PictureOnTop
 
                         //when making a Pen object, you can just give it color only or give it color and pen size
 
-                    //    g.DrawLine(new Pen(new SolidBrush(Color.Black),1), lastPoint, e.Location);
-                    //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//.AntiAliasing;
+                        //    g.DrawLine(new Pen(new SolidBrush(Color.Black),1), lastPoint, e.Location);
+                        //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//.AntiAliasing;
                         //this is to give the drawing a more smoother, less sharper look
 
                     }
@@ -984,7 +1024,7 @@ namespace PictureOnTop
                 p2List.Add(p2);
 
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
-                
+
                 pb.Invalidate();
                 //Refresh();
                 // Sets X to 0 and choose p1 again
@@ -1011,7 +1051,7 @@ namespace PictureOnTop
 
         private void FrmDraggable_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         private void FrmDraggable_OnShowMainFormRequest(object sender, EventArgs e)
@@ -1050,14 +1090,14 @@ namespace PictureOnTop
             pb.SizeMode = ((CheckBox)chImageStretch).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
 
 
-            
-            frmDraggable.Size= new Size((int)pb.Width-10, (int)pb.Height + 0);
-            
+
+            frmDraggable.Size = new Size((int)pb.Width - 10, (int)pb.Height + 0);
+
         }
 
         private void FrmDraggable_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+
             Properties.Settings.Default.DraggableFormStartPostion = new Point(frmDraggable.Bounds.Location.X, frmDraggable.Bounds.Location.Y);
             Properties.Settings.Default.Save();
 
@@ -1068,7 +1108,7 @@ namespace PictureOnTop
 
         private void FrmDraggable_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if(frmDraggable.FormBorderStyle!=FormBorderStyle.Sizable)
+            if (frmDraggable.FormBorderStyle != FormBorderStyle.Sizable)
             {
                 frmDraggable.FormBorderStyle = FormBorderStyle.Sizable;
             }
@@ -1076,8 +1116,8 @@ namespace PictureOnTop
             {
                 frmDraggable.FormBorderStyle = FormBorderStyle.None;
             }
-            
-            
+
+
         }
 
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1094,18 +1134,160 @@ namespace PictureOnTop
 
         private void pictureBox1_SizeModeChanged(object sender, EventArgs e)
         {
-             if (frmDraggable != null)
+            if (frmDraggable != null)
             {
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
                 pb.SizeMode = pdCapture.SizeMode;
             }
         }
 
+
+        List<Point> myPointList { get; set; }
+        Dictionary<int, List<Point>> dict_points = new Dictionary<int, List<Point>>();
+        int segment_id { get; set; }
+
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
+            bool IsDrawRect = !true;
+            bool bDrawDot = false;
+            bool bDrawVline = false;
+            int shift_left = 20; int shift_right = 20; int shift_top = 20; int shift_bottom = 20;
+            int transparency = 155;
+            int tempX = 0;
+            int tempY = 0;
+            Bitmap image = new Bitmap(pdCapture.Width, pdCapture.Height);
+            SolidBrush brush = new SolidBrush(Color.Empty);
+            
+            Graphics g2 = m_image!=null? Graphics.FromImage(m_image): e.Graphics;                                                            //pdCapture.Image = bmp;
+            Bitmap bmp = new Bitmap(pdCapture.Width, pdCapture.Height, g2);// Graphics.FromImage(image));
+                                                                                   // return;
+
+            if (IsDrawRect) // Flag Variable to check if need to draw rect
+            {
+                RectangleF r = e.Graphics.VisibleClipBounds;
+                Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right, (int)r.Height - shift_bottom); // your location to draw
+                RectMark = new Rectangle(shift_left, shift_top, 100, 100);// (int)r.Width - shift_right, (int)r.Height - shift_bottom); // your location to draw
+                Graphics.FromImage(bmp).DrawRectangle(new Pen(Color.Red, 1), RectMark);
+                e.Graphics.DrawRectangle(new Pen(Color.Red, 1), RectMark);
+                //pdCapture.Image = bmp;
+            }
+
+            if (true)//mouseDownPictBox)
+            {
+                try
+                {
+
+                if (MouseDownPictBox)
+                {
+                    RectangleF r = e.Graphics.VisibleClipBounds;
+
+                    Color clrMouseDraw = Color.Green;// OnSystemColorsChanged(). bmp.GetPixel(x, y);
+                    brush.Color = Color.FromArgb(transparency, clrMouseDraw.R, clrMouseDraw.G, clrMouseDraw.B);
+
+                    g2.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 5, 5);
+                }
+
+                    //if(myPointList!=null)
+                    int id = segment_id;
+                    if (dict_points.Count > 0)
+                         if (dict_points[id] != null)
+                            //for each segment
+                          for(int i=0; i < dict_points.Count; i++)   
+                        {
+                            if (dict_points[i].Count >= 2)
+                                g2.DrawLines(Pens.Black, dict_points[i].ToArray());
+                        }
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+            //    pdCapture.Image = bmp;
+            }
+
+            return;
+
+            Graphics gOriginal = e.Graphics;// Graphics.FromImage(image)
+            
+            try
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    for (int x = 0; x < image.Width; x++)
+                    {
+                        if (x != shift_left && x != (image.Width - shift_right))
+                        {
+                            if (x < shift_left || x > (image.Width - shift_right))
+                            {
+                                bDrawDot = false; bDrawVline = false;
+                                continue;
+                            }
+                            else if (x == shift_left || x == (image.Width - shift_right))
+                            {
+                                bDrawDot = false; bDrawVline = !false;
+                            }
+                            else if (x > shift_left && x < (image.Width - shift_right))
+                            {
+                                bDrawDot = !false; bDrawVline = false;
+                            }
+                        }
+
+                        if (bDrawDot == false && bDrawVline == false)
+                            continue;
+
+
+                        tempX = x;
+                        if (tempX == 256)
+                        {
+                        }
+
+                        for (int y = 0; y < image.Height; y++)
+                        {
+                            tempY = y;
+
+                            if (bDrawDot == !false && bDrawVline == false)
+                            {
+                                if ((y == shift_top) || (y == (image.Height - shift_bottom)))
+                                {
+                                    Color colour = bmp.GetPixel(x, y);
+                                    brush.Color = Color.FromArgb(transparency, colour.R, colour.G, colour.B);
+                                    g.FillRectangle(brush, x, y, 1, 1);
+                                }
+
+                            }
+                            else if (bDrawDot == !false && bDrawVline == !false)
+                            {
+                                if ((y >= shift_top) || (y <= (image.Height - shift_bottom)))
+                                {
+                                    Color colour = bmp.GetPixel(x, y);
+                                    brush.Color = Color.FromArgb(transparency, colour.R, colour.G, colour.B);
+                                    g.FillRectangle(brush, x, y, 1, 1);
+                                }
+                            }
+
+
+
+
+
+                        }
+                    }
+                }
+            
+                pdCapture.Image = bmp;
+            }
+            catch (Exception ex)
+            {
+
+                //throw;
+            }
+
+            #region 2
             // Create array of two points.
-          //  Point[] points = { new Point(0, 0), new Point(100, 50) };
-         //   e.Graphics.DrawLine(new Pen(Color.Blue, 3), points[0], points[1]);
+            //  Point[] points = { new Point(0, 0), new Point(100, 50) };
+            //   e.Graphics.DrawLine(new Pen(Color.Blue, 3), points[0], points[1]);
             ////if (CursorPositionmyX ==0  &&  CursorPositionmyY == 0)
             ////    return;
             //try
@@ -1145,7 +1327,7 @@ namespace PictureOnTop
 
 
             //}
-
+            #endregion
         }
 
         private int cursorPositionmyX;
@@ -1153,7 +1335,16 @@ namespace PictureOnTop
         public int CursorPositionmyX
         {
             get { return cursorPositionmyX; }
-            private set { cursorPositionmyX = value; }
+            private 
+            set 
+            { 
+                if(cursorPositionmyX != value)
+                {
+                    lblMouseX.Text = value.ToString();
+                }
+                cursorPositionmyX = value;
+
+            }
         }
 
         private int cursorPositionmyY;
@@ -1161,15 +1352,51 @@ namespace PictureOnTop
         public int CursorPositionmyY
         {
             get { return cursorPositionmyY; }
-            private set { cursorPositionmyY = value; }
+            private
+                set
+            {
+                if (cursorPositionmyY != value)
+                {
+                    lblMouseY.Text = value.ToString();
+                }
+                cursorPositionmyY = value;
+            }
         }
 
         public bool isMouseDown { get; private set; }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            cursorPositionmyX = e.X;
+            if (e.Button == MouseButtons.Right)
+                return;
+
+            CursorPositionmyX = e.X;
             CursorPositionmyY = e.Y;
+            if (MouseDownPictBox)
+            {
+//                if (myPointList == null)
+  //                  myPointList = new List<Point>();
+
+
+                if (!bClearMouseDraw)
+                {
+                    //myPointList.Add(e.Location);
+                    int id = segment_id;
+                    if (dict_points.Count > 0)
+                        if (dict_points[id] != null)
+                            dict_points[id].Add(e.Location);
+                }
+                else
+                {
+                    bClearMouseDraw = false;
+                    //myPointList.Clear();
+                    //pdCapture.Invalidate(); //force a repaint
+                    //myPointList.Add(e.Location);
+                   // myPointList.Add(e.Location);
+                }
+                pdCapture.Invalidate(); //force a repaint
+
+            }
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -1180,15 +1407,47 @@ namespace PictureOnTop
             }
         }
 
+        private void refreshPictureboxToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pdCapture.Refresh();
+        }
+
+        private void pdCapture_MouseUp(object sender, MouseEventArgs e)
+        {
+            MouseDownPictBox = false;
+            pdCapture.Invalidate();
+        }
+
+        bool bClearMouseDraw { get; set; }
+
+        void ClearMouseDraw()
+        {
+            bClearMouseDraw = false;
+            if (true)
+            {
+                segment_id = 0;
+                dict_points.Clear();
+
+                //myPointList.Clear();
+                pdCapture.Invalidate(); //force a repaint
+            }
+        }
+
+        private void button6_Click_1(object sender, EventArgs e)
+        {
+            bClearMouseDraw = true;
+            ClearMouseDraw();
+        }
+
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bClearMouseDraw = true;
+            ClearMouseDraw();
+        }
+
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
         {
-            
-                refreshToolStripMenuItem.Enabled = frmDraggable != null;
-
-            
+            refreshToolStripMenuItem.Enabled = frmDraggable != null;
         }
     }
-
-
 }
-
