@@ -86,8 +86,11 @@ namespace PictureOnTop
             Save save = new Save(this.Location.X, this.Location.Y, this.Width, this.Height, this.Size, M_parentForm);
             //save.M_parentForm = M_parentForm;
             //save.Show();
+            M_parentForm.BmpCaptured = save.BmpCaptured;
+
             save.Close();
         }
+        
 
         private void SelectArea_KeyDown(object sender, KeyEventArgs e)
         {

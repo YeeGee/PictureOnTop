@@ -270,11 +270,13 @@ namespace PictureOnTop
                 }
 
             }
-
-            Image image = Image.FromFile(SelectedFile);
-            // Set the PictureBox image property to this image.
-            // ... Then, adjust its height and width properties.
-            SetImageInPicturebox((Bitmap)new Bitmap(image));
+            if (SelectedFile != null)
+            {
+                Image image = Image.FromFile(SelectedFile);
+                // Set the PictureBox image property to this image.
+                // ... Then, adjust its height and width properties.
+                SetImageInPicturebox((Bitmap)new Bitmap(image), true);
+            }
 
 
         }
@@ -350,7 +352,7 @@ namespace PictureOnTop
                 default:
                     break;
             }
-            SetImageInPicturebox((Bitmap)bitmap1.Clone());
+            SetImageInPicturebox((Bitmap)bitmap1.Clone(), true);
         }
 
         private Bitmap _image;
@@ -359,12 +361,17 @@ namespace PictureOnTop
             get { return _image; }
             set
             {
+                if (_image == null)
+                {
+
+                }
+
                 _image = value;
                 if (value != null)
                 {
-                    // PointF[] points = CreateCirclePointArray(10.0, value);
-                    PictureBox pb = pdCapture;
-                    DrawCircle(60, value, pb);
+                  //  PointF[] points = CreateCirclePointArray(10.0, value);
+                  //  PictureBox pb = pdCapture;
+                  //  DrawCircle(60, value, pb);
 
                 }
             }
@@ -422,7 +429,7 @@ namespace PictureOnTop
             return points;
         }
 
-        public void SetImageInPicturebox(Bitmap bitmap1)
+        public void SetImageInPicturebox(Bitmap bitmap1, bool addToUndoManager)
         {
             m_image = bitmap1;
 
@@ -430,8 +437,10 @@ namespace PictureOnTop
             pdCapture.Height = bitmap1.Height;
             pdCapture.Width = bitmap1.Width;
             //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
-
-            m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
+            if (addToUndoManager)
+            {
+                m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
+            }
             UpdateUndoMenuEnability();
             SetStandaloneFormImage((Bitmap)bitmap1.Clone());
             pdCapture.Invalidate();
@@ -465,7 +474,7 @@ namespace PictureOnTop
             if (bitmap1 != null)
             {
                 bitmap1.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                SetImageInPicturebox((Bitmap)bitmap1.Clone());
+                SetImageInPicturebox((Bitmap)bitmap1.Clone(), true);
             }
         }
 
@@ -544,7 +553,7 @@ namespace PictureOnTop
 
                 }
             }
-            SetImageInPicturebox((Bitmap)bmp.Clone());
+            SetImageInPicturebox((Bitmap)bmp.Clone(), true);
 
         }
 
@@ -688,6 +697,7 @@ namespace PictureOnTop
             if (saveFileDialog1.FileName != null && !String.IsNullOrEmpty(saveFileDialog1.FileName))
             {
 
+                //pdCapture.Image.Save(saveFileDialog1.FileName);
                 pdCapture.Image.Save(saveFileDialog1.FileName);
             }
         }
@@ -1177,14 +1187,14 @@ namespace PictureOnTop
                 try
                 {
 
-                if (MouseDownPictBox)
+                if (MouseDownPictBox && false)
                 {
                     RectangleF r = e.Graphics.VisibleClipBounds;
 
                     Color clrMouseDraw = Color.Green;// OnSystemColorsChanged(). bmp.GetPixel(x, y);
                     brush.Color = Color.FromArgb(transparency, clrMouseDraw.R, clrMouseDraw.G, clrMouseDraw.B);
 
-                    g2.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 5, 5);
+                    g2.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 2, 2);
                 }
 
                     //if(myPointList!=null)
@@ -1415,6 +1425,8 @@ namespace PictureOnTop
         private void pdCapture_MouseUp(object sender, MouseEventArgs e)
         {
             MouseDownPictBox = false;
+            if(m_image!=null)
+                SetImageInPicturebox(m_image, true);
             pdCapture.Invalidate();
         }
 
@@ -1422,6 +1434,7 @@ namespace PictureOnTop
 
         void ClearMouseDraw()
         {
+            //
             bClearMouseDraw = false;
             if (true)
             {
@@ -1429,7 +1442,19 @@ namespace PictureOnTop
                 dict_points.Clear();
 
                 //myPointList.Clear();
-                pdCapture.Invalidate(); //force a repaint
+               // m_image = BmpCaptured;
+              //  pdCapture.Image = m_image;
+                //pdCapture.Invalidate(); //force a repaint
+            }
+        }
+
+        private Bitmap bmpCaptured;
+        public Bitmap BmpCaptured
+        {
+            get { return bmpCaptured; }
+            set
+            { 
+                bmpCaptured = value;
             }
         }
 
@@ -1443,6 +1468,11 @@ namespace PictureOnTop
         {
             bClearMouseDraw = true;
             ClearMouseDraw();
+            if (m_image != null && BmpCaptured!=null)
+            {
+               // m_image = BmpCaptured;
+                SetImageInPicturebox((Bitmap)BmpCaptured.Clone(), false);
+            }
         }
 
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)

@@ -27,6 +27,14 @@ namespace PictureOnTop
             get { return m_parentForm; }
             set { m_parentForm = value; }
         }
+        private Bitmap bmpCaptured;
+
+        public Bitmap BmpCaptured
+        {
+            get { return bmpCaptured; }
+            set { bmpCaptured = value; }
+        }
+
 
         public Save(Int32 x, Int32 y, Int32 w, Int32 h, Size s, Form1 parent)
         {
@@ -37,7 +45,9 @@ namespace PictureOnTop
             Graphics g = Graphics.FromImage(bmp);
             g.CopyFromScreen(rect.Left, rect.Top, 0, 0, s, CopyPixelOperation.SourceCopy);
             pbCapture.Image = bmp;
-            M_parentForm.SetImageInPicturebox((Bitmap)pbCapture.Image.Clone());
+            BmpCaptured = (Bitmap)bmp.Clone();
+
+            M_parentForm.SetImageInPicturebox((Bitmap)pbCapture.Image.Clone(), true);
 
             if(M_parentForm.frmDraggable!=null)
             { M_parentForm.frmDraggable.Show(); }
