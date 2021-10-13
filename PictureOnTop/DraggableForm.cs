@@ -103,7 +103,7 @@ namespace DraggableForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(120, 61);
+            this.ClientSize = new System.Drawing.Size(428, 220);
             this.Name = "FormBase";
             this.Opacity = 0.95D;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;

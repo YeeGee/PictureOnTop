@@ -515,7 +515,13 @@ namespace PictureOnTop
 
         private void button5_Click(object sender, EventArgs e)
         {
-            Bitmap capcha = new Bitmap(pdCapture.Image);
+            Bitmap capcha = null;
+            if (pdCapture.Image == null)
+            {
+                pdCapture.Image = new Bitmap(pdCapture.Width, pdCapture.Height);
+            }
+            else
+                capcha = new Bitmap(pdCapture.Image);
             //  capcha.MakeTransparent(selectedByMouse);
             //pictureBox1.Image = capcha;
 
@@ -876,7 +882,20 @@ namespace PictureOnTop
                 pb.Height = bitmap1.Height;
                 pb.Width = bitmap1.Width;
                 pb.SizeMode = chImageStretch.Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
+                pb.Paint += Pb_Paint;
                 frmDraggable.UpdateImage();
+            }
+        }
+
+        private void Pb_Paint(object sender, PaintEventArgs e)
+        {
+            bool IsDrawRect = true;
+            int shift_left = 0; int shift_right = 1; int shift_top = 0; int shift_bottom = 1;
+            if (IsDrawRect) // Flag Variable to check if need to draw rect
+            {
+                RectangleF r = e.Graphics.VisibleClipBounds;
+                Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right - 1, (int)r.Height - shift_bottom - 1); // your location to draw
+                e.Graphics.DrawRectangle(new Pen(Color.Gray, 1), RectMark);
             }
         }
 
@@ -1158,10 +1177,10 @@ namespace PictureOnTop
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
-            bool IsDrawRect = !true;
+            bool IsDrawRect = true;
             bool bDrawDot = false;
             bool bDrawVline = false;
-            int shift_left = 20; int shift_right = 20; int shift_top = 20; int shift_bottom = 20;
+            int shift_left = 0; int shift_right = 1; int shift_top = 0; int shift_bottom = 1;
             int transparency = 155;
             int tempX = 0;
             int tempY = 0;
@@ -1175,10 +1194,10 @@ namespace PictureOnTop
             if (IsDrawRect) // Flag Variable to check if need to draw rect
             {
                 RectangleF r = e.Graphics.VisibleClipBounds;
-                Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right, (int)r.Height - shift_bottom); // your location to draw
-                RectMark = new Rectangle(shift_left, shift_top, 100, 100);// (int)r.Width - shift_right, (int)r.Height - shift_bottom); // your location to draw
-                Graphics.FromImage(bmp).DrawRectangle(new Pen(Color.Red, 1), RectMark);
-                e.Graphics.DrawRectangle(new Pen(Color.Red, 1), RectMark);
+                Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right-1, (int)r.Height - shift_bottom-1); // your location to draw
+                //RectMark = new Rectangle(shift_left, shift_top, 100, 100);// (int)r.Width - shift_right, (int)r.Height - shift_bottom); // your location to draw
+                //Graphics.FromImage(bmp).DrawRectangle(new Pen(Color.Red, 1), RectMark);
+                e.Graphics.DrawRectangle(new Pen(Color.Gray, 1), RectMark);
                 //pdCapture.Image = bmp;
             }
 
