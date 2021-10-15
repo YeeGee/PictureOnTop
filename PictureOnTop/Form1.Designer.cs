@@ -31,6 +31,8 @@ namespace PictureOnTop
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.pdCapture = new System.Windows.Forms.PictureBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,6 +55,7 @@ namespace PictureOnTop
             this.FolderDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button8 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.lblMouseY = new System.Windows.Forms.Label();
             this.lblMouseX = new System.Windows.Forms.Label();
@@ -80,11 +83,16 @@ namespace PictureOnTop
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.chboxDrawArrow = new System.Windows.Forms.CheckBox();
+            this.pboxArrow = new System.Windows.Forms.PictureBox();
+            this.button7 = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -96,7 +104,9 @@ namespace PictureOnTop
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.pn_color_new.SuspendLayout();
-            this.contextMenuStrip1.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
+            this.flowLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pboxArrow)).BeginInit();
             this.SuspendLayout();
             // 
             // pdCapture
@@ -104,7 +114,7 @@ namespace PictureOnTop
             this.pdCapture.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.pdCapture.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.pdCapture.ContextMenuStrip = this.contextMenuStrip1;
-            this.pdCapture.Location = new System.Drawing.Point(64, 99);
+            this.pdCapture.Location = new System.Drawing.Point(35, 116);
             this.pdCapture.Margin = new System.Windows.Forms.Padding(0);
             this.pdCapture.MinimumSize = new System.Drawing.Size(50, 50);
             this.pdCapture.Name = "pdCapture";
@@ -118,6 +128,19 @@ namespace PictureOnTop
             this.pdCapture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.pdCapture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pdCapture_MouseUp);
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.clearToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(102, 26);
+            // 
+            // clearToolStripMenuItem
+            // 
+            this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
+            this.clearToolStripMenuItem.Text = "Clear";
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -130,7 +153,7 @@ namespace PictureOnTop
             this.developerTestingToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(696, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(768, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -292,14 +315,16 @@ namespace PictureOnTop
             this.splitContainer1.Panel2.AutoScroll = true;
             this.splitContainer1.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
             this.splitContainer1.Panel2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this.splitContainer1.Panel2.Controls.Add(this.flowLayoutPanel1);
             this.splitContainer1.Panel2.Controls.Add(this.pdCapture);
-            this.splitContainer1.Size = new System.Drawing.Size(696, 536);
+            this.splitContainer1.Size = new System.Drawing.Size(768, 555);
             this.splitContainer1.SplitterDistance = 91;
             this.splitContainer1.TabIndex = 2;
             // 
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.Controls.Add(this.button8);
             this.groupBox1.Controls.Add(this.button6);
             this.groupBox1.Controls.Add(this.lblMouseY);
             this.groupBox1.Controls.Add(this.lblMouseX);
@@ -326,27 +351,40 @@ namespace PictureOnTop
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(91, 536);
+            this.groupBox1.Size = new System.Drawing.Size(91, 555);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Toolbox";
             // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(0, 509);
+            this.button8.Margin = new System.Windows.Forms.Padding(4);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(88, 22);
+            this.button8.TabIndex = 24;
+            this.button8.Text = "Clear image";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(9, 507);
+            this.button6.Location = new System.Drawing.Point(0, 488);
             this.button6.Margin = new System.Windows.Forms.Padding(4);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(53, 22);
+            this.button6.Size = new System.Drawing.Size(88, 22);
             this.button6.TabIndex = 23;
-            this.button6.Text = "Clear";
+            this.button6.Text = "Clear drawings";
             this.button6.UseVisualStyleBackColor = true;
             this.button6.Click += new System.EventHandler(this.button6_Click_1);
+            this.button6.MouseDown += new System.Windows.Forms.MouseEventHandler(this.button6_MouseDown);
+            this.button6.MouseUp += new System.Windows.Forms.MouseEventHandler(this.button6_MouseUp);
             // 
             // lblMouseY
             // 
             this.lblMouseY.AutoSize = true;
             this.lblMouseY.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.lblMouseY.Location = new System.Drawing.Point(7, 490);
+            this.lblMouseY.Location = new System.Drawing.Point(7, 471);
             this.lblMouseY.Name = "lblMouseY";
             this.lblMouseY.Size = new System.Drawing.Size(13, 13);
             this.lblMouseY.TabIndex = 10;
@@ -356,7 +394,7 @@ namespace PictureOnTop
             // 
             this.lblMouseX.AutoSize = true;
             this.lblMouseX.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.lblMouseX.Location = new System.Drawing.Point(7, 472);
+            this.lblMouseX.Location = new System.Drawing.Point(7, 458);
             this.lblMouseX.Name = "lblMouseX";
             this.lblMouseX.Size = new System.Drawing.Size(13, 13);
             this.lblMouseX.TabIndex = 22;
@@ -626,29 +664,77 @@ namespace PictureOnTop
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel2);
+            this.flowLayoutPanel1.Controls.Add(this.label8);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(575, 0);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(98, 555);
+            this.flowLayoutPanel1.TabIndex = 1;
+            // 
+            // flowLayoutPanel2
+            // 
+            this.flowLayoutPanel2.Controls.Add(this.chboxDrawArrow);
+            this.flowLayoutPanel2.Controls.Add(this.pboxArrow);
+            this.flowLayoutPanel2.Controls.Add(this.button7);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 3);
+            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(120, 34);
+            this.flowLayoutPanel2.TabIndex = 2;
+            // 
+            // chboxDrawArrow
+            // 
+            this.chboxDrawArrow.AutoSize = true;
+            this.chboxDrawArrow.Location = new System.Drawing.Point(3, 7);
+            this.chboxDrawArrow.Margin = new System.Windows.Forms.Padding(3, 7, 3, 3);
+            this.chboxDrawArrow.Name = "chboxDrawArrow";
+            this.chboxDrawArrow.Size = new System.Drawing.Size(15, 14);
+            this.chboxDrawArrow.TabIndex = 0;
+            this.chboxDrawArrow.UseVisualStyleBackColor = true;
+            this.chboxDrawArrow.CheckedChanged += new System.EventHandler(this.chboxDrawArrow_CheckedChanged);
+            // 
+            // pboxArrow
+            // 
+            this.pboxArrow.Location = new System.Drawing.Point(24, 3);
+            this.pboxArrow.Name = "pboxArrow";
+            this.pboxArrow.Size = new System.Drawing.Size(30, 26);
+            this.pboxArrow.TabIndex = 4;
+            this.pboxArrow.TabStop = false;
+            this.pboxArrow.Paint += new System.Windows.Forms.PaintEventHandler(this.pboxArrow_Paint);
+            // 
+            // button7
+            // 
+            this.button7.BackgroundImage = global::PictureOnTop.Properties.Resources.Screenshot_136;
+            this.button7.Location = new System.Drawing.Point(60, 3);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(26, 23);
+            this.button7.TabIndex = 1;
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label8.Location = new System.Drawing.Point(3, 40);
+            this.label8.Name = "label8";
+            this.label8.Padding = new System.Windows.Forms.Padding(20, 0, 0, 0);
+            this.label8.Size = new System.Drawing.Size(80, 13);
+            this.label8.TabIndex = 3;
+            this.label8.Text = "Arrow color";
+            // 
             // colorDialog1
             // 
             this.colorDialog1.Color = System.Drawing.Color.LightGray;
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.clearToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(102, 26);
-            // 
-            // clearToolStripMenuItem
-            // 
-            this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
-            this.clearToolStripMenuItem.Size = new System.Drawing.Size(101, 22);
-            this.clearToolStripMenuItem.Text = "Clear";
-            this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(696, 560);
+            this.ClientSize = new System.Drawing.Size(768, 579);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -659,6 +745,7 @@ namespace PictureOnTop
             this.Text = "Picture holder";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -675,7 +762,11 @@ namespace PictureOnTop
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.pn_color_new.ResumeLayout(false);
             this.pn_color_new.PerformLayout();
-            this.contextMenuStrip1.ResumeLayout(false);
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
+            this.flowLayoutPanel2.ResumeLayout(false);
+            this.flowLayoutPanel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pboxArrow)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -737,6 +828,13 @@ namespace PictureOnTop
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
+        private System.Windows.Forms.CheckBox chboxDrawArrow;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.PictureBox pboxArrow;
     }
 }
 

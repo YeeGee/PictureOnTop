@@ -23,9 +23,10 @@ namespace PictureOnTop
 
     public partial class Form1
     {
-        
+
         //public event EventHandler copyToFatherTextBox;
 
+        Point[] m_pointsArrow { get; set; }
         
         private bool mouseDownPictBox;
         
@@ -33,20 +34,45 @@ namespace PictureOnTop
         {
             get { return mouseDownPictBox; }
             set 
-            { 
-                if(mouseDownPictBox!=value)
+            {
+                if (mouseDownPictBox!=value)
                 {
-                    if(value)
+                    if (value)
                     {
-                        segment_id = dict_points.Count;
-                        dict_points.Add(segment_id, new List<Point>());
-                        
+                        segment_line_id = dict_points.Count;
+                        dict_points.Add(segment_line_id, new List<Point>());
+                        if (m_pointsArrow == null)
+                            m_pointsArrow = new Point[2];
+
+                        m_pointsArrow[0].X = CursorPositionmyX;
+                        m_pointsArrow[0].Y = CursorPositionmyY;
+
+
+                    }
+                    
+                    if(mouseDownPictBox==true && value==false)
+                    {//mouse UP after been down
+
+                        if (bDraw_Arrow)
+                        {
+                            dict_arrows_.Add(segment_arrow_id, new CustomTypes.Arrow(segment_arrow_id, m_pointsArrow.ToList(), clrArrow));
+
+                            //dict_arrows.Add(segment_arrow_id, m_pointsArrow.ToList());
+
+                            segment_arrow_id++;
+                        }
+
+                        if (bmpArrowDraw_Temp != null)
+                        {
+                           // m_image = (Bitmap)bmpArrowDraw_Temp.Clone();
+                            //SetImageInPicturebox((Bitmap)bmpArrowDraw_Temp.Clone(), true);
+                            
+                        }
                     }
                 }
-
+                
                 mouseDownPictBox = value;
             }
-
         }
 
 
@@ -229,9 +255,10 @@ namespace PictureOnTop
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            m_pointsArrow = new Point[2];
             transparency = trackBar2.Value;
             trackBar1.Value = 1;
+            clrArrow = Color.FromArgb(125, 0, 0, 255);
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -443,7 +470,7 @@ namespace PictureOnTop
             }
             UpdateUndoMenuEnability();
             SetStandaloneFormImage((Bitmap)bitmap1.Clone());
-            pdCapture.Invalidate();
+            pdCapture.Refresh();
         }
 
         public void DrawData(PointF[] points, Bitmap bitmap1)
@@ -596,6 +623,9 @@ namespace PictureOnTop
             }
         }
 
+        #region draw arrow
+       
+        #endregion
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
@@ -612,7 +642,8 @@ namespace PictureOnTop
                 return;
             }
 
-
+            m_pointsArrow[0].X= m_pointsArrow[1].X = CursorPositionmyX;
+            m_pointsArrow[0].Y = m_pointsArrow[1].Y = CursorPositionmyY;
 
             MouseDownPictBox = true;
 
@@ -702,7 +733,8 @@ namespace PictureOnTop
 
             if (saveFileDialog1.FileName != null && !String.IsNullOrEmpty(saveFileDialog1.FileName))
             {
-
+                if (pdCapture.Image == null)
+                    return;
                 //pdCapture.Image.Save(saveFileDialog1.FileName);
                 pdCapture.Image.Save(saveFileDialog1.FileName);
             }
@@ -1173,7 +1205,29 @@ namespace PictureOnTop
 
         List<Point> myPointList { get; set; }
         Dictionary<int, List<Point>> dict_points = new Dictionary<int, List<Point>>();
-        int segment_id { get; set; }
+        int segment_line_id { get; set; }
+        
+//        Dictionary<int, List<Point>> dict_arrows = new Dictionary<int, List<Point>>();
+        int segment_arrow_id { get; set; }
+
+        Dictionary<int, CustomTypes.Arrow> dict_arrows_ = new Dictionary<int, CustomTypes.Arrow>();
+
+
+        private bool m_bDraw_Arrow;
+
+        public bool bDraw_Arrow
+        {
+            get
+            { 
+                return m_bDraw_Arrow; 
+            }
+            set
+            { 
+                m_bDraw_Arrow = value;
+            }
+        }
+
+        public Bitmap bmpArrowDraw_Temp { get; set; }
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
@@ -1190,7 +1244,6 @@ namespace PictureOnTop
             Graphics g2 = m_image!=null? Graphics.FromImage(m_image): e.Graphics;                                                            //pdCapture.Image = bmp;
             Bitmap bmp = new Bitmap(pdCapture.Width, pdCapture.Height, g2);// Graphics.FromImage(image));
                                                                                    // return;
-
             if (IsDrawRect) // Flag Variable to check if need to draw rect
             {
                 RectangleF r = e.Graphics.VisibleClipBounds;
@@ -1200,6 +1253,7 @@ namespace PictureOnTop
                 e.Graphics.DrawRectangle(new Pen(Color.Gray, 1), RectMark);
                 //pdCapture.Image = bmp;
             }
+
 
             if (true)//mouseDownPictBox)
             {
@@ -1217,7 +1271,7 @@ namespace PictureOnTop
                 }
 
                     //if(myPointList!=null)
-                    int id = segment_id;
+                    int id = segment_line_id;
                     if (dict_points.Count > 0)
                          if (dict_points[id] != null)
                             //for each segment
@@ -1227,6 +1281,64 @@ namespace PictureOnTop
                                 g2.DrawLines(Pens.Black, dict_points[i].ToArray());
                         }
 
+                    //dict_arrows
+                    int id1 = segment_arrow_id;
+
+                    if (dict_arrows_.Count > 0)
+                    {
+                        for (int i = 0; i < dict_arrows_.Count; i++)
+                        {
+                            if (dict_arrows_[i].Count >= 2)
+                            {
+                                Pen penMidlleLine = new Pen(Color.FromArgb(120, 0, 0, 200), 1);
+                                g2.DrawLine(penMidlleLine, dict_arrows_[i].point[0], dict_arrows_[i].point[1]);
+                                
+                                // make subarrows
+                                Point[] subarrow1 = new Point[2];
+                                Point[] subarrow2 = new Point[2];
+
+                                subarrow1[1].X = dict_arrows_[i].point[0].X;
+                                subarrow1[1].Y = dict_arrows_[i].point[0].Y;
+                                subarrow1[0].X = dict_arrows_[i].point[1].X;
+                                subarrow1[0].Y = dict_arrows_[i].point[1].Y;
+
+                                Pen pen = new Pen(dict_arrows_[i].color, 4);
+                                pen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
+                                g2.DrawLine(pen, subarrow1[0], subarrow1[1]);
+
+                            }
+                        }
+                    }
+
+                    #region old
+                    /*
+                    if (dict_arrows.Count > 0)
+
+                            for (int i = 0; i < dict_arrows.Count; i++)
+                            {
+                                if (dict_arrows[i].Count >= 2)
+                                {
+
+                                    Pen penMidlleLine = new Pen(Color.FromArgb(120, 0, 0, 200), 1);
+                                    g2.DrawLine(penMidlleLine, dict_arrows[i][0], dict_arrows[i][1]);
+                                    // make subarrows
+                                         Point[] subarrow1 = new Point[2];
+                                         Point[] subarrow2 = new Point[2];
+
+                                    subarrow1[1].X = dict_arrows[i][0].X;
+                                    subarrow1[1].Y = dict_arrows[i][0].Y;
+                                    subarrow1[0].X = dict_arrows[i][1].X;
+                                    subarrow1[0].Y = dict_arrows[i][1].Y;
+
+                                    Pen pen = new Pen(clrArrow, 4);
+                                    pen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                    pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
+                                    g2.DrawLine(pen, subarrow1[0], subarrow1[1]);
+                                }
+                            }
+                      */
+                    #endregion
                 }
                 catch (Exception)
                 {
@@ -1234,7 +1346,32 @@ namespace PictureOnTop
                     throw;
                 }
 
-            //    pdCapture.Image = bmp;
+            }
+            if (!M_clearDrawsActive)
+            {
+                if (bDraw_Arrow)
+                {
+                    Rectangle r = new Rectangle(m_pointsArrow[0].X, m_pointsArrow[0].Y,
+                        m_pointsArrow[1].X - m_pointsArrow[0].X, m_pointsArrow[1].Y - m_pointsArrow[0].Y);
+                    Pen penMidlleLine = new Pen(Color.FromArgb(50, 20, 20, 20), 1);
+                    e.Graphics.DrawLine(penMidlleLine, m_pointsArrow[0], m_pointsArrow[1]);
+                    bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+                }
+                else
+                {
+                    Rectangle r = new Rectangle(m_pointsArrow[0].X, m_pointsArrow[0].Y,
+                        m_pointsArrow[1].X - m_pointsArrow[0].X, m_pointsArrow[1].Y - m_pointsArrow[0].Y);
+                    if (m_pointsArrow[0].X != m_pointsArrow[1].X || m_pointsArrow[0].Y != m_pointsArrow[1].Y)
+                    {
+                        //e.Graphics.DrawLine(new Pen(Color.Red, 3), m_pointsArrow[0], m_pointsArrow[1]);
+                        //bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+                    }
+                }
+            }
+
+            if(pdCapture.Image==null)
+            {
+                pdCapture.Image= new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
             }
 
             return;
@@ -1403,17 +1540,19 @@ namespace PictureOnTop
             CursorPositionmyY = e.Y;
             if (MouseDownPictBox)
             {
-//                if (myPointList == null)
-  //                  myPointList = new List<Point>();
-
-
                 if (!bClearMouseDraw)
                 {
-                    //myPointList.Add(e.Location);
-                    int id = segment_id;
-                    if (dict_points.Count > 0)
-                        if (dict_points[id] != null)
-                            dict_points[id].Add(e.Location);
+                    int id = segment_line_id;
+
+                    if (!bDraw_Arrow)
+                    {
+                        if (dict_points.Count > 0)
+                            if (dict_points[id] != null)
+                                dict_points[id].Add(e.Location);
+                    }
+
+                    m_pointsArrow[1].X= CursorPositionmyX;
+                    m_pointsArrow[1].Y = CursorPositionmyY;
                 }
                 else
                 {
@@ -1444,7 +1583,12 @@ namespace PictureOnTop
         private void pdCapture_MouseUp(object sender, MouseEventArgs e)
         {
             MouseDownPictBox = false;
-            if(m_image!=null)
+
+
+            if(pdCapture.Image!=null)
+                m_image = (Bitmap)pdCapture.Image.Clone(); 
+
+                if (m_image!=null)
                 SetImageInPicturebox(m_image, true);
             pdCapture.Invalidate();
         }
@@ -1457,12 +1601,17 @@ namespace PictureOnTop
             bClearMouseDraw = false;
             if (true)
             {
-                segment_id = 0;
+                segment_line_id = 0;
                 dict_points.Clear();
 
+                segment_arrow_id = 0;
+                //dict_arrows.Clear();
+                dict_arrows_.Clear();
+
                 //myPointList.Clear();
-               // m_image = BmpCaptured;
-              //  pdCapture.Image = m_image;
+                // m_image = BmpCaptured;
+                pdCapture.Image = BmpCaptured;
+                pdCapture.Refresh();
                 //pdCapture.Invalidate(); //force a repaint
             }
         }
@@ -1483,15 +1632,72 @@ namespace PictureOnTop
             ClearMouseDraw();
         }
 
-        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        private void chboxDrawArrow_CheckedChanged(object sender, EventArgs e)
         {
+            bDraw_Arrow = (sender as CheckBox).Checked==true;
+            pboxArrow.Refresh();
+        }
+
+        private bool m_clearDrawsActive;
+
+        public bool M_clearDrawsActive
+        {
+            get { return m_clearDrawsActive; }
+            set { m_clearDrawsActive = value; }
+        }
+
+        
+
+        private void button6_MouseDown(object sender, MouseEventArgs e)
+        {
+            M_clearDrawsActive = true;
             bClearMouseDraw = true;
             ClearMouseDraw();
-            if (m_image != null && BmpCaptured!=null)
+            if (m_image != null && BmpCaptured != null)
             {
-               // m_image = BmpCaptured;
+                // m_image = BmpCaptured;
                 SetImageInPicturebox((Bitmap)BmpCaptured.Clone(), false);
             }
+        }
+
+        private void button6_MouseUp(object sender, MouseEventArgs e)
+        {
+            M_clearDrawsActive = !true;
+        }
+
+        public Color clrArrow { get; private set; }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            #region pickup color from dialog
+            DialogResult result = colorDialog1.ShowDialog();
+            // See if user pressed ok.
+            if (result == DialogResult.OK)
+            {
+                // Set form background to the selected color.
+                clrArrow = colorDialog1.Color;
+                chboxDrawArrow.BackColor = clrArrow;
+                pboxArrow.Refresh();
+            }
+            #endregion
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            pdCapture.Image = null;
+            m_image = null;
+            pdCapture.Refresh();
+        }
+
+        private void pboxArrow_Paint(object sender, PaintEventArgs e)
+        {
+            Point[] arrow = new Point[2];
+            arrow[0].X = 0; arrow[0].Y = 0;
+            arrow[1].X = pboxArrow.Width; arrow[0].Y = pboxArrow.Height-5;
+            Pen pen = new Pen(clrArrow, 6);
+            pen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+            pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
+            e.Graphics.DrawLine(pen, arrow[1], arrow[0]);
         }
 
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
