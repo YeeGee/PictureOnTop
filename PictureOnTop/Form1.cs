@@ -16,20 +16,44 @@ using System.Drawing.Imaging;
 
 namespace PictureOnTop
 {
-    enum enActionType { pickup_color_old, pickup_color_new }
+    #region ENUM
+    enum enActionType  { pickup_color_old, pickup_color_new }
     enum enColorSource { colordialog, point }
+    enum enRotate      { left, right, flipX, flipY }
+    #endregion
 
     public delegate void copyToFatherTextBox(Rectangle r);
 
     public partial class Form1
     {
-
-        //public event EventHandler copyToFatherTextBox;
-
+        #region Variables and properties
+        UndoManager m_undoManager = null;
+        enActionType m_enActionType { get; set; }
+        enColorSource m_enColorSource { get; set; }
         Point[] m_pointsArrow { get; set; }
-        
-        private bool mouseDownPictBox;
-        
+        Bitmap _image;
+        public Bitmap m_image
+        {
+            get { return _image; }
+            set
+            {
+                if (_image == null)
+                {
+
+                }
+
+                _image = value;
+                if (value != null)
+                {
+                    //  PointF[] points = CreateCirclePointArray(10.0, value);
+                    //  PictureBox pb = pdCapture;
+                    //  DrawCircle(60, value, pb);
+
+                }
+            }
+        }
+
+        bool mouseDownPictBox;
         public bool MouseDownPictBox
         {
             get { return mouseDownPictBox; }
@@ -75,10 +99,158 @@ namespace PictureOnTop
             }
         }
 
+        Color m_selectedByMouse;
+        public Color selectedByMouse
+        {
+            get { return m_selectedByMouse; }
+            set
+            {
+                m_selectedByMouse = value;
+                try
+                {
 
-        enActionType m_enActionType { get; set; }
+                    switch (m_enActionType)
+                    {
+                        case enActionType.pickup_color_old:
+                            pn_color_to_replace.BackColor = value;
 
-        enColorSource m_enColorSource { get; set; }
+                            break;
+                        case enActionType.pickup_color_new:
+                            pn_color_new.BackColor = value;
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+        }
+        public Color clrDialogSelection { get; set; }
+        int m_Tolerance;
+        public int Tolerance
+        {
+            get { return m_Tolerance; }
+            set { m_Tolerance = value; }
+        }
+        string m_selectedFolder;
+        public string SelectedFolder
+        {
+            get { return m_selectedFolder; }
+            set
+            {
+                m_selectedFolder = value;
+                Properties.Settings.Default.DefaultFolder = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+        string m_selectedFile;
+        public string SelectedFile
+        {
+            get { return m_selectedFile; }
+            set { m_selectedFile = value; }
+        }
+        bool m_topMostProperty;
+        public bool TopMostProperty
+        {
+            get { return m_topMostProperty; }
+            set
+            {
+                m_topMostProperty = value;
+                this.TopMost = value;
+            }
+        }
+        bool bMIxWithOriginalImage { get; set; }
+        int m_transparency = 255;
+        public int transparency
+        {
+            get { return m_transparency; }
+            set { m_transparency = value; }
+        }
+        int m_sizeMode;
+        public int sizeMode
+        {
+            get { return m_sizeMode; }
+            set { m_sizeMode = value; }
+        }
+        public DraggableForm.FormBase frmDraggable { get; set; }
+        Rectangle rect = new Rectangle(5, 5, 5, 5);
+        Point lastPoint = Point.Empty;
+        Point p1, p2;
+        List<Point> p1List = new List<Point>();
+        List<Point> p2List = new List<Point>();
+        int count = 0;
+        List<Point> myPointList { get; set; }
+        Dictionary<int, List<Point>> dict_points = new Dictionary<int, List<Point>>();
+        int segment_line_id { get; set; }
+        int segment_arrow_id { get; set; }
+        Dictionary<int, CustomTypes.Arrow> dict_arrows_ = new Dictionary<int, CustomTypes.Arrow>();
+        bool m_bDraw_Arrow;
+        public bool bDraw_Arrow
+        {
+            get
+            {
+                return m_bDraw_Arrow;
+            }
+            set
+            {
+                m_bDraw_Arrow = value;
+            }
+        }
+        public Bitmap bmpArrowDraw_Temp { get; set; }
+        int cursorPositionmyX;
+        public int CursorPositionmyX
+        {
+            get { return cursorPositionmyX; }
+            private
+            set
+            {
+                if (cursorPositionmyX != value)
+                {
+                    lblMouseX.Text = value.ToString();
+                }
+                cursorPositionmyX = value;
+
+            }
+        }
+        int cursorPositionmyY;
+        public int CursorPositionmyY
+        {
+            get { return cursorPositionmyY; }
+            private
+                set
+            {
+                if (cursorPositionmyY != value)
+                {
+                    lblMouseY.Text = value.ToString();
+                }
+                cursorPositionmyY = value;
+            }
+        }
+        public bool isMouseDown { get; private set; }
+        bool bClearMouseDraw { get; set; }
+        Bitmap bmpCaptured;
+        public Bitmap BmpCaptured
+        {
+            get { return bmpCaptured; }
+            set
+            {
+                bmpCaptured = value;
+            }
+        }
+        bool m_clearDrawsActive;
+        public bool M_clearDrawsActive
+        {
+            get { return m_clearDrawsActive; }
+            set { m_clearDrawsActive = value; }
+        }
+        public Color clrArrow { get; private set; }
+
+        #endregion
 
         #region make form movable
 
@@ -114,20 +286,14 @@ namespace PictureOnTop
 
         #region Screenshot by mouse
 
+        public delegate void Delegate_fn_show_capture_form();
+        public Delegate_fn_show_capture_form m_Delegate_fn_show_capture_form { get; set; }
+
         /*Start screenshot*/
         private void button10_Click(object sender, EventArgs e)
         {
-
             m_Delegate_fn_show_capture_form.Invoke();
-            //fn_show_capture_form();
-
         }
-
-        public delegate void Delegate_fn_show_capture_form();
-
-        public Delegate_fn_show_capture_form m_Delegate_fn_show_capture_form { get; set; }
-
-
         private void fn_show_capture_form()
         {
             if (frmDraggable != null)
@@ -164,33 +330,6 @@ namespace PictureOnTop
 
         #endregion
 
-        //FolderBrowserDialog FolderDialog;
-
-        private string m_selectedFolder;
-
-        public string SelectedFolder
-        {
-            get { return m_selectedFolder; }
-            set
-            {
-                m_selectedFolder = value;
-                Properties.Settings.Default.DefaultFolder = value;
-                Properties.Settings.Default.Save();
-            }
-        }
-
-        private string m_selectedFile;
-
-        public string SelectedFile
-        {
-            get { return m_selectedFile; }
-            set { m_selectedFile = value; }
-        }
-
-        UndoManager m_undoManager = null;
-
-
-
         public Form1()
         {
             InitializeComponent();
@@ -213,6 +352,17 @@ namespace PictureOnTop
 
            // pdCapture.ContextMenu = contextMenuStrip1;
 
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            m_pointsArrow = new Point[2];
+            transparency = trackBar2.Value;
+            trackBar1.Value = 1;
+            clrArrow = Color.FromArgb(125, 0, 0, 255);
+        }
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            m_undoManager.Clean();
         }
 
         private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
@@ -252,20 +402,6 @@ namespace PictureOnTop
 
             }
         }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            m_pointsArrow = new Point[2];
-            transparency = trackBar2.Value;
-            trackBar1.Value = 1;
-            clrArrow = Color.FromArgb(125, 0, 0, 255);
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            m_undoManager.Clean();
-        }
-
         private void openImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderDialog.SelectedPath = Properties.Settings.Default.DefaultFolder;
@@ -307,19 +443,6 @@ namespace PictureOnTop
 
 
         }
-
-        private bool m_topMostProperty;
-
-        public bool TopMostProperty
-        {
-            get { return m_topMostProperty; }
-            set
-            {
-                m_topMostProperty = value;
-                this.TopMost = value;
-            }
-        }
-
         private void setTopMostToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TopMostProperty = !TopMostProperty;
@@ -339,15 +462,6 @@ namespace PictureOnTop
 
 
         }
-
-        enum enRotate
-        {
-            left, right, flipX, flipY
-        }
-
-
-
-
         void Flip(enRotate en)
         {
             Bitmap bitmap1 = (Bitmap)pdCapture.Image;
@@ -381,29 +495,6 @@ namespace PictureOnTop
             }
             SetImageInPicturebox((Bitmap)bitmap1.Clone(), true);
         }
-
-        private Bitmap _image;
-        public Bitmap m_image
-        {
-            get { return _image; }
-            set
-            {
-                if (_image == null)
-                {
-
-                }
-
-                _image = value;
-                if (value != null)
-                {
-                  //  PointF[] points = CreateCirclePointArray(10.0, value);
-                  //  PictureBox pb = pdCapture;
-                  //  DrawCircle(60, value, pb);
-
-                }
-            }
-        }
-
         private void DrawCircle(int circle_diameter, Bitmap bmp, PictureBox pb)
         {
             //e.Graphics.DrawEllipse(myPen, x1, y1, width, height);
@@ -422,7 +513,6 @@ namespace PictureOnTop
                 pb.Invalidate();
             }
         }
-
         /// <summary>
         /// 
         /// </summary>
@@ -455,7 +545,6 @@ namespace PictureOnTop
 
             return points;
         }
-
         public void SetImageInPicturebox(Bitmap bitmap1, bool addToUndoManager)
         {
             m_image = bitmap1;
@@ -472,7 +561,6 @@ namespace PictureOnTop
             SetStandaloneFormImage((Bitmap)bitmap1.Clone());
             pdCapture.Refresh();
         }
-
         public void DrawData(PointF[] points, Bitmap bitmap1)
         {
             // b
@@ -487,12 +575,27 @@ namespace PictureOnTop
 
             pdCapture.Invalidate(); // Trigger redraw of the control.
         }
-
+        #region UNDO faunctionality
         private void UpdateUndoMenuEnability()
         {
             undoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex > 0;
             redoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex < m_undoManager.GetTotalItemsInStorage() - 1;
         }
+        private void DoUndo()
+        {
+            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.undo);
+            if (bm != null)
+                pdCapture.Image = bm;
+        }
+        private void DoRedo()
+        {
+            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.redo);
+            if (bm != null)
+                pdCapture.Image = bm;
+        }
+
+        #endregion
+        #region rotate image
 
         private void rorateToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -519,27 +622,25 @@ namespace PictureOnTop
         {
             Flip(enRotate.left);
         }
+        #endregion
+        #region User interaction
 
         private void button1_Click(object sender, EventArgs e)
         {
             Flip(enRotate.right);
         }
-
         private void button2_Click(object sender, EventArgs e)
         {
             Flip(enRotate.left);
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
             Flip(enRotate.flipX);
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
             Flip(enRotate.flipY);
         }
-
         private void button5_Click(object sender, EventArgs e)
         {
             Bitmap capcha = null;
@@ -589,44 +690,7 @@ namespace PictureOnTop
             SetImageInPicturebox((Bitmap)bmp.Clone(), true);
 
         }
-
-        private Color m_selectedByMouse;
-
-        public Color selectedByMouse
-        {
-            get { return m_selectedByMouse; }
-            set
-            {
-                m_selectedByMouse = value;
-                try
-                {
-
-                    switch (m_enActionType)
-                    {
-                        case enActionType.pickup_color_old:
-                            pn_color_to_replace.BackColor = value;
-
-                            break;
-                        case enActionType.pickup_color_new:
-                            pn_color_new.BackColor = value;
-                            break;
-                        default:
-                            break;
-                    }
-
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-            }
-        }
-
-        #region draw arrow
-       
         #endregion
-
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             if (drag)
@@ -664,23 +728,10 @@ namespace PictureOnTop
             //}
             pdCapture.Refresh();
         }
-
-        private PointF stretched(Point p0, PictureBox pb)
-        {
-            if (pb.Image == null) return PointF.Empty;
-
-            float scaleX = 1f * pb.Image.Width / pb.ClientSize.Width;
-            float scaleY = 1f * pb.Image.Height / pb.ClientSize.Height;
-
-            return new PointF(p0.X * scaleX, p0.Y * scaleY);
-        }
-
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
         }
-
-        public Color clrDialogSelection { get; set; }
         private void button6_Click(object sender, EventArgs e)
         {
             switch (m_enColorSource)
@@ -693,25 +744,24 @@ namespace PictureOnTop
                     break;
             }
         }
-
         private void trackBar1_ValueChanged(object sender, EventArgs e)
         {
             label2.Text = trackBar1.Value.ToString();
             Tolerance = trackBar1.Value;
         }
-        private int m_Tolerance;
-
-        public int Tolerance
+        private PointF stretched(Point p0, PictureBox pb)
         {
-            get { return m_Tolerance; }
-            set { m_Tolerance = value; }
-        }
+            if (pb.Image == null) return PointF.Empty;
 
+            float scaleX = 1f * pb.Image.Width / pb.ClientSize.Width;
+            float scaleY = 1f * pb.Image.Height / pb.ClientSize.Height;
+
+            return new PointF(p0.X * scaleX, p0.Y * scaleY);
+        }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
-
         private void makeBorderlessToolStripMenuItem_MouseDown(object sender, MouseEventArgs e)
         {
             if (this.FormBorderStyle != FormBorderStyle.None)
@@ -721,7 +771,6 @@ namespace PictureOnTop
 
 
         }
-
         private void saveImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (SelectedFolder != null)
@@ -739,36 +788,18 @@ namespace PictureOnTop
                 pdCapture.Image.Save(saveFileDialog1.FileName);
             }
         }
-
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DoUndo();
         }
-
-        private void DoUndo()
-        {
-            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.undo);
-            if (bm != null)
-                pdCapture.Image = bm;
-        }
-
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DoRedo();
         }
-
-        private void DoRedo()
-        {
-            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.redo);
-            if (bm != null)
-                pdCapture.Image = bm;
-        }
-
         private void editToolStripMenuItem_DropDownOpened(object sender, EventArgs e)
         {
             UpdateUndoMenuEnability();
         }
-
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == (Keys.Control | Keys.Z))
@@ -782,7 +813,6 @@ namespace PictureOnTop
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
-
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.Z)
@@ -794,13 +824,10 @@ namespace PictureOnTop
                 DoRedo();
             }
         }
-
-        bool bMIxWithOriginalImage { get; set; }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             bMIxWithOriginalImage = checkBox1.Checked;
         }
-
         private void trackBar2_ValueChanged(object sender, EventArgs e)
         {
             label5.Text = trackBar2.Value.ToString();
@@ -811,30 +838,18 @@ namespace PictureOnTop
                 frmDraggable.transparency = transparency;
             }
         }
-
-        private int m_transparency = 255;
-
-        public int transparency
-        {
-            get { return m_transparency; }
-            set { m_transparency = value; }
-        }
-
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
 
         }
-
         private void rb_colordialog_CheckedChanged(object sender, EventArgs e)
         {
             m_enColorSource = enColorSource.colordialog;
         }
-
         private void rb_point_CheckedChanged(object sender, EventArgs e)
         {
             m_enColorSource = enColorSource.point;
         }
-
         private void pn_color_to_replace_MouseClick(object sender, MouseEventArgs e)
         {
             m_enActionType = enActionType.pickup_color_old;
@@ -865,7 +880,6 @@ namespace PictureOnTop
 
             //            }
         }
-
         private void pn_color_new_Click(object sender, EventArgs e)
         {
             m_enActionType = enActionType.pickup_color_new;
@@ -891,19 +905,7 @@ namespace PictureOnTop
 
 
         }
-
-        private int m_sizeMode;
-
-        public int sizeMode
-        {
-            get { return m_sizeMode; }
-            set { m_sizeMode = value; }
-        }
-
-
-
-        public DraggableForm.FormBase frmDraggable { get; set; }
-        void SetStandaloneFormImage(Bitmap bitmap1)
+        private void SetStandaloneFormImage(Bitmap bitmap1)
         {
 
             if (frmDraggable != null && frmDraggable.Controls.Count > 0)
@@ -918,7 +920,6 @@ namespace PictureOnTop
                 frmDraggable.UpdateImage();
             }
         }
-
         private void Pb_Paint(object sender, PaintEventArgs e)
         {
             bool IsDrawRect = true;
@@ -930,7 +931,6 @@ namespace PictureOnTop
                 e.Graphics.DrawRectangle(new Pen(Color.Gray, 1), RectMark);
             }
         }
-
         private void lunchWpfFormToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (frmDraggable == null)
@@ -983,27 +983,16 @@ namespace PictureOnTop
                 frmDraggable.Show();
             }
         }
-
         private void FrmDraggable_OnShift(object sender, EventArgs e)
         {
             isMouseDown = (bool)sender;
         }
-
-        Rectangle rect = new Rectangle(5, 5, 5, 5);
-        Point lastPoint = Point.Empty;
-
-        private Point p1, p2;
-        List<Point> p1List = new List<Point>();
-        List<Point> p2List = new List<Point>();
-        int count = 0;
-
         private void Pb1_MouseUp(object sender, MouseEventArgs e)
         {
             isMouseDown = !true;
             //lastPoint = Point.Empty;
 
         }
-
         private void Pb1_MouseMove(object sender, MouseEventArgs e)
         {
             if (isMouseDown == true)
@@ -1064,7 +1053,6 @@ namespace PictureOnTop
                 Refresh();
             }
         }
-
         private void Pb1_MouseDown(object sender, MouseEventArgs e)
         {
             isMouseDown = true;
@@ -1094,7 +1082,6 @@ namespace PictureOnTop
 
 
         }
-
         private void Pb1_Paint(object sender, PaintEventArgs e)
         {
 
@@ -1109,12 +1096,10 @@ namespace PictureOnTop
                 }
             }
         }
-
         private void FrmDraggable_Load(object sender, EventArgs e)
         {
 
         }
-
         private void FrmDraggable_OnShowMainFormRequest(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Normal;
@@ -1122,18 +1107,15 @@ namespace PictureOnTop
             this.Show();
             this.BringToFront();
         }
-
         private void FrmDraggable_OnCaptureRequest(object sender, EventArgs e)
         {
             m_Delegate_fn_show_capture_form.Invoke();
         }
-
         private void FrmDraggable_Shown(object sender, EventArgs e)
         {
             frmDraggable.Location = Properties.Settings.Default.DraggableFormStartPostion;
             //frmDraggable.Cursor = Cursors.SizeAll;
         }
-
         private void FrmDraggable_ControlAdded(object sender, ControlEventArgs e)
         {
             //we know it is picture box :)
@@ -1155,7 +1137,6 @@ namespace PictureOnTop
             frmDraggable.Size = new Size((int)pb.Width - 10, (int)pb.Height + 0);
 
         }
-
         private void FrmDraggable_FormClosing(object sender, FormClosingEventArgs e)
         {
 
@@ -1166,7 +1147,6 @@ namespace PictureOnTop
             this.WindowState = FormWindowState.Normal;
             this.Show();
         }
-
         private void FrmDraggable_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (frmDraggable.FormBorderStyle != FormBorderStyle.Sizable)
@@ -1180,19 +1160,16 @@ namespace PictureOnTop
 
 
         }
-
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (pdCapture.Image != null)
                 SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
         }
-
         private void chImageStretch_CheckedChanged(object sender, EventArgs e)
         {
             pdCapture.SizeMode = ((CheckBox)sender).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
 
         }
-
         private void pictureBox1_SizeModeChanged(object sender, EventArgs e)
         {
             if (frmDraggable != null)
@@ -1201,34 +1178,6 @@ namespace PictureOnTop
                 pb.SizeMode = pdCapture.SizeMode;
             }
         }
-
-
-        List<Point> myPointList { get; set; }
-        Dictionary<int, List<Point>> dict_points = new Dictionary<int, List<Point>>();
-        int segment_line_id { get; set; }
-        
-//        Dictionary<int, List<Point>> dict_arrows = new Dictionary<int, List<Point>>();
-        int segment_arrow_id { get; set; }
-
-        Dictionary<int, CustomTypes.Arrow> dict_arrows_ = new Dictionary<int, CustomTypes.Arrow>();
-
-
-        private bool m_bDraw_Arrow;
-
-        public bool bDraw_Arrow
-        {
-            get
-            { 
-                return m_bDraw_Arrow; 
-            }
-            set
-            { 
-                m_bDraw_Arrow = value;
-            }
-        }
-
-        public Bitmap bmpArrowDraw_Temp { get; set; }
-
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
             bool IsDrawRect = true;
@@ -1495,42 +1444,6 @@ namespace PictureOnTop
             //}
             #endregion
         }
-
-        private int cursorPositionmyX;
-
-        public int CursorPositionmyX
-        {
-            get { return cursorPositionmyX; }
-            private 
-            set 
-            { 
-                if(cursorPositionmyX != value)
-                {
-                    lblMouseX.Text = value.ToString();
-                }
-                cursorPositionmyX = value;
-
-            }
-        }
-
-        private int cursorPositionmyY;
-
-        public int CursorPositionmyY
-        {
-            get { return cursorPositionmyY; }
-            private
-                set
-            {
-                if (cursorPositionmyY != value)
-                {
-                    lblMouseY.Text = value.ToString();
-                }
-                cursorPositionmyY = value;
-            }
-        }
-
-        public bool isMouseDown { get; private set; }
-
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -1566,7 +1479,6 @@ namespace PictureOnTop
 
             }
         }
-
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.C)
@@ -1574,28 +1486,24 @@ namespace PictureOnTop
                 m_Delegate_fn_show_capture_form.Invoke();
             }
         }
-
         private void refreshPictureboxToolStripMenuItem_Click(object sender, EventArgs e)
         {
             pdCapture.Refresh();
         }
-
         private void pdCapture_MouseUp(object sender, MouseEventArgs e)
         {
             MouseDownPictBox = false;
-
-
-            if(pdCapture.Image!=null)
-                m_image = (Bitmap)pdCapture.Image.Clone(); 
-
-                if (m_image!=null)
-                SetImageInPicturebox(m_image, true);
             pdCapture.Invalidate();
+            
+            if (pdCapture.Image != null)
+                m_image = (Bitmap)pdCapture.Image.Clone();
+
+            if (m_image != null)
+                SetImageInPicturebox(m_image, true);
+
+            pdCapture.Refresh();
         }
-
-        bool bClearMouseDraw { get; set; }
-
-        void ClearMouseDraw()
+        private void ClearMouseDraw()
         {
             //
             bClearMouseDraw = false;
@@ -1615,39 +1523,16 @@ namespace PictureOnTop
                 //pdCapture.Invalidate(); //force a repaint
             }
         }
-
-        private Bitmap bmpCaptured;
-        public Bitmap BmpCaptured
-        {
-            get { return bmpCaptured; }
-            set
-            { 
-                bmpCaptured = value;
-            }
-        }
-
         private void button6_Click_1(object sender, EventArgs e)
         {
             bClearMouseDraw = true;
             ClearMouseDraw();
         }
-
         private void chboxDrawArrow_CheckedChanged(object sender, EventArgs e)
         {
             bDraw_Arrow = (sender as CheckBox).Checked==true;
             pboxArrow.Refresh();
         }
-
-        private bool m_clearDrawsActive;
-
-        public bool M_clearDrawsActive
-        {
-            get { return m_clearDrawsActive; }
-            set { m_clearDrawsActive = value; }
-        }
-
-        
-
         private void button6_MouseDown(object sender, MouseEventArgs e)
         {
             M_clearDrawsActive = true;
@@ -1659,14 +1544,10 @@ namespace PictureOnTop
                 SetImageInPicturebox((Bitmap)BmpCaptured.Clone(), false);
             }
         }
-
         private void button6_MouseUp(object sender, MouseEventArgs e)
         {
             M_clearDrawsActive = !true;
         }
-
-        public Color clrArrow { get; private set; }
-
         private void button7_Click(object sender, EventArgs e)
         {
             #region pickup color from dialog
@@ -1681,14 +1562,12 @@ namespace PictureOnTop
             }
             #endregion
         }
-
         private void button8_Click(object sender, EventArgs e)
         {
             pdCapture.Image = null;
             m_image = null;
             pdCapture.Refresh();
         }
-
         private void pboxArrow_Paint(object sender, PaintEventArgs e)
         {
             Point[] arrow = new Point[2];
@@ -1699,7 +1578,10 @@ namespace PictureOnTop
             pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
             e.Graphics.DrawLine(pen, arrow[1], arrow[0]);
         }
-
+        private void button9_Click(object sender, EventArgs e)
+        {
+            m_undoManager.Clean();
+        }
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
         {
             refreshToolStripMenuItem.Enabled = frmDraggable != null;

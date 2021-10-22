@@ -34,12 +34,23 @@ namespace PictureOnTop
         public void Clean()
         {
             lst_bitmaps.Clear();
+            m_GetCurrentIndex = 0;
         }
 
         public void AddNewImage(System.Drawing.Bitmap bm)
         {
-            lst_bitmaps.Add(bm);
-            m_GetCurrentIndex = lst_bitmaps.Count - 1;
+
+            if (m_GetCurrentIndex == lst_bitmaps.Count - 1)
+            {
+                lst_bitmaps.Add(bm);
+                m_GetCurrentIndex = lst_bitmaps.Count - 1;
+                
+            }
+            else
+            {
+                lst_bitmaps.Insert(m_GetCurrentIndex, bm);
+                m_GetCurrentIndex++;
+            }
         }
 
         private System.Drawing.Bitmap DoAction(enOperation en)

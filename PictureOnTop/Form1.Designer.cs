@@ -91,6 +91,7 @@ namespace PictureOnTop
             this.label8 = new System.Windows.Forms.Label();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.button9 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -324,6 +325,7 @@ namespace PictureOnTop
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.Controls.Add(this.button9);
             this.groupBox1.Controls.Add(this.button8);
             this.groupBox1.Controls.Add(this.button6);
             this.groupBox1.Controls.Add(this.lblMouseY);
@@ -358,7 +360,7 @@ namespace PictureOnTop
             // 
             // button8
             // 
-            this.button8.Location = new System.Drawing.Point(0, 509);
+            this.button8.Location = new System.Drawing.Point(3, 495);
             this.button8.Margin = new System.Windows.Forms.Padding(4);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(88, 22);
@@ -369,7 +371,7 @@ namespace PictureOnTop
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(0, 488);
+            this.button6.Location = new System.Drawing.Point(3, 475);
             this.button6.Margin = new System.Windows.Forms.Padding(4);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(88, 22);
@@ -384,7 +386,7 @@ namespace PictureOnTop
             // 
             this.lblMouseY.AutoSize = true;
             this.lblMouseY.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.lblMouseY.Location = new System.Drawing.Point(7, 471);
+            this.lblMouseY.Location = new System.Drawing.Point(50, 458);
             this.lblMouseY.Name = "lblMouseY";
             this.lblMouseY.Size = new System.Drawing.Size(13, 13);
             this.lblMouseY.TabIndex = 10;
@@ -730,6 +732,17 @@ namespace PictureOnTop
             // 
             this.colorDialog1.Color = System.Drawing.Color.LightGray;
             // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(3, 514);
+            this.button9.Margin = new System.Windows.Forms.Padding(4);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(88, 22);
+            this.button9.TabIndex = 25;
+            this.button9.Text = "Clear Undo";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -835,6 +848,7 @@ namespace PictureOnTop
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.PictureBox pboxArrow;
+        private System.Windows.Forms.Button button9;
     }
 }
 
