@@ -123,7 +123,7 @@ namespace PictureOnTop
             this.pdCapture.TabIndex = 0;
             this.pdCapture.TabStop = false;
             this.pdCapture.SizeModeChanged += new System.EventHandler(this.pictureBox1_SizeModeChanged);
-            this.pdCapture.Click += new System.EventHandler(this.pictureBox1_Click);
+            
             this.pdCapture.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             this.pdCapture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             this.pdCapture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);

@@ -40,6 +40,12 @@ namespace PictureOnTop
         public void AddNewImage(System.Drawing.Bitmap bm)
         {
 
+            lst_bitmaps.Add(bm);
+            m_GetCurrentIndex = lst_bitmaps.Count - 1;
+
+            return;
+
+
             if (m_GetCurrentIndex == lst_bitmaps.Count - 1)
             {
                 lst_bitmaps.Add(bm);
@@ -61,8 +67,8 @@ namespace PictureOnTop
                 case enOperation.undo:
                     if (m_GetCurrentIndex > 0)
                     {
+                        bm = lst_bitmaps[m_GetCurrentIndex-1];
                         m_GetCurrentIndex--;
-                        bm = lst_bitmaps[m_GetCurrentIndex];
                     }
                     break;
 

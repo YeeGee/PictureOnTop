@@ -575,6 +575,7 @@ namespace PictureOnTop
 
             pdCapture.Invalidate(); // Trigger redraw of the control.
         }
+
         #region UNDO faunctionality
         private void UpdateUndoMenuEnability()
         {
@@ -585,7 +586,10 @@ namespace PictureOnTop
         {
             System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.undo);
             if (bm != null)
+            {
                 pdCapture.Image = bm;
+                pdCapture.Refresh();
+            }
         }
         private void DoRedo()
         {
@@ -593,8 +597,17 @@ namespace PictureOnTop
             if (bm != null)
                 pdCapture.Image = bm;
         }
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DoUndo();
+        }
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DoRedo();
+        }
 
         #endregion
+
         #region rotate image
 
         private void rorateToolStripMenuItem_Click(object sender, EventArgs e)
@@ -623,6 +636,7 @@ namespace PictureOnTop
             Flip(enRotate.left);
         }
         #endregion
+
         #region User interaction
 
         private void button1_Click(object sender, EventArgs e)
@@ -710,6 +724,8 @@ namespace PictureOnTop
             m_pointsArrow[0].Y = m_pointsArrow[1].Y = CursorPositionmyY;
 
             MouseDownPictBox = true;
+            if (pdCapture.Image == null)
+                return;
 
             Bitmap capcha = (Bitmap)pdCapture.Image;
             if (capcha == null)
@@ -726,11 +742,7 @@ namespace PictureOnTop
             selectedByMouse = c;
 
             //}
-            pdCapture.Refresh();
-        }
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
+            //pdCapture.Refresh();
         }
         private void button6_Click(object sender, EventArgs e)
         {
@@ -788,14 +800,7 @@ namespace PictureOnTop
                 pdCapture.Image.Save(saveFileDialog1.FileName);
             }
         }
-        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DoUndo();
-        }
-        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DoRedo();
-        }
+
         private void editToolStripMenuItem_DropDownOpened(object sender, EventArgs e)
         {
             UpdateUndoMenuEnability();
@@ -905,6 +910,8 @@ namespace PictureOnTop
 
 
         }
+
+        #region draggable standalone windows
         private void SetStandaloneFormImage(Bitmap bitmap1)
         {
 
@@ -1160,6 +1167,8 @@ namespace PictureOnTop
 
 
         }
+        #endregion
+
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (pdCapture.Image != null)
@@ -1191,25 +1200,23 @@ namespace PictureOnTop
             SolidBrush brush = new SolidBrush(Color.Empty);
             
             Graphics g2 = m_image!=null? Graphics.FromImage(m_image): e.Graphics;                                                            //pdCapture.Image = bmp;
-            Bitmap bmp = new Bitmap(pdCapture.Width, pdCapture.Height, g2);// Graphics.FromImage(image));
-                                                                                   // return;
-            if (IsDrawRect) // Flag Variable to check if need to draw rect
+            Bitmap bmp = new Bitmap(pdCapture.Width, pdCapture.Height, g2);
+                               
+            // draws border around captured image
+            if (IsDrawRect) 
             {
                 RectangleF r = e.Graphics.VisibleClipBounds;
                 Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right-1, (int)r.Height - shift_bottom-1); // your location to draw
-                //RectMark = new Rectangle(shift_left, shift_top, 100, 100);// (int)r.Width - shift_right, (int)r.Height - shift_bottom); // your location to draw
                 //Graphics.FromImage(bmp).DrawRectangle(new Pen(Color.Red, 1), RectMark);
                 e.Graphics.DrawRectangle(new Pen(Color.Gray, 1), RectMark);
-                //pdCapture.Image = bmp;
             }
 
-
-            if (true)//mouseDownPictBox)
+            if (true)
             {
                 try
                 {
-
-                if (MouseDownPictBox && false)
+                    #region NOT USED
+                    if (MouseDownPictBox && false)
                 {
                     RectangleF r = e.Graphics.VisibleClipBounds;
 
@@ -1218,8 +1225,8 @@ namespace PictureOnTop
 
                     g2.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 2, 2);
                 }
+                    #endregion
 
-                    //if(myPointList!=null)
                     int id = segment_line_id;
                     if (dict_points.Count > 0)
                          if (dict_points[id] != null)
@@ -1322,9 +1329,22 @@ namespace PictureOnTop
             {
                 pdCapture.Image= new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
             }
+            if (bActionOnMouseUp)
+            {
+                bActionOnMouseUp = false;
+
+                if (pdCapture.Image != null)
+                    m_image = (Bitmap)pdCapture.Image.Clone();
+
+                if (m_image != null)
+                    SetImageInPicturebox(m_image, true);
+
+                
+            }
 
             return;
 
+            #region Not USED
             Graphics gOriginal = e.Graphics;// Graphics.FromImage(image)
             
             try
@@ -1390,7 +1410,8 @@ namespace PictureOnTop
                         }
                     }
                 }
-            
+                
+
                 pdCapture.Image = bmp;
             }
             catch (Exception ex)
@@ -1398,8 +1419,9 @@ namespace PictureOnTop
 
                 //throw;
             }
+            #endregion
 
-            #region 2
+            #region NOT USED
             // Create array of two points.
             //  Point[] points = { new Point(0, 0), new Point(100, 50) };
             //   e.Graphics.DrawLine(new Pen(Color.Blue, 3), points[0], points[1]);
@@ -1449,12 +1471,13 @@ namespace PictureOnTop
             if (e.Button == MouseButtons.Right)
                 return;
 
-            CursorPositionmyX = e.X;
-            CursorPositionmyY = e.Y;
             if (MouseDownPictBox)
             {
                 if (!bClearMouseDraw)
                 {
+                    CursorPositionmyX = e.X;
+                    CursorPositionmyY = e.Y;
+
                     int id = segment_line_id;
 
                     if (!bDraw_Arrow)
@@ -1479,6 +1502,7 @@ namespace PictureOnTop
 
             }
         }
+        // short keys main form
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.C)
@@ -1490,18 +1514,14 @@ namespace PictureOnTop
         {
             pdCapture.Refresh();
         }
+
+        public bool bActionOnMouseUp { get; set; }
         private void pdCapture_MouseUp(object sender, MouseEventArgs e)
         {
             MouseDownPictBox = false;
-            pdCapture.Invalidate();
-            
-            if (pdCapture.Image != null)
-                m_image = (Bitmap)pdCapture.Image.Clone();
-
-            if (m_image != null)
-                SetImageInPicturebox(m_image, true);
-
+            bActionOnMouseUp = true;
             pdCapture.Refresh();
+
         }
         private void ClearMouseDraw()
         {
