@@ -13,6 +13,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Windows.Forms.VisualStyles;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace PictureOnTop
 {
@@ -347,7 +348,7 @@ namespace PictureOnTop
             clrDialogSelection = Color.White;
             this.Load += Form1_Load;
 
-            pdCapture.MouseDown += PictureBox1_MouseDown;
+           
             m_Delegate_fn_show_capture_form = new Delegate_fn_show_capture_form(fn_show_capture_form);
 
            // pdCapture.ContextMenu = contextMenuStrip1;
@@ -365,43 +366,7 @@ namespace PictureOnTop
             m_undoManager.Clean();
         }
 
-        private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
-        {
-            // throw new NotImplementedException();
-            if (drag)
-                return;
-
-            Bitmap capcha = (Bitmap)pdCapture.Image;
-            if (capcha == null)
-                return;
-
-            if (m_enColorSource == enColorSource.point)
-            {
-
-                //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
-                //{
-                Point mDown = Point.Round(stretched(e.Location, pdCapture));
-                PointF pf = stretched(mDown, pdCapture);
-
-                //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
-                Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
-                // do your stuff:
-                selectedByMouse = c;
-                colorDialog1.Color = clrDialogSelection = selectedByMouse;
-                //switch (m_enActionType)
-                //{
-                //    case enActionType.pickup_color_old:
-                //        lbl_color_old.BackColor = selectedByMouse;
-                //        break;
-                //    case enActionType.pickup_color_new:
-                //        lbl_color_new.BackColor = selectedByMouse;
-                //        break;
-                //    default:
-                //        break;
-                //}
-
-            }
-        }
+        
         private void openImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderDialog.SelectedPath = Properties.Settings.Default.DefaultFolder;
@@ -558,7 +523,7 @@ namespace PictureOnTop
                 m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
             }
             UpdateUndoMenuEnability();
-            SetStandaloneFormImage((Bitmap)bitmap1.Clone());
+            SetStandaloneFormImage(bitmap1);
             pdCapture.Refresh();
         }
         public void DrawData(PointF[] points, Bitmap bitmap1)
@@ -580,15 +545,21 @@ namespace PictureOnTop
         private void UpdateUndoMenuEnability()
         {
             undoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex > 0;
-            redoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex < m_undoManager.GetTotalItemsInStorage() - 1;
+            redoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex < m_undoManager.GetTotalItemsInStorage()-1;
         }
         private void DoUndo()
         {
+            //
+            
             System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.undo);
             if (bm != null)
             {
                 pdCapture.Image = bm;
                 pdCapture.Refresh();
+            }
+            else
+            {
+                Debug.Write("Undo returned Null\n");
             }
         }
         private void DoRedo()
@@ -705,6 +676,28 @@ namespace PictureOnTop
 
         }
         #endregion
+
+        private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (drag)
+                return;
+            if (m_enColorSource == enColorSource.point)
+            {
+                Bitmap capcha = (Bitmap)pdCapture.Image;
+                if (capcha != null)
+                {
+
+                    Point mDown = Point.Round(stretched(e.Location, pdCapture));
+                    PointF pf = stretched(mDown, pdCapture);
+
+                    Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
+                    // do your stuff:
+                    selectedByMouse = c;
+                    colorDialog1.Color = clrDialogSelection = selectedByMouse;
+                }
+            }
+
+        }
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             if (drag)
@@ -712,11 +705,7 @@ namespace PictureOnTop
 
             if (e.Button == MouseButtons.Right)
             {
-                //contextMenuStrip1.Left = ((PictureBox)sender).Location.X;// e.Location.X;
-                ///contextMenuStrip1.Top = ((PictureBox)sender).Location.Y; ;// e.Location.Y;
-                //contextMenuStrip1.TopLevel = true;
                 contextMenuStrip1.Show();
-
                 return;
             }
 
@@ -726,23 +715,18 @@ namespace PictureOnTop
             MouseDownPictBox = true;
             if (pdCapture.Image == null)
                 return;
+            if (e.Button == MouseButtons.Left)
+            {
+                Bitmap capcha = (Bitmap)pdCapture.Image;
+                if (capcha == null)
+                    return;
 
-            Bitmap capcha = (Bitmap)pdCapture.Image;
-            if (capcha == null)
-                return;
-
-            //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
-            //{
-            Point mDown = Point.Round(stretched(e.Location, pdCapture));
-            PointF pf = stretched(mDown, pdCapture);
-
-            //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
-            Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
-            // do your stuff:
-            selectedByMouse = c;
-
-            //}
-            //pdCapture.Refresh();
+                Point mDown = Point.Round(stretched(e.Location, pdCapture));
+                PointF pf = stretched(mDown, pdCapture);
+                Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
+                // do your stuff:
+                selectedByMouse = c;
+            }
         }
         private void button6_Click(object sender, EventArgs e)
         {
@@ -912,11 +896,12 @@ namespace PictureOnTop
         }
 
         #region draggable standalone windows
-        private void SetStandaloneFormImage(Bitmap bitmap1)
+        private void SetStandaloneFormImage(Bitmap bm)
         {
 
             if (frmDraggable != null && frmDraggable.Controls.Count > 0)
             {
+                Bitmap bitmap1 = (Bitmap)bm.Clone();
                 frmDraggable.transparency = transparency;
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
                 pb.Image = bitmap1;
@@ -1334,11 +1319,10 @@ namespace PictureOnTop
                 bActionOnMouseUp = false;
 
                 if (pdCapture.Image != null)
+                {
                     m_image = (Bitmap)pdCapture.Image.Clone();
-
-                if (m_image != null)
                     SetImageInPicturebox(m_image, true);
-
+                }
                 
             }
 
@@ -1519,7 +1503,13 @@ namespace PictureOnTop
         private void pdCapture_MouseUp(object sender, MouseEventArgs e)
         {
             MouseDownPictBox = false;
-            bActionOnMouseUp = true;
+            
+            if((m_pointsArrow[1].X == m_pointsArrow[0].X) && (m_pointsArrow[1].Y == m_pointsArrow[0].Y))
+                // do not act if position didn't change
+              bActionOnMouseUp = !true;
+            else
+              bActionOnMouseUp = true;
+
             pdCapture.Refresh();
 
         }
@@ -1602,6 +1592,30 @@ namespace PictureOnTop
         {
             m_undoManager.Clean();
         }
+
+        private void Form1_Load_1(object sender, EventArgs e)
+        {
+            this.Location = Properties.Settings.Default.MainformStartPosition;
+        }
+
+        private void Form1_FormClosing_1(object sender, FormClosingEventArgs e)
+        {
+            
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                // save location and size if the state is normal
+                Properties.Settings.Default.MainformStartPosition = this.Location;
+            }
+            else
+            {
+                // save the RestoreBounds if the form is minimized or maximized!
+                Properties.Settings.Default.MainformStartPosition = this.RestoreBounds.Location;
+            }
+
+            // don't forget to save the settings
+            Properties.Settings.Default.Save();
+        }
+
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
         {
             refreshToolStripMenuItem.Enabled = frmDraggable != null;

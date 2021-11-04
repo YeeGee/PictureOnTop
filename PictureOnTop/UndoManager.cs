@@ -22,7 +22,12 @@ namespace PictureOnTop
         /// index of store image
         /// if it 0 that is initial image
         /// </summary>
-        public int GetCurrentIndex { get { return m_GetCurrentIndex; } }
+        public int GetCurrentIndex {
+            get 
+            { 
+                return m_GetCurrentIndex;
+            }
+        }
         public int GetTotalItemsInStorage() { return lst_bitmaps.Count; }
 
         public System.Drawing.Bitmap SetOperation(enOperation en)
@@ -41,11 +46,11 @@ namespace PictureOnTop
         {
 
             lst_bitmaps.Add(bm);
-            m_GetCurrentIndex = lst_bitmaps.Count - 1;
+            m_GetCurrentIndex = lst_bitmaps.Count;
 
             return;
 
-
+            #region NOT USED
             if (m_GetCurrentIndex == lst_bitmaps.Count - 1)
             {
                 lst_bitmaps.Add(bm);
@@ -57,6 +62,7 @@ namespace PictureOnTop
                 lst_bitmaps.Insert(m_GetCurrentIndex, bm);
                 m_GetCurrentIndex++;
             }
+            #endregion
         }
 
         private System.Drawing.Bitmap DoAction(enOperation en)

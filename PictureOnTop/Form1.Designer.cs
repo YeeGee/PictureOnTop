@@ -55,6 +55,7 @@ namespace PictureOnTop
             this.FolderDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.lblMouseY = new System.Windows.Forms.Label();
@@ -91,7 +92,6 @@ namespace PictureOnTop
             this.label8 = new System.Windows.Forms.Label();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.button9 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -123,7 +123,6 @@ namespace PictureOnTop
             this.pdCapture.TabIndex = 0;
             this.pdCapture.TabStop = false;
             this.pdCapture.SizeModeChanged += new System.EventHandler(this.pictureBox1_SizeModeChanged);
-            
             this.pdCapture.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             this.pdCapture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             this.pdCapture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
@@ -357,6 +356,17 @@ namespace PictureOnTop
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Toolbox";
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(3, 514);
+            this.button9.Margin = new System.Windows.Forms.Padding(4);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(88, 22);
+            this.button9.TabIndex = 25;
+            this.button9.Text = "Clear Undo";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // button8
             // 
@@ -732,17 +742,6 @@ namespace PictureOnTop
             // 
             this.colorDialog1.Color = System.Drawing.Color.LightGray;
             // 
-            // button9
-            // 
-            this.button9.Location = new System.Drawing.Point(3, 514);
-            this.button9.Margin = new System.Windows.Forms.Padding(4);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(88, 22);
-            this.button9.TabIndex = 25;
-            this.button9.Text = "Clear Undo";
-            this.button9.UseVisualStyleBackColor = true;
-            this.button9.Click += new System.EventHandler(this.button9_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -756,6 +755,8 @@ namespace PictureOnTop
             this.Name = "Form1";
             this.Opacity = 1D;
             this.Text = "Picture holder";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing_1);
+            this.Load += new System.EventHandler(this.Form1_Load_1);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
