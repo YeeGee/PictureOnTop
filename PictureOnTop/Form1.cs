@@ -515,19 +515,24 @@ namespace PictureOnTop
             pdCapture.Image = bitmap1;
             pdCapture.Height = bitmap1.Height;
             pdCapture.Width = bitmap1.Width;
-            pbMonitor.Image= (Bitmap)bitmap1.Clone();
-            pbMonitor.Refresh();
+            UpdateMonitor(bitmap1);
 
             //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
             if (addToUndoManager)
             {
                 m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
-                
             }
             UpdateUndoMenuEnability();
             SetStandaloneFormImage(bitmap1);
-            //pdCapture.Refresh();
         }
+
+        private void UpdateMonitor(Bitmap bitmap1)
+        {
+            pbMonitor.Image = (Bitmap)bitmap1.Clone();
+            pbMonitor.Refresh();
+
+        }
+
         public void DrawData(PointF[] points, Bitmap bitmap1)
         {
             // b
@@ -558,6 +563,7 @@ namespace PictureOnTop
             {
                 pdCapture.Image = bm;
                 pdCapture.Refresh();
+                UpdateMonitor(bm);
             }
             else
             {
@@ -568,7 +574,10 @@ namespace PictureOnTop
         {
             System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.redo);
             if (bm != null)
+            {
                 pdCapture.Image = bm;
+                UpdateMonitor(bm);
+            }
         }
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1172,17 +1181,22 @@ namespace PictureOnTop
             int tempY = 0;
             Bitmap image = new Bitmap(pdCapture.Width, pdCapture.Height);
             SolidBrush brush = new SolidBrush(Color.Empty);
-            
-            //Graphics g2 = m_image!=null? Graphics.FromImage(m_image): e.Graphics;                                                            //pdCapture.Image = bmp;
-           // Bitmap bmp = new Bitmap(pdCapture.Width, pdCapture.Height, g2);
-                               
+
+            if (pdCapture.Image == null)
+                pdCapture.Image = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+
+            Graphics G1 = Graphics.FromImage(pdCapture.Image);
+
+
+            // Bitmap bmp = new Bitmap(pdCapture.Width, pdCapture.Height, g2);
+
             // draws border around captured image
             if (IsDrawRect) 
             {
                 RectangleF r = e.Graphics.VisibleClipBounds;
                 Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right-1, (int)r.Height - shift_bottom-1); // your location to draw
                 //Graphics.FromImage(bmp).DrawRectangle(new Pen(Color.Red, 1), RectMark);
-                e.Graphics.DrawRectangle(new Pen(Color.YellowGreen, 1), RectMark);
+                G1.DrawRectangle(new Pen(Color.YellowGreen, 1), RectMark);
             }
 
             if (true)
@@ -1197,7 +1211,7 @@ namespace PictureOnTop
                     Color clrMouseDraw = Color.Green;// OnSystemColorsChanged(). bmp.GetPixel(x, y);
                     brush.Color = Color.FromArgb(transparency, clrMouseDraw.R, clrMouseDraw.G, clrMouseDraw.B);
 
-                    e.Graphics.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 2, 2);
+                    G1.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 2, 2);
                 }
                     #endregion
 
@@ -1208,7 +1222,7 @@ namespace PictureOnTop
                           for(int i=0; i < dict_points.Count; i++)   
                         {
                             if (dict_points[i].Count >= 2)
-                                    e.Graphics.DrawLines(Pens.Black, dict_points[i].ToArray());
+                                    G1.DrawLines(Pens.Black, dict_points[i].ToArray());
                         }
 
                     //dict_arrows
@@ -1221,7 +1235,7 @@ namespace PictureOnTop
                             if (dict_arrows_[i].Count >= 2)
                             {
                                 Pen penMidlleLine = new Pen(Color.FromArgb(120, 0, 0, 200), 1);
-                                e.Graphics.DrawLine(penMidlleLine, dict_arrows_[i].point[0], dict_arrows_[i].point[1]);
+                                G1.DrawLine(penMidlleLine, dict_arrows_[i].point[0], dict_arrows_[i].point[1]);
                                 
                                 // make subarrows
                                 Point[] subarrow1 = new Point[2];
@@ -1235,7 +1249,7 @@ namespace PictureOnTop
                                 Pen pen = new Pen(dict_arrows_[i].color, 4);
                                 pen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
                                 pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
-                                e.Graphics.DrawLine(pen, subarrow1[0], subarrow1[1]);
+                                G1.DrawLine(pen, subarrow1[0], subarrow1[1]);
 
                             }
                         }
@@ -1285,7 +1299,7 @@ namespace PictureOnTop
                     Rectangle r = new Rectangle(m_pointsArrow[0].X, m_pointsArrow[0].Y,
                         m_pointsArrow[1].X - m_pointsArrow[0].X, m_pointsArrow[1].Y - m_pointsArrow[0].Y);
                     Pen penMidlleLine = new Pen(Color.FromArgb(50, 20, 20, 20), 1);
-                    e.Graphics.DrawLine(penMidlleLine, m_pointsArrow[0], m_pointsArrow[1]);
+                    G1.DrawLine(penMidlleLine, m_pointsArrow[0], m_pointsArrow[1]);
                     bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
                 }
                 else
@@ -1303,22 +1317,17 @@ namespace PictureOnTop
 
             //m_image = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
             
+            
+            
 
-            if (bActionOnMouseUp)
-            {
-                bActionOnMouseUp = false;
+            
 
-                if (pdCapture.Image == null)
-                {
-                    pdCapture.Image= new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
-                }
+            
 
-                {
-                    Bitmap im = (Bitmap)pdCapture.Image.Clone();// new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
-                    SetImageInPicturebox(im, true);
-                }
-                
-            }
+            m_image = new Bitmap(pdCapture.Width, pdCapture.Height, G1);
+
+            G1.Dispose();
+
 
             if (stat_tick_start == 0) stat_tick_start = DateTime.Now.Ticks;
             //interval 
@@ -1511,7 +1520,34 @@ namespace PictureOnTop
             pdCapture.Refresh();
         }
 
-        public bool bActionOnMouseUp { get; set; }
+        bool _bActionOnMouseUp;
+        public bool bActionOnMouseUp
+        { 
+            get
+            {
+                return _bActionOnMouseUp;
+            }
+            set
+            {
+                _bActionOnMouseUp = value;
+
+                if (_bActionOnMouseUp)
+                {
+                    _bActionOnMouseUp = false;
+
+                    if (pdCapture.Image != null)
+                    {
+                        //pdCapture.Image = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+
+                        
+
+                        Bitmap im = (Bitmap)pdCapture.Image.Clone();// new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+                        SetImageInPicturebox(im, true);
+                    }
+
+                }
+            }
+        }
         private void pdCapture_MouseUp(object sender, MouseEventArgs e)
         {
             MouseDownPictBox = false;
