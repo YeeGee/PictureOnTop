@@ -181,7 +181,7 @@ namespace DraggableForm
             //
             //If drag = true, drag the form
             //
-            if (this.drag)
+            if (this.drag )
             {
                 Point p1 = new Point(e.X, e.Y);
                 Point p2 = this.PointToScreen(p1);

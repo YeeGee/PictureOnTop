@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace PictureOnTop
 
             lst_bitmaps.Add(bm);
             m_GetCurrentIndex = lst_bitmaps.Count;
-
+            Debug.WriteLine("Added image N" + m_GetCurrentIndex.ToString());
             return;
 
             #region NOT USED
@@ -71,10 +72,16 @@ namespace PictureOnTop
             switch (en)
             {
                 case enOperation.undo:
-                    if (m_GetCurrentIndex > 0)
+                    if (m_GetCurrentIndex >0)
                     {
-                        bm = lst_bitmaps[m_GetCurrentIndex-1];
-                        m_GetCurrentIndex--;
+                        if (m_GetCurrentIndex == lst_bitmaps.Count)
+                            m_GetCurrentIndex -= 2;
+                        else
+                            m_GetCurrentIndex --;
+
+                        bm = lst_bitmaps[m_GetCurrentIndex];
+                        Debug.WriteLine("Retreived image N" + m_GetCurrentIndex.ToString());
+                        
                     }
                     break;
 
