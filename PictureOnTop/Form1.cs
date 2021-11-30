@@ -964,10 +964,6 @@ namespace PictureOnTop
                 frmDraggable.Controls.Add(pb1);
 
 
-                if (pdCapture.Image != null)
-                    SetStandaloneFormImage((Bitmap)pdCapture.Image);
-
-
                 frmDraggable.WindowState = FormWindowState.Normal;
                 frmDraggable.BringToFront();
                 frmDraggable.Show();
@@ -1103,7 +1099,20 @@ namespace PictureOnTop
         }
         private void FrmDraggable_Shown(object sender, EventArgs e)
         {
+            Rectangle rcScreen= Screen.GetBounds(new Point(0, 0));
+            Size rcDraggableForm = frmDraggable.Size;
+            Point startPosition = Properties.Settings.Default.DraggableFormStartPostion;
+
+            if (Math.Abs(startPosition.X) > (rcScreen.Width- frmDraggable.Width))
+                Properties.Settings.Default.DraggableFormStartPostion = new Point(10, 10);
+
+            if (Math.Abs(startPosition.Y) > (rcScreen.Height- frmDraggable.Height))
+                Properties.Settings.Default.DraggableFormStartPostion = new Point(10, 10);
+
             frmDraggable.Location = Properties.Settings.Default.DraggableFormStartPostion;
+            if (pdCapture.Image != null)
+                SetStandaloneFormImage((Bitmap)pdCapture.Image);
+
             //frmDraggable.Cursor = Cursors.SizeAll;
         }
         private void FrmDraggable_ControlAdded(object sender, ControlEventArgs e)
