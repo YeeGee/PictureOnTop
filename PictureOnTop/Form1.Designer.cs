@@ -37,6 +37,8 @@ namespace PictureOnTop
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openSaveFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openSaveFolderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,10 +93,10 @@ namespace PictureOnTop
             this.button7 = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.pbMonitor = new System.Windows.Forms.PictureBox();
+            this.chBoxDrawText = new System.Windows.Forms.CheckBox();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.openSaveFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openSaveFolderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.timerCursor = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -176,21 +178,35 @@ namespace PictureOnTop
             // openImageToolStripMenuItem
             // 
             this.openImageToolStripMenuItem.Name = "openImageToolStripMenuItem";
-            this.openImageToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openImageToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.openImageToolStripMenuItem.Text = "Open image";
             this.openImageToolStripMenuItem.Click += new System.EventHandler(this.openImageToolStripMenuItem_Click);
             // 
             // saveImageToolStripMenuItem
             // 
             this.saveImageToolStripMenuItem.Name = "saveImageToolStripMenuItem";
-            this.saveImageToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveImageToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.saveImageToolStripMenuItem.Text = "Save Image";
             this.saveImageToolStripMenuItem.Click += new System.EventHandler(this.saveImageToolStripMenuItem_Click);
+            // 
+            // openSaveFolderToolStripMenuItem
+            // 
+            this.openSaveFolderToolStripMenuItem.Name = "openSaveFolderToolStripMenuItem";
+            this.openSaveFolderToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.openSaveFolderToolStripMenuItem.Text = "Set save folder";
+            this.openSaveFolderToolStripMenuItem.Click += new System.EventHandler(this.openSaveFolderToolStripMenuItem_Click);
+            // 
+            // openSaveFolderToolStripMenuItem1
+            // 
+            this.openSaveFolderToolStripMenuItem1.Name = "openSaveFolderToolStripMenuItem1";
+            this.openSaveFolderToolStripMenuItem1.Size = new System.Drawing.Size(163, 22);
+            this.openSaveFolderToolStripMenuItem1.Text = "Open save folder";
+            this.openSaveFolderToolStripMenuItem1.Click += new System.EventHandler(this.openSaveFolderToolStripMenuItem1_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -688,6 +704,7 @@ namespace PictureOnTop
             this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel2);
             this.flowLayoutPanel1.Controls.Add(this.label8);
             this.flowLayoutPanel1.Controls.Add(this.pbMonitor);
+            this.flowLayoutPanel1.Controls.Add(this.chBoxDrawText);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(575, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -757,23 +774,25 @@ namespace PictureOnTop
             this.pbMonitor.TabIndex = 26;
             this.pbMonitor.TabStop = false;
             // 
+            // chBoxDrawText
+            // 
+            this.chBoxDrawText.AutoSize = true;
+            this.chBoxDrawText.Location = new System.Drawing.Point(3, 118);
+            this.chBoxDrawText.Name = "chBoxDrawText";
+            this.chBoxDrawText.Size = new System.Drawing.Size(69, 17);
+            this.chBoxDrawText.TabIndex = 27;
+            this.chBoxDrawText.Text = "draw text";
+            this.chBoxDrawText.UseVisualStyleBackColor = true;
+            this.chBoxDrawText.CheckedChanged += new System.EventHandler(this.chBoxDrawText_CheckedChanged);
+            // 
             // colorDialog1
             // 
             this.colorDialog1.Color = System.Drawing.Color.LightGray;
             // 
-            // openSaveFolderToolStripMenuItem
+            // timerCursor
             // 
-            this.openSaveFolderToolStripMenuItem.Name = "openSaveFolderToolStripMenuItem";
-            this.openSaveFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.openSaveFolderToolStripMenuItem.Text = "Set save folder";
-            this.openSaveFolderToolStripMenuItem.Click += new System.EventHandler(this.openSaveFolderToolStripMenuItem_Click);
-            // 
-            // openSaveFolderToolStripMenuItem1
-            // 
-            this.openSaveFolderToolStripMenuItem1.Name = "openSaveFolderToolStripMenuItem1";
-            this.openSaveFolderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
-            this.openSaveFolderToolStripMenuItem1.Text = "Open save folder";
-            this.openSaveFolderToolStripMenuItem1.Click += new System.EventHandler(this.openSaveFolderToolStripMenuItem1_Click);
+            this.timerCursor.Interval = 500;
+            this.timerCursor.Tick += new System.EventHandler(this.timerCursor_Tick);
             // 
             // Form1
             // 
@@ -887,6 +906,8 @@ namespace PictureOnTop
         private System.Windows.Forms.PictureBox pbMonitor;
         private System.Windows.Forms.ToolStripMenuItem openSaveFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openSaveFolderToolStripMenuItem1;
+        private System.Windows.Forms.CheckBox chBoxDrawText;
+        private System.Windows.Forms.Timer timerCursor;
     }
 }
 

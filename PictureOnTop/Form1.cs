@@ -25,6 +25,7 @@ namespace PictureOnTop
 
     public delegate void copyToFatherTextBox(Rectangle r);
 
+
     public partial class Form1
     {
         #region Variables and properties
@@ -65,31 +66,51 @@ namespace PictureOnTop
                     if (mouseDownPictBox == false && value == true)
                     {
                         segment_line_id = dict_points.Count;
-                        dict_points.Add(segment_line_id, new List<Point>());
-                        if (m_pointsArrow == null)
-                            m_pointsArrow = new Point[2];
+                        if (DrawModeProperty == CustomTypes.EnDrawMode.arrow)
+                        {
+                            dict_points.Add(segment_line_id, new List<Point>());
+                            if (m_pointsArrow == null)
+                                m_pointsArrow = new Point[2];
 
-                        m_pointsArrow[0].X = CursorPositionmyX;
-                        m_pointsArrow[0].Y = CursorPositionmyY;
+                            m_pointsArrow[0].X = CursorPositionmyX;
+                            m_pointsArrow[0].Y = CursorPositionmyY;
+                        }
+                        else if (DrawModeProperty == CustomTypes.EnDrawMode.text)
+                        {
+                            timerCursor.Enabled = true;
+                        }
                     }
                     
                     if(mouseDownPictBox==true && value==false)
                     {//mouse UP after been down
 
-                        if (bDraw_Arrow)
+                        switch (DrawModeProperty)
                         {
-                            dict_arrows_.Add(segment_arrow_id, new CustomTypes.Arrow(segment_arrow_id, m_pointsArrow.ToList(), clrArrow));
+                            case CustomTypes.EnDrawMode.none:
+                                break;
+                            case CustomTypes.EnDrawMode.arrow:
+                                if (bDraw_Arrow)
+                                {
+                                    dict_arrows_.Add(segment_arrow_id, new CustomTypes.Arrow(segment_arrow_id, m_pointsArrow.ToList(), clrArrow));
 
-                            //dict_arrows.Add(segment_arrow_id, m_pointsArrow.ToList());
+                                    //dict_arrows.Add(segment_arrow_id, m_pointsArrow.ToList());
 
-                            segment_arrow_id++;
-                        }
+                                    segment_arrow_id++;
+                                }
 
-                        if (bmpArrowDraw_Temp != null)
-                        {
-                           // m_image = (Bitmap)bmpArrowDraw_Temp.Clone();
-                            //SetImageInPicturebox((Bitmap)bmpArrowDraw_Temp.Clone(), true);
-                            
+                                break;
+                            case CustomTypes.EnDrawMode.text:
+                                using (Font font1 = new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                                {
+                                    System.Drawing.Graphics g;
+                                    g = pdCapture.CreateGraphics();
+                                    PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
+                                    g.DrawString("|", font1, Brushes.Blue, pointF1);
+                                    pbMonitor.Refresh();
+                                }
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -184,8 +205,11 @@ namespace PictureOnTop
         List<Point> p2List = new List<Point>();
         int count = 0;
         List<Point> myPointList { get; set; }
+
         Dictionary<int, List<Point>> dict_points = new Dictionary<int, List<Point>>();
         int segment_line_id { get; set; }
+
+        #region DRAW ARROW
         int segment_arrow_id { get; set; }
         Dictionary<int, CustomTypes.Arrow> dict_arrows_ = new Dictionary<int, CustomTypes.Arrow>();
         bool m_bDraw_Arrow;
@@ -201,6 +225,21 @@ namespace PictureOnTop
             }
         }
         public Bitmap bmpArrowDraw_Temp { get; set; }
+        #endregion
+
+        #region DRAW TEXT
+        //custom text
+        int segment_comment_id { get; set; }
+        Dictionary<int, CustomTypes.Comment> dict_text_ = new Dictionary<int, CustomTypes.Comment>();
+        
+        private bool m_Draw_Comment;
+        public bool bDraw_Comment
+        {
+            get { return m_Draw_Comment; }
+            set { m_Draw_Comment = value; }
+        }
+        #endregion
+
         int cursorPositionmyX;
         public int CursorPositionmyX
         {
@@ -248,6 +287,44 @@ namespace PictureOnTop
             set { m_clearDrawsActive = value; }
         }
         public Color clrArrow { get; private set; }
+
+        private CustomTypes.EnDrawMode m_DrawMode;
+        public CustomTypes.EnDrawMode DrawModeProperty
+        {
+            get { return m_DrawMode; }
+            set
+            {
+                bool bUpdateOnDrawProperty = false;
+                if (m_DrawMode != value && value ==CustomTypes.EnDrawMode.text)
+                {
+                    bUpdateOnDrawProperty = true;
+                }
+                m_DrawMode = value;
+                if (true)
+                {
+                    switch (value)
+                    {
+                        case CustomTypes.EnDrawMode.none:
+                            timerCursor.Enabled = !true;
+
+                            break;
+                        case CustomTypes.EnDrawMode.arrow:
+                            timerCursor.Enabled = !true;
+                            break;
+                        case CustomTypes.EnDrawMode.text:
+                            //if mouse button is down on drawing surface
+                            //   - blink cursor
+                            timerCursor.Enabled = true;
+                            //     every time char entered, draw it on surface, add to text collection
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+
 
         #endregion
 
@@ -1212,29 +1289,34 @@ namespace PictureOnTop
             {
                 try
                 {
-                    #region NOT USED
+                    
                     if (MouseDownPictBox && false)
-                {
-                    RectangleF r = e.Graphics.VisibleClipBounds;
+                    #region NOT USED
+                    {
+                        RectangleF r = e.Graphics.VisibleClipBounds;
 
                     Color clrMouseDraw = Color.Green;// OnSystemColorsChanged(). bmp.GetPixel(x, y);
                     brush.Color = Color.FromArgb(transparency, clrMouseDraw.R, clrMouseDraw.G, clrMouseDraw.B);
 
                     G1.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 2, 2);
-                }
                     #endregion
+                    }
+
 
                     int id = segment_line_id;
-                    if (dict_points.Count > 0)
-                         if (dict_points[id] != null)
+                    if (dict_points.Count > 0 && segment_line_id < dict_points.Count)
+                    {
+                        if (dict_points[id] != null)
                             //for each segment
-                          for(int i=0; i < dict_points.Count; i++)   
-                        {
-                            if (dict_points[i].Count >= 2)
+                            for (int i = 0; i < dict_points.Count; i++)
+                            {
+                                if (dict_points[i].Count >= 2)
                                     G1.DrawLines(Pens.Black, dict_points[i].ToArray());
-                        }
+                            }
+                    }
 
                     //dict_arrows
+                    #region DRAW ARROWS
                     int id1 = segment_arrow_id;
 
                     if (dict_arrows_.Count > 0)
@@ -1263,34 +1345,9 @@ namespace PictureOnTop
                             }
                         }
                     }
-
+                    #endregion
                     #region old
-                    /*
-                    if (dict_arrows.Count > 0)
-
-                            for (int i = 0; i < dict_arrows.Count; i++)
-                            {
-                                if (dict_arrows[i].Count >= 2)
-                                {
-
-                                    Pen penMidlleLine = new Pen(Color.FromArgb(120, 0, 0, 200), 1);
-                                    g2.DrawLine(penMidlleLine, dict_arrows[i][0], dict_arrows[i][1]);
-                                    // make subarrows
-                                         Point[] subarrow1 = new Point[2];
-                                         Point[] subarrow2 = new Point[2];
-
-                                    subarrow1[1].X = dict_arrows[i][0].X;
-                                    subarrow1[1].Y = dict_arrows[i][0].Y;
-                                    subarrow1[0].X = dict_arrows[i][1].X;
-                                    subarrow1[0].Y = dict_arrows[i][1].Y;
-
-                                    Pen pen = new Pen(clrArrow, 4);
-                                    pen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
-                                    pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
-                                    g2.DrawLine(pen, subarrow1[0], subarrow1[1]);
-                                }
-                            }
-                      */
+                   
                     #endregion
                 }
                 catch (Exception)
@@ -1323,16 +1380,6 @@ namespace PictureOnTop
                 }
             }
 
-
-            //m_image = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
-            
-            
-            
-
-            
-
-            
-
             m_image = new Bitmap(pdCapture.Width, pdCapture.Height, G1);
 
             G1.Dispose();
@@ -1345,7 +1392,6 @@ namespace PictureOnTop
             string s_interval_in_ms = System.DateTime.FromBinary(interval_in_ticks).ToString("hh:mm:ss.fff");
             Debug.WriteLine(stat_counter + " "+ s_interval_in_ms);
                 
-            
             stat_counter++;
 
             return;
@@ -1488,21 +1534,33 @@ namespace PictureOnTop
             {
                 if (!bClearMouseDraw)
                 {
-
-                    CursorPositionmyX = e.X;
-                    CursorPositionmyY = e.Y;
-
-                    int id = segment_line_id;
-
-                    if (!bDraw_Arrow)
+                    switch (DrawModeProperty)
                     {
-                        if (dict_points.Count > 0)
-                            if (dict_points[id] != null)
-                                dict_points[id].Add(e.Location);
+                        case CustomTypes.EnDrawMode.none:
+                            break;
+                        case CustomTypes.EnDrawMode.arrow:
+                            CursorPositionmyX = e.X;
+                            CursorPositionmyY = e.Y;
+
+                            int id = segment_line_id;
+
+                            if (!bDraw_Arrow)
+                            {
+                                if (dict_points.Count > 0 && id < dict_points.Count)
+                                    if (dict_points[id] != null)
+                                        dict_points[id].Add(e.Location);
+                            }
+
+                            m_pointsArrow[1].X = CursorPositionmyX;
+                            m_pointsArrow[1].Y = CursorPositionmyY;
+
+                            break;
+                        case CustomTypes.EnDrawMode.text:
+                            break;
+                        default:
+                            break;
                     }
 
-                    m_pointsArrow[1].X= CursorPositionmyX;
-                    m_pointsArrow[1].Y = CursorPositionmyY;
                 }
                 else
                 {
@@ -1601,9 +1659,38 @@ namespace PictureOnTop
         }
         private void chboxDrawArrow_CheckedChanged(object sender, EventArgs e)
         {
-            bDraw_Arrow = (sender as CheckBox).Checked==true;
-            pboxArrow.Refresh();
+                if(chboxDrawArrow.Checked)
+                    ActivateDrawMode(sender, CustomTypes.EnDrawMode.arrow);
+               else
+               {
+                   DrawModeProperty = CustomTypes.EnDrawMode.none;
+               }
         }
+
+        private void ActivateDrawMode(object sender, CustomTypes.EnDrawMode en)
+        {
+            
+            switch (en)
+            {
+                case CustomTypes.EnDrawMode.none:
+                    break;
+                case CustomTypes.EnDrawMode.arrow:
+                    bDraw_Comment = chBoxDrawText.Checked = !true;
+                    bDraw_Arrow = chboxDrawArrow.Checked == true;
+                    pboxArrow.Refresh();
+
+                    break;
+                case CustomTypes.EnDrawMode.text:
+                    bDraw_Arrow = chboxDrawArrow.Checked = !true;
+                    bDraw_Comment = chBoxDrawText.Checked == true;
+                    break;
+                default:
+                    break;
+            }
+            DrawModeProperty = en;
+        }
+
+
         private void button6_MouseDown(object sender, MouseEventArgs e)
         {
             M_clearDrawsActive = true;
@@ -1699,6 +1786,63 @@ namespace PictureOnTop
                     FileName = "explorer.exe"
                 };
                 Process.Start(startInfo);
+            }
+        }
+
+        private void chBoxDrawText_CheckedChanged(object sender, EventArgs e)
+        {
+
+            if (chBoxDrawText.Checked)
+                ActivateDrawMode(sender, CustomTypes.EnDrawMode.text);
+            else
+            {
+                DrawModeProperty = CustomTypes.EnDrawMode.none;
+            }
+            
+        }
+
+        public bool bBlinkingState { get; set; }
+
+        private void timerCursor_Tick(object sender, EventArgs e)
+        {
+            switch (DrawModeProperty)
+            {
+                case CustomTypes.EnDrawMode.none:
+                    break;
+                case CustomTypes.EnDrawMode.arrow:
+                    break;
+                case CustomTypes.EnDrawMode.text:
+                    if (bBlinkingState == false)
+                        bBlinkingState = true;
+                    else
+                        bBlinkingState = false;
+                    if (bBlinkingState)
+                    {
+                        using (Font font1 = new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                        {
+                            System.Drawing.Graphics g;
+                            g = pdCapture.CreateGraphics();
+                            PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
+                            g.DrawString("|", font1, Brushes.White, pointF1);
+                            pbMonitor.Refresh();
+                        }
+                        
+                    }
+                    else
+                    {
+                        using (Font font1 = new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                        {
+                            System.Drawing.Graphics g;
+                            g = pdCapture.CreateGraphics();
+                            PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
+                            g.DrawString("|", font1, Brushes.Blue, pointF1);
+                            pbMonitor.Refresh();
+                        }
+                    }
+
+                    break;
+                default:
+                    break;
             }
         }
 
