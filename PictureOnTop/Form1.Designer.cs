@@ -105,6 +105,10 @@ namespace PictureOnTop
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.timerCursor = new System.Windows.Forms.Timer(this.components);
+            this.fontDialog1 = new System.Windows.Forms.FontDialog();
+            this.button12 = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -725,13 +729,16 @@ namespace PictureOnTop
             this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel2);
             this.flowLayoutPanel1.Controls.Add(this.label8);
             this.flowLayoutPanel1.Controls.Add(this.pbMonitor);
+            this.flowLayoutPanel1.Controls.Add(this.panel2);
             this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel3);
-            this.flowLayoutPanel1.Controls.Add(this.chBoxDrawText);
             this.flowLayoutPanel1.Controls.Add(this.txtBoxComment);
+            this.flowLayoutPanel1.Controls.Add(this.chBoxDrawText);
+            this.flowLayoutPanel1.Controls.Add(this.button12);
+            this.flowLayoutPanel1.Controls.Add(this.panel1);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(559, 0);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(546, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(114, 585);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(127, 585);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // flowLayoutPanel2
@@ -792,7 +799,7 @@ namespace PictureOnTop
             this.pbMonitor.Location = new System.Drawing.Point(8, 56);
             this.pbMonitor.Margin = new System.Windows.Forms.Padding(8, 3, 3, 3);
             this.pbMonitor.Name = "pbMonitor";
-            this.pbMonitor.Size = new System.Drawing.Size(86, 56);
+            this.pbMonitor.Size = new System.Drawing.Size(103, 56);
             this.pbMonitor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbMonitor.TabIndex = 26;
             this.pbMonitor.TabStop = false;
@@ -804,7 +811,7 @@ namespace PictureOnTop
             this.flowLayoutPanel3.Controls.Add(this.pnRed);
             this.flowLayoutPanel3.Controls.Add(this.pnBlue);
             this.flowLayoutPanel3.Controls.Add(this.pbGreen);
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(3, 118);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(3, 126);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
             this.flowLayoutPanel3.Size = new System.Drawing.Size(108, 23);
             this.flowLayoutPanel3.TabIndex = 29;
@@ -862,9 +869,10 @@ namespace PictureOnTop
             // chBoxDrawText
             // 
             this.chBoxDrawText.AutoSize = true;
-            this.chBoxDrawText.Location = new System.Drawing.Point(3, 147);
+            this.chBoxDrawText.Location = new System.Drawing.Point(3, 181);
             this.chBoxDrawText.Name = "chBoxDrawText";
-            this.chBoxDrawText.Size = new System.Drawing.Size(69, 17);
+            this.chBoxDrawText.Padding = new System.Windows.Forms.Padding(3);
+            this.chBoxDrawText.Size = new System.Drawing.Size(75, 23);
             this.chBoxDrawText.TabIndex = 27;
             this.chBoxDrawText.Text = "draw text";
             this.chBoxDrawText.UseVisualStyleBackColor = true;
@@ -872,7 +880,7 @@ namespace PictureOnTop
             // 
             // txtBoxComment
             // 
-            this.txtBoxComment.Location = new System.Drawing.Point(3, 170);
+            this.txtBoxComment.Location = new System.Drawing.Point(3, 155);
             this.txtBoxComment.Name = "txtBoxComment";
             this.txtBoxComment.Size = new System.Drawing.Size(108, 20);
             this.txtBoxComment.TabIndex = 28;
@@ -888,6 +896,33 @@ namespace PictureOnTop
             // 
             this.timerCursor.Interval = 500;
             this.timerCursor.Tick += new System.EventHandler(this.timerCursor_Tick);
+            // 
+            // button12
+            // 
+            this.button12.Location = new System.Drawing.Point(82, 181);
+            this.button12.Margin = new System.Windows.Forms.Padding(1, 3, 3, 3);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(37, 23);
+            this.button12.TabIndex = 30;
+            this.button12.Text = "Font";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.Silver;
+            this.panel1.Location = new System.Drawing.Point(3, 210);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(116, 2);
+            this.panel1.TabIndex = 31;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.Silver;
+            this.panel2.Location = new System.Drawing.Point(3, 118);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(116, 2);
+            this.panel2.TabIndex = 32;
             // 
             // Form1
             // 
@@ -1012,6 +1047,10 @@ namespace PictureOnTop
         private System.Windows.Forms.Panel pnRed;
         private System.Windows.Forms.Panel pnBlue;
         private System.Windows.Forms.Panel pbGreen;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.FontDialog fontDialog1;
     }
 }
 

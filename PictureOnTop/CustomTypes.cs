@@ -35,14 +35,49 @@ namespace PictureOnTop.CustomTypes
         public Point point { get; private set; }
         public Color color { get; private set; }
         public string text { get; private set; }
-        public void UpdateText(string p) { text = p; }
 
-        public Comment(int a, Point b, Color c, string d)
+        //public bool MousePointerInsideRegion { get; private set; }
+        private bool m_MousePointerInsideRegion;
+
+        public bool MousePointerInsideRegion
+        {
+            get { return m_MousePointerInsideRegion; }
+            set
+            {
+                if (value)
+                {
+                }
+                m_MousePointerInsideRegion = value;
+            }
+        }
+
+
+        public void UpdateText(string p) { text = p; }
+        public bool IsPointInsideRegion(Point a)
+        {
+            MousePointerInsideRegion = RectTextBoundaries.Contains(a);
+            return MousePointerInsideRegion;
+        }
+
+
+
+        public Rectangle RectTextBoundaries { get; private set; }
+
+        public Font font { get; private set;}
+
+        public float character_size_in_pixels { get; private set; }
+
+        public Comment(int a, Point b, Color c, string d , Font e , float f)
         {
             index = a;
             point = b;
             color = c;
             text =  d;
+            font = e;
+            character_size_in_pixels = f;
+
+            
+            RectTextBoundaries = new Rectangle(point, new Size((int)(text.Length * font.Size), font.Height));
         }
 
         //public int Count { get { return point.Count; } }

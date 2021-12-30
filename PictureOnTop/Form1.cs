@@ -1405,25 +1405,27 @@ namespace PictureOnTop
 
                 if (dict_text.Count > 0)
                 {
-                    Font myFont = new System.Drawing.Font("Helvetica", 10, FontStyle.Regular);
-
-                    float size_in_pixels = myFont.SizeInPoints / 72 * e.Graphics.DpiX;
-
                     for (int i = 0; i < dict_text.Count; i++)
                     {
                         using (SolidBrush br = new SolidBrush(dict_text[i].color))
                         {
                             TextRenderer.DrawText(e.Graphics, 
                                 dict_text[i].text,
-                                myFont,
-                                new Point(dict_text[i].point.X, dict_text[i].point.Y+ (int)(1.5*size_in_pixels)),
+                                dict_text[i].font,
+                                new Point(dict_text[i].point.X, dict_text[i].point.Y+ (int)(1.5* dict_text[i].character_size_in_pixels)),
                                 dict_text[i].color,
                                 TextFormatFlags.Bottom);
-                            
-                            //G1.DrawString(dict_text[i].text, myFont, br, dict_text[i].point.X, dict_text[i].point.Y);
+                            if (dict_text[i].MousePointerInsideRegion)
+                            {
+                                //draw borders around text
+                                //
+                                using (Pen pn= new Pen(br))
+                                { 
+                                    G1.DrawRectangle(pn, dict_text[i].RectTextBoundaries);
+                                }
+                            }
                         }
                     }
-                    myFont.Dispose();
                 }
             }
 
@@ -1578,6 +1580,7 @@ namespace PictureOnTop
                 return;
 
             if (MouseDownPictBox)
+                //mouse move while pressing left mouse button
             {
                 if (!bClearMouseDraw)
                 {
@@ -1608,17 +1611,24 @@ namespace PictureOnTop
                             break;
                     }
 
+                    pdCapture.Refresh(); //force a repaint
                 }
-                else
+            }
+            else
+            //mouse move while not mouse buttons pressed
+            {
+                //see if it over text region
+                //if so - highlight it!
+                for (int i = 0; i < dict_text.Count; i++)
                 {
-                    bClearMouseDraw = false;
-                    //myPointList.Clear();
-                    //pdCapture.Invalidate(); //force a repaint
-                    //myPointList.Add(e.Location);
-                   // myPointList.Add(e.Location);
+                    //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                    {
+                        if (dict_text[i].IsPointInsideRegion(e.Location))
+                        {
+                            //mouse inside region
+                        }
+                    }
                 }
-                pdCapture.Refresh(); //force a repaint
-
             }
         }
         // short keys main form
@@ -1792,6 +1802,7 @@ namespace PictureOnTop
         {
             this.Location = Properties.Settings.Default.MainformStartPosition;
             chBoxDrawText.ForeColor = pnBlack.BackColor;
+            font_selected = new Font("Times New Roman", 14, FontStyle.Regular, GraphicsUnit.Pixel);
         }
 
         private void Form1_FormClosing_1(object sender, FormClosingEventArgs e)
@@ -1905,12 +1916,17 @@ namespace PictureOnTop
         }
 
 
+        
         private void txtBoxComment_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (DrawModeProperty != CustomTypes.EnDrawMode.text)
                 return;
 
-                if (dict_text.Count == 0)
+            Graphics g=  pdCapture.CreateGraphics();
+            float size_in_pixels = font_selected.SizeInPoints / 72 * g.DpiX;
+            g.Dispose();
+
+            if (dict_text.Count == 0)
             {
                 dict_text.Add
                (
@@ -1919,7 +1935,9 @@ namespace PictureOnTop
                        dict_text.Count,
                        new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
                        chBoxDrawText.ForeColor,
-                       (sender as TextBox).Text
+                       (sender as TextBox).Text,
+                       font_selected,
+                       size_in_pixels
                      )
               );
             }
@@ -1937,7 +1955,9 @@ namespace PictureOnTop
                             dict_text.Count,
                             new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
                             chBoxDrawText.ForeColor ,
-                            (sender as TextBox).Text
+                            (sender as TextBox).Text,
+                            font_selected,
+                            size_in_pixels
                           )
                    );
                 
@@ -2004,6 +2024,18 @@ namespace PictureOnTop
 
             //    pdCapture.Refresh();
             //}
+        }
+
+        Font font_selected { get; set; }
+        private void button12_Click(object sender, EventArgs e)
+        {
+            fontDialog1 = new FontDialog();
+            DialogResult dr= fontDialog1.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                font_selected = fontDialog1.Font;
+            }
+
         }
 
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
