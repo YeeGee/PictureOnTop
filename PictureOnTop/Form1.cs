@@ -106,7 +106,7 @@ namespace PictureOnTop
                                     System.Drawing.Graphics g;
                                     g = pdCapture.CreateGraphics();
                                     PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
-                                    g.DrawString("|", font1, Brushes.Blue, pointF1);
+                                    g.DrawString("|", font1, Brushes.Red, pointF1);
                                     pbMonitor.Refresh();
                                 }
                                 break;
@@ -325,6 +325,8 @@ namespace PictureOnTop
                         case CustomTypes.EnDrawMode.none:
                             timerCursor.Enabled = !true;
                             txtBoxComment.Enabled = false;
+                           
+                            pbMonitor.Refresh();
 
                             break;
                         case CustomTypes.EnDrawMode.arrow:
@@ -1869,7 +1871,7 @@ namespace PictureOnTop
                             System.Drawing.Graphics g;
                             g = pdCapture.CreateGraphics();
                             PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
-                            g.DrawString("|", font1, Brushes.White, pointF1);
+                            g.DrawString("|", font1, Brushes.DodgerBlue, pointF1);
                             pbMonitor.Refresh();
                         }
                         
@@ -1881,7 +1883,7 @@ namespace PictureOnTop
                             System.Drawing.Graphics g;
                             g = pdCapture.CreateGraphics();
                             PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
-                            g.DrawString("|", font1, Brushes.Blue, pointF1);
+                            g.DrawString("|", font1, Brushes.DimGray, pointF1);
                             pbMonitor.Refresh();
                         }
                     }
