@@ -57,6 +57,7 @@ namespace PictureOnTop
             this.FolderDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button11 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
@@ -93,7 +94,14 @@ namespace PictureOnTop
             this.button7 = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.pbMonitor = new System.Windows.Forms.PictureBox();
+            this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnGray = new System.Windows.Forms.Panel();
+            this.pnBlack = new System.Windows.Forms.Panel();
+            this.pnRed = new System.Windows.Forms.Panel();
+            this.pnBlue = new System.Windows.Forms.Panel();
+            this.pbGreen = new System.Windows.Forms.Panel();
             this.chBoxDrawText = new System.Windows.Forms.CheckBox();
+            this.txtBoxComment = new System.Windows.Forms.TextBox();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.timerCursor = new System.Windows.Forms.Timer(this.components);
@@ -114,6 +122,7 @@ namespace PictureOnTop
             this.flowLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pboxArrow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbMonitor)).BeginInit();
+            this.flowLayoutPanel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // pdCapture
@@ -301,7 +310,7 @@ namespace PictureOnTop
             // refreshToolStripMenuItem
             // 
             this.refreshToolStripMenuItem.Name = "refreshToolStripMenuItem";
-            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+            this.refreshToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.refreshToolStripMenuItem.Text = "Refresh";
             this.refreshToolStripMenuItem.Click += new System.EventHandler(this.refreshToolStripMenuItem_Click);
             // 
@@ -339,13 +348,14 @@ namespace PictureOnTop
             this.splitContainer1.Panel2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.splitContainer1.Panel2.Controls.Add(this.flowLayoutPanel1);
             this.splitContainer1.Panel2.Controls.Add(this.pdCapture);
-            this.splitContainer1.Size = new System.Drawing.Size(768, 555);
+            this.splitContainer1.Size = new System.Drawing.Size(768, 585);
             this.splitContainer1.SplitterDistance = 91;
             this.splitContainer1.TabIndex = 2;
             // 
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.Controls.Add(this.button11);
             this.groupBox1.Controls.Add(this.button9);
             this.groupBox1.Controls.Add(this.button8);
             this.groupBox1.Controls.Add(this.button6);
@@ -374,10 +384,21 @@ namespace PictureOnTop
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(91, 555);
+            this.groupBox1.Size = new System.Drawing.Size(91, 585);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Toolbox";
+            // 
+            // button11
+            // 
+            this.button11.Location = new System.Drawing.Point(3, 532);
+            this.button11.Margin = new System.Windows.Forms.Padding(4);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(88, 22);
+            this.button11.TabIndex = 26;
+            this.button11.Text = "Clear text";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
             // button9
             // 
@@ -704,11 +725,13 @@ namespace PictureOnTop
             this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel2);
             this.flowLayoutPanel1.Controls.Add(this.label8);
             this.flowLayoutPanel1.Controls.Add(this.pbMonitor);
+            this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel3);
             this.flowLayoutPanel1.Controls.Add(this.chBoxDrawText);
+            this.flowLayoutPanel1.Controls.Add(this.txtBoxComment);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(575, 0);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(559, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(98, 555);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(114, 585);
             this.flowLayoutPanel1.TabIndex = 1;
             // 
             // flowLayoutPanel2
@@ -774,16 +797,88 @@ namespace PictureOnTop
             this.pbMonitor.TabIndex = 26;
             this.pbMonitor.TabStop = false;
             // 
+            // flowLayoutPanel3
+            // 
+            this.flowLayoutPanel3.Controls.Add(this.pnGray);
+            this.flowLayoutPanel3.Controls.Add(this.pnBlack);
+            this.flowLayoutPanel3.Controls.Add(this.pnRed);
+            this.flowLayoutPanel3.Controls.Add(this.pnBlue);
+            this.flowLayoutPanel3.Controls.Add(this.pbGreen);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(3, 118);
+            this.flowLayoutPanel3.Name = "flowLayoutPanel3";
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(108, 23);
+            this.flowLayoutPanel3.TabIndex = 29;
+            // 
+            // pnGray
+            // 
+            this.pnGray.BackColor = System.Drawing.Color.Gray;
+            this.pnGray.Location = new System.Drawing.Point(3, 3);
+            this.pnGray.Name = "pnGray";
+            this.pnGray.Padding = new System.Windows.Forms.Padding(3);
+            this.pnGray.Size = new System.Drawing.Size(15, 15);
+            this.pnGray.TabIndex = 0;
+            this.pnGray.Click += new System.EventHandler(this.pnGray_Click);
+            // 
+            // pnBlack
+            // 
+            this.pnBlack.BackColor = System.Drawing.Color.Black;
+            this.pnBlack.Location = new System.Drawing.Point(24, 3);
+            this.pnBlack.Name = "pnBlack";
+            this.pnBlack.Padding = new System.Windows.Forms.Padding(3);
+            this.pnBlack.Size = new System.Drawing.Size(15, 15);
+            this.pnBlack.TabIndex = 1;
+            this.pnBlack.Click += new System.EventHandler(this.pnBlack_Click);
+            // 
+            // pnRed
+            // 
+            this.pnRed.BackColor = System.Drawing.Color.Red;
+            this.pnRed.Location = new System.Drawing.Point(45, 3);
+            this.pnRed.Name = "pnRed";
+            this.pnRed.Padding = new System.Windows.Forms.Padding(3);
+            this.pnRed.Size = new System.Drawing.Size(15, 15);
+            this.pnRed.TabIndex = 2;
+            this.pnRed.Click += new System.EventHandler(this.pnRed_Click);
+            // 
+            // pnBlue
+            // 
+            this.pnBlue.BackColor = System.Drawing.Color.Blue;
+            this.pnBlue.Location = new System.Drawing.Point(66, 3);
+            this.pnBlue.Name = "pnBlue";
+            this.pnBlue.Padding = new System.Windows.Forms.Padding(3);
+            this.pnBlue.Size = new System.Drawing.Size(15, 15);
+            this.pnBlue.TabIndex = 3;
+            this.pnBlue.Click += new System.EventHandler(this.pnBlue_Click);
+            // 
+            // pbGreen
+            // 
+            this.pbGreen.BackColor = System.Drawing.Color.Green;
+            this.pbGreen.Location = new System.Drawing.Point(87, 3);
+            this.pbGreen.Name = "pbGreen";
+            this.pbGreen.Padding = new System.Windows.Forms.Padding(3);
+            this.pbGreen.Size = new System.Drawing.Size(15, 15);
+            this.pbGreen.TabIndex = 4;
+            this.pbGreen.Click += new System.EventHandler(this.pbGreen_Click);
+            // 
             // chBoxDrawText
             // 
             this.chBoxDrawText.AutoSize = true;
-            this.chBoxDrawText.Location = new System.Drawing.Point(3, 118);
+            this.chBoxDrawText.Location = new System.Drawing.Point(3, 147);
             this.chBoxDrawText.Name = "chBoxDrawText";
             this.chBoxDrawText.Size = new System.Drawing.Size(69, 17);
             this.chBoxDrawText.TabIndex = 27;
             this.chBoxDrawText.Text = "draw text";
             this.chBoxDrawText.UseVisualStyleBackColor = true;
             this.chBoxDrawText.CheckedChanged += new System.EventHandler(this.chBoxDrawText_CheckedChanged);
+            // 
+            // txtBoxComment
+            // 
+            this.txtBoxComment.Location = new System.Drawing.Point(3, 170);
+            this.txtBoxComment.Name = "txtBoxComment";
+            this.txtBoxComment.Size = new System.Drawing.Size(108, 20);
+            this.txtBoxComment.TabIndex = 28;
+            this.txtBoxComment.TextChanged += new System.EventHandler(this.txtBoxComment_TextChanged);
+            this.txtBoxComment.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBoxComment_KeyDown);
+            this.txtBoxComment.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBoxComment_KeyPress);
             // 
             // colorDialog1
             // 
@@ -798,7 +893,7 @@ namespace PictureOnTop
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(768, 579);
+            this.ClientSize = new System.Drawing.Size(768, 609);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -834,6 +929,7 @@ namespace PictureOnTop
             this.flowLayoutPanel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pboxArrow)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbMonitor)).EndInit();
+            this.flowLayoutPanel3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -908,6 +1004,14 @@ namespace PictureOnTop
         private System.Windows.Forms.ToolStripMenuItem openSaveFolderToolStripMenuItem1;
         private System.Windows.Forms.CheckBox chBoxDrawText;
         private System.Windows.Forms.Timer timerCursor;
+        private System.Windows.Forms.TextBox txtBoxComment;
+        private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
+        private System.Windows.Forms.Panel pnGray;
+        private System.Windows.Forms.Panel pnBlack;
+        private System.Windows.Forms.Panel pnRed;
+        private System.Windows.Forms.Panel pnBlue;
+        private System.Windows.Forms.Panel pbGreen;
     }
 }
 

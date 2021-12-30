@@ -100,6 +100,7 @@ namespace PictureOnTop
 
                                 break;
                             case CustomTypes.EnDrawMode.text:
+                                txtBoxComment.Focus();
                                 using (Font font1 = new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
                                 {
                                     System.Drawing.Graphics g;
@@ -209,6 +210,8 @@ namespace PictureOnTop
         Dictionary<int, List<Point>> dict_points = new Dictionary<int, List<Point>>();
         int segment_line_id { get; set; }
 
+        //------------------------------------------
+
         #region DRAW ARROW
         int segment_arrow_id { get; set; }
         Dictionary<int, CustomTypes.Arrow> dict_arrows_ = new Dictionary<int, CustomTypes.Arrow>();
@@ -230,7 +233,7 @@ namespace PictureOnTop
         #region DRAW TEXT
         //custom text
         int segment_comment_id { get; set; }
-        Dictionary<int, CustomTypes.Comment> dict_text_ = new Dictionary<int, CustomTypes.Comment>();
+        Dictionary<int, CustomTypes.Comment> dict_text = new Dictionary<int, CustomTypes.Comment>();
         
         private bool m_Draw_Comment;
         public bool bDraw_Comment
@@ -238,7 +241,22 @@ namespace PictureOnTop
             get { return m_Draw_Comment; }
             set { m_Draw_Comment = value; }
         }
+
+        private string m_Comment;
+        public string m_CommentProperty
+        {
+            get { return m_Comment; }
+            set
+            {
+                m_Comment = value;
+            }
+        }
+
+
+
         #endregion
+
+        //------------------------------------------
 
         int cursorPositionmyX;
         public int CursorPositionmyX
@@ -306,15 +324,18 @@ namespace PictureOnTop
                     {
                         case CustomTypes.EnDrawMode.none:
                             timerCursor.Enabled = !true;
+                            txtBoxComment.Enabled = false;
 
                             break;
                         case CustomTypes.EnDrawMode.arrow:
                             timerCursor.Enabled = !true;
+                            txtBoxComment.Enabled = false;
                             break;
                         case CustomTypes.EnDrawMode.text:
                             //if mouse button is down on drawing surface
                             //   - blink cursor
                             timerCursor.Enabled = true;
+                            txtBoxComment.Enabled = true;
                             //     every time char entered, draw it on surface, add to text collection
                             break;
                         default:
@@ -324,6 +345,7 @@ namespace PictureOnTop
             }
         }
 
+        //------------------------------------------
 
 
         #endregion
@@ -1289,9 +1311,10 @@ namespace PictureOnTop
             {
                 try
                 {
-                    
-                    if (MouseDownPictBox && false)
+
                     #region NOT USED
+                    if (MouseDownPictBox && false)
+                    
                     {
                         RectangleF r = e.Graphics.VisibleClipBounds;
 
@@ -1299,8 +1322,9 @@ namespace PictureOnTop
                     brush.Color = Color.FromArgb(transparency, clrMouseDraw.R, clrMouseDraw.G, clrMouseDraw.B);
 
                     G1.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 2, 2);
-                    #endregion
+                    
                     }
+                    #endregion
 
 
                     int id = segment_line_id;
@@ -1346,9 +1370,6 @@ namespace PictureOnTop
                         }
                     }
                     #endregion
-                    #region old
-                   
-                    #endregion
                 }
                 catch (Exception)
                 {
@@ -1367,6 +1388,7 @@ namespace PictureOnTop
                     Pen penMidlleLine = new Pen(Color.FromArgb(50, 20, 20, 20), 1);
                     G1.DrawLine(penMidlleLine, m_pointsArrow[0], m_pointsArrow[1]);
                     bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+                    
                 }
                 else
                 {
@@ -1377,6 +1399,29 @@ namespace PictureOnTop
                         //e.Graphics.DrawLine(new Pen(Color.Red, 3), m_pointsArrow[0], m_pointsArrow[1]);
                         //bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
                     }
+                }
+
+                if (dict_text.Count > 0)
+                {
+                    Font myFont = new System.Drawing.Font("Helvetica", 10, FontStyle.Regular);
+
+                    float size_in_pixels = myFont.SizeInPoints / 72 * e.Graphics.DpiX;
+
+                    for (int i = 0; i < dict_text.Count; i++)
+                    {
+                        using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                        {
+                            TextRenderer.DrawText(e.Graphics, 
+                                dict_text[i].text,
+                                myFont,
+                                new Point(dict_text[i].point.X, dict_text[i].point.Y+ (int)(1.5*size_in_pixels)),
+                                dict_text[i].color,
+                                TextFormatFlags.Bottom);
+                            
+                            //G1.DrawString(dict_text[i].text, myFont, br, dict_text[i].point.X, dict_text[i].point.Y);
+                        }
+                    }
+                    myFont.Dispose();
                 }
             }
 
@@ -1630,7 +1675,7 @@ namespace PictureOnTop
                 bActionOnMouseUp = true;
                 
             }
-            pdCapture.Refresh();
+            pdCapture.Invalidate();
         }
         private void ClearMouseDraw()
         {
@@ -1744,6 +1789,7 @@ namespace PictureOnTop
         private void Form1_Load_1(object sender, EventArgs e)
         {
             this.Location = Properties.Settings.Default.MainformStartPosition;
+            chBoxDrawText.ForeColor = pnBlack.BackColor;
         }
 
         private void Form1_FormClosing_1(object sender, FormClosingEventArgs e)
@@ -1844,6 +1890,118 @@ namespace PictureOnTop
                 default:
                     break;
             }
+        }
+
+        private void txtBoxComment_TextChanged(object sender, EventArgs e)
+        {
+            if (DrawModeProperty == CustomTypes.EnDrawMode.text)
+            {
+                if (dict_text.Count > 0)
+                    dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+                pdCapture.Refresh();
+            }
+        }
+
+
+        private void txtBoxComment_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (DrawModeProperty != CustomTypes.EnDrawMode.text)
+                return;
+
+                if (dict_text.Count == 0)
+            {
+                dict_text.Add
+               (
+                   dict_text.Count,
+                   new CustomTypes.Comment(
+                       dict_text.Count,
+                       new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
+                       chBoxDrawText.ForeColor,
+                       (sender as TextBox).Text
+                     )
+              );
+            }
+            else
+            {
+                dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+            }
+
+            if (e.KeyChar == 13)
+            {
+                dict_text.Add
+                    (
+                        dict_text.Count,
+                        new CustomTypes.Comment(
+                            dict_text.Count,
+                            new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
+                            chBoxDrawText.ForeColor ,
+                            (sender as TextBox).Text
+                          )
+                   );
+                
+                //pdCapture.Refresh();
+            }
+
+            pdCapture.Refresh();
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            segment_comment_id = 0;
+            dict_text.Clear();
+
+            pdCapture.Refresh();
+        }
+
+        private void pnGray_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pnBlack_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pnRed_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pnBlue_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pbGreen_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void txtBoxComment_KeyDown(object sender, KeyEventArgs e)
+        {
+            //if (!e.Handled)
+            //{
+            //    if (dict_text.Count == 0)
+            //    {
+            //        dict_text.Add
+            //       (
+            //           dict_text.Count,
+            //           new CustomTypes.Comment(
+            //               dict_text.Count,
+            //               new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
+            //               chBoxDrawText.ForeColor,
+            //               (sender as TextBox).Text
+            //             )
+            //      );
+            //    }
+            //    else
+            //    {
+            //        dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+            //    }
+
+            //    pdCapture.Refresh();
+            //}
         }
 
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)

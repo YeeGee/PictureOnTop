@@ -32,11 +32,12 @@ namespace PictureOnTop.CustomTypes
     public class Comment
     {
         public int index { get; private set; }
-        public List<Point> point { get; private set; }
+        public Point point { get; private set; }
         public Color color { get; private set; }
         public string text { get; private set; }
+        public void UpdateText(string p) { text = p; }
 
-        public Comment(int a, List<Point> b, Color c, string d)
+        public Comment(int a, Point b, Color c, string d)
         {
             index = a;
             point = b;
@@ -44,7 +45,7 @@ namespace PictureOnTop.CustomTypes
             text =  d;
         }
 
-        public int Count { get { return point.Count; } }
+        //public int Count { get { return point.Count; } }
 
     }
 }
