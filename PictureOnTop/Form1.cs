@@ -1660,6 +1660,31 @@ namespace PictureOnTop
 
                             break;
                         case CustomTypes.EnDrawMode.text:
+
+                            for (int i = 0; i < dict_text.Count; i++)
+                            {
+                                //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                                {
+                                    if (dict_text[i].IsPointInsideRegion(e.Location))
+                                    {
+                                        if (dict_text[i].point_mouseDown.X <= 0 && dict_text[i].point_mouseDown.Y <= 0)
+                                        {
+                                        }
+                                        else
+                                        {
+                                            //mouse inside region
+                                            int shiftX = dict_text[i].point_mouseDown.X - e.X;
+                                            int shiftY = dict_text[i].point_mouseDown.Y - e.Y;
+
+                                            dict_text[i].point = new Point(dict_text[i].point.X - shiftX, dict_text[i].point.Y - shiftY);
+                                        }
+
+
+                                        bRefresh = true;
+                                    }
+                                }
+                            }
+
                             break;
                         default:
                             break;
@@ -1681,18 +1706,14 @@ namespace PictureOnTop
                         if (dict_text[i].IsPointInsideRegion(e.Location))
                         {
                             dict_text[i].MousePointerInsideRegion = true;
-                            //mouse inside region
-                            int  shiftX = dict_text[i].point_mouseDown.X - e.X;
-                            int shiftY = dict_text[i].point_mouseDown.Y - e.Y;
-
-                            dict_text[i].point = new Point(dict_text[i].point.X + shiftX, dict_text[i].point.Y + shiftY);
-
 
                             bRefresh = true;
                         }
                         else
+                        {
                             dict_text[i].MousePointerInsideRegion = !true;
-
+                            dict_text[i].point_mouseDown = new Point(-1, -1);
+                        }
                     }
                 }
             }
