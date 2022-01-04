@@ -115,7 +115,7 @@ namespace PictureOnTop
                         }
                     }
                 }
-                
+                pdCapture.Refresh();
                 mouseDownPictBox = value;
             }
         }
@@ -810,6 +810,32 @@ namespace PictureOnTop
             m_pointsArrow[0].Y = m_pointsArrow[1].Y = CursorPositionmyY;
 
             MouseDownPictBox = true;
+            bool bRefresh = false;
+            for (int i = 0; i < dict_text.Count; i++)
+            {
+                //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                {
+                    if (dict_text[i].IsPointInsideRegion(e.Location))
+                    {
+                        dict_text[i].MousePointerInsideRegion = true;
+                        dict_text[i].point_mouseDown = new Point(e.X, e.Y);
+                        //mouse inside region
+                        bRefresh = true;
+                    }
+                    else
+                    {
+                        dict_text[i].MousePointerInsideRegion = !true;
+                        bRefresh = true;
+                    }
+
+                }
+            }
+
+            if (bRefresh)
+            {
+                pdCapture.Refresh();
+            }
+
             if (pdCapture.Image == null)
                 return;
             if (e.Button == MouseButtons.Left)
@@ -1421,13 +1447,28 @@ namespace PictureOnTop
                                 //
                                 using (Pen pn = new Pen(br))
                                 {
-                                    G1.DrawRectangle(pn, dict_text[i].RectTextBoundaries);
+                                    if (!mouseDownPictBox)
+                                    {
+                                        G1.DrawRectangle(pn, dict_text[i].RectTextBoundaries);
+                                    }
+                                    else
+                                    {
+                                        using (SolidBrush brW = new SolidBrush(Color.Yellow))
+                                        {
+                                            using (Pen pn1 = new Pen(brW))
+                                            {
+                                                G1.DrawRectangle(pn1, dict_text[i].RectTextBoundaries);
+                                            }
+                                        }
+
+                                    }
+
                                 }
                             }
                             else
                             {
 
-                                using (SolidBrush brW = new SolidBrush(Color.White))
+                                using (SolidBrush brW = new SolidBrush(pdCapture.BackColor))
                                 {
                                     using (Pen pn = new Pen(brW))
                                     {
@@ -1641,6 +1682,12 @@ namespace PictureOnTop
                         {
                             dict_text[i].MousePointerInsideRegion = true;
                             //mouse inside region
+                            int  shiftX = dict_text[i].point_mouseDown.X - e.X;
+                            int shiftY = dict_text[i].point_mouseDown.Y - e.Y;
+
+                            dict_text[i].point = new Point(dict_text[i].point.X + shiftX, dict_text[i].point.Y + shiftY);
+
+
                             bRefresh = true;
                         }
                         else
@@ -1701,8 +1748,31 @@ namespace PictureOnTop
         {
             MouseDownPictBox = false;
 
-          //  m_pointsArrow[1].X = CursorPositionmyX= e.X;
-          //  m_pointsArrow[1].Y = CursorPositionmyY = e.Y;
+            //  m_pointsArrow[1].X = CursorPositionmyX= e.X;
+            //  m_pointsArrow[1].Y = CursorPositionmyY = e.Y;
+
+            bool bRefresh = false;
+            for (int i = 0; i < dict_text.Count; i++)
+            {
+                //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                {
+                    if (dict_text[i].IsPointInsideRegion(e.Location))
+                    {
+                        dict_text[i].MousePointerInsideRegion = true;
+                        dict_text[i].point_mouseDown = new Point(-1,-1);
+                        //mouse inside region
+                        bRefresh = true;
+                    }
+                    else
+                        dict_text[i].MousePointerInsideRegion = !true;
+
+                }
+            }
+
+            if (bRefresh)
+            {
+                pdCapture.Refresh();
+            }
 
             if ((m_pointsArrow[1].X == m_pointsArrow[0].X) && (m_pointsArrow[1].Y == m_pointsArrow[0].Y))
                 // do not act if position didn't change

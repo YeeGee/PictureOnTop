@@ -32,12 +32,14 @@ namespace PictureOnTop.CustomTypes
     public class Comment
     {
         public int index { get; private set; }
-        public Point point { get; private set; }
+        public Point point { get; set; }
         public Color color { get; private set; }
         public string text { get; private set; }
 
         //public bool MousePointerInsideRegion { get; private set; }
         private bool m_MousePointerInsideRegion;
+
+        public Point point_mouseDown { get; set; }
 
         public bool MousePointerInsideRegion
         {
