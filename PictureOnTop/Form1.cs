@@ -1419,10 +1419,22 @@ namespace PictureOnTop
                             {
                                 //draw borders around text
                                 //
-                                using (Pen pn= new Pen(br))
-                                { 
+                                using (Pen pn = new Pen(br))
+                                {
                                     G1.DrawRectangle(pn, dict_text[i].RectTextBoundaries);
                                 }
+                            }
+                            else
+                            {
+
+                                using (SolidBrush brW = new SolidBrush(Color.White))
+                                {
+                                    using (Pen pn = new Pen(brW))
+                                    {
+                                        G1.DrawRectangle(pn, dict_text[i].RectTextBoundaries);
+                                    }
+                                }
+
                             }
                         }
                     }
@@ -1579,6 +1591,7 @@ namespace PictureOnTop
             if (e.Button == MouseButtons.Right)
                 return;
 
+            bool bRefresh = false;
             if (MouseDownPictBox)
                 //mouse move while pressing left mouse button
             {
@@ -1617,6 +1630,7 @@ namespace PictureOnTop
             else
             //mouse move while not mouse buttons pressed
             {
+
                 //see if it over text region
                 //if so - highlight it!
                 for (int i = 0; i < dict_text.Count; i++)
@@ -1625,11 +1639,22 @@ namespace PictureOnTop
                     {
                         if (dict_text[i].IsPointInsideRegion(e.Location))
                         {
+                            dict_text[i].MousePointerInsideRegion = true;
                             //mouse inside region
+                            bRefresh = true;
                         }
+                        else
+                            dict_text[i].MousePointerInsideRegion = !true;
+
                     }
                 }
             }
+
+            if (bRefresh)
+                pdCapture.Refresh();
+            else
+                pdCapture.Refresh();
+
         }
         // short keys main form
         private void Form1_KeyDown(object sender, KeyEventArgs e)
