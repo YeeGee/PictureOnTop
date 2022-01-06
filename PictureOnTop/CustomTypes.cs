@@ -32,14 +32,42 @@ namespace PictureOnTop.CustomTypes
     public class Comment
     {
         public int index { get; private set; }
-        public Point point { get; set; }
+
+        private Point m_point;
+        public Point point {
+            get { return m_point; } 
+            set { 
+                m_point = value;
+                if(text!=null && text.Length>0)
+                    RectTextBoundaries = new Rectangle(m_point, new Size((int)(text.Length * font.Size), font.Height));
+            }
+        }
+
         public Color color { get; private set; }
         public string text { get; private set; }
 
         //public bool MousePointerInsideRegion { get; private set; }
         private bool m_MousePointerInsideRegion;
 
-        public Point point_mouseDown { get; set; }
+        private Point point_md;
+
+        public Point point_mouseDown
+        {
+            get
+            {
+                return point_md;
+            }
+            set
+            {
+                point_md = value;
+                int shiftX = point_md.X - point.X;
+                int shiftY = point_md.Y - point.Y;
+
+                mouseDownOffset = new Point(shiftX, shiftY);
+            }
+        }
+
+        public Point mouseDownOffset { get; set; }
 
         public bool MousePointerInsideRegion
         {
@@ -54,7 +82,12 @@ namespace PictureOnTop.CustomTypes
         }
 
 
-        public void UpdateText(string p) { text = p; }
+        public void UpdateText(string p) { 
+            text = p;
+            if (text != null && text.Length > 0)
+                RectTextBoundaries = new Rectangle(m_point, new Size((int)(text.Length * font.Size), font.Height));
+
+        }
         public bool IsPointInsideRegion(Point a)
         {
             MousePointerInsideRegion = RectTextBoundaries.Contains(a);

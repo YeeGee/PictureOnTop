@@ -65,6 +65,8 @@ namespace PictureOnTop
                 {
                     if (mouseDownPictBox == false && value == true)
                     {
+                        mouseDownPictBox = value;
+
                         segment_line_id = dict_points.Count;
                         if (DrawModeProperty == CustomTypes.EnDrawMode.arrow)
                         {
@@ -116,7 +118,7 @@ namespace PictureOnTop
                     }
                 }
                 pdCapture.Refresh();
-                mouseDownPictBox = value;
+                
             }
         }
 
@@ -1672,15 +1674,20 @@ namespace PictureOnTop
                                         }
                                         else
                                         {
-                                            //mouse inside region
-                                            int shiftX = dict_text[i].point_mouseDown.X - e.X;
-                                            int shiftY = dict_text[i].point_mouseDown.Y - e.Y;
+                                            if (MouseDownPictBox)
+                                            {
+                                                //mouse inside region
+                                                int shiftX = dict_text[i].mouseDownOffset.X;
+                                                int shiftY = dict_text[i].mouseDownOffset.Y;
 
-                                            dict_text[i].point = new Point(dict_text[i].point.X - shiftX, dict_text[i].point.Y - shiftY);
+                                                dict_text[i].point = new Point(e.X - shiftX, e.Y - shiftY);
+
+                                                bRefresh = true;
+                                            }
                                         }
 
 
-                                        bRefresh = true;
+                                        
                                     }
                                 }
                             }
@@ -1712,7 +1719,7 @@ namespace PictureOnTop
                         else
                         {
                             dict_text[i].MousePointerInsideRegion = !true;
-                            dict_text[i].point_mouseDown = new Point(-1, -1);
+                           // dict_text[i].point_mouseDown = new Point(-1, -1);
                         }
                     }
                 }
@@ -1993,24 +2000,24 @@ namespace PictureOnTop
                         bBlinkingState = false;
                     if (bBlinkingState)
                     {
-                        using (Font font1 = new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                        //using (Font font1 = font_selected)// new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
                         {
                             System.Drawing.Graphics g;
                             g = pdCapture.CreateGraphics();
                             PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
-                            g.DrawString("|", font1, Brushes.DodgerBlue, pointF1);
+                            g.DrawString("|", font_selected, Brushes.DodgerBlue, pointF1);
                             pbMonitor.Refresh();
                         }
                         
                     }
                     else
                     {
-                        using (Font font1 = new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                        //using (Font font1 = font_selected)// new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
                         {
                             System.Drawing.Graphics g;
                             g = pdCapture.CreateGraphics();
                             PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
-                            g.DrawString("|", font1, Brushes.DimGray, pointF1);
+                            g.DrawString("|", font_selected, Brushes.DimGray, pointF1);
                             pbMonitor.Refresh();
                         }
                     }
