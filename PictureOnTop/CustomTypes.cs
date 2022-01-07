@@ -49,23 +49,33 @@ namespace PictureOnTop.CustomTypes
         //public bool MousePointerInsideRegion { get; private set; }
         private bool m_MousePointerInsideRegion;
 
-        private Point point_md;
+        private Point m_point_mouseDown;
 
         public Point point_mouseDown
         {
             get
             {
-                return point_md;
+                return m_point_mouseDown;
             }
             set
             {
-                point_md = value;
-                int shiftX = point_md.X - point.X;
-                int shiftY = point_md.Y - point.Y;
+                m_point_mouseDown = value;
+                int shiftX = m_point_mouseDown.X - point.X;
+                int shiftY = m_point_mouseDown.Y - point.Y;
 
                 mouseDownOffset = new Point(shiftX, shiftY);
             }
         }
+
+        private Point m_point_mouseUp;
+
+        public Point point_mouseUp
+        {
+            get { return m_point_mouseUp; }
+            set { m_point_mouseUp = value; }
+        }
+
+
 
         public Point mouseDownOffset { get; set; }
 
