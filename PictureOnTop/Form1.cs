@@ -345,8 +345,7 @@ namespace PictureOnTop
                             chboxDrawArrow.Checked = false;
                             timerCursor.Enabled = true;
                             txtBoxComment.Enabled = true;
-                            pbMonitor.Refresh();
-                            txtBoxComment.Focus();
+                            pbMonitor.Refresh();                            txtBoxComment.Focus();
 
                             //     every time char entered, draw it on surface, add to text collection
                             break;
@@ -1758,7 +1757,7 @@ namespace PictureOnTop
         // short keys main form
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Modifiers == Keys.Shift && e.KeyCode == Keys.C)
+            if (e.Modifiers == Keys.Alt && e.KeyCode == Keys.C)
             {
                 m_Delegate_fn_show_capture_form.Invoke();
             }

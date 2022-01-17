@@ -94,21 +94,21 @@ namespace PictureOnTop
             this.button7 = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.pbMonitor = new System.Windows.Forms.PictureBox();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.pnGray = new System.Windows.Forms.Panel();
             this.pnBlack = new System.Windows.Forms.Panel();
             this.pnRed = new System.Windows.Forms.Panel();
             this.pnBlue = new System.Windows.Forms.Panel();
             this.pbGreen = new System.Windows.Forms.Panel();
-            this.chBoxDrawText = new System.Windows.Forms.CheckBox();
             this.txtBoxComment = new System.Windows.Forms.TextBox();
+            this.chBoxDrawText = new System.Windows.Forms.CheckBox();
+            this.button12 = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.timerCursor = new System.Windows.Forms.Timer(this.components);
             this.fontDialog1 = new System.Windows.Forms.FontDialog();
-            this.button12 = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pdCapture)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -465,9 +465,9 @@ namespace PictureOnTop
             this.label7.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
             this.label7.Location = new System.Drawing.Point(20, 445);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(47, 13);
+            this.label7.Size = new System.Drawing.Size(32, 13);
             this.label7.TabIndex = 21;
-            this.label7.Text = "Shift + C";
+            this.label7.Text = "Alt+C";
             // 
             // button10
             // 
@@ -804,6 +804,14 @@ namespace PictureOnTop
             this.pbMonitor.TabIndex = 26;
             this.pbMonitor.TabStop = false;
             // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.Silver;
+            this.panel2.Location = new System.Drawing.Point(3, 118);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(116, 2);
+            this.panel2.TabIndex = 32;
+            // 
             // flowLayoutPanel3
             // 
             this.flowLayoutPanel3.Controls.Add(this.pnGray);
@@ -866,6 +874,16 @@ namespace PictureOnTop
             this.pbGreen.TabIndex = 4;
             this.pbGreen.Click += new System.EventHandler(this.pbGreen_Click);
             // 
+            // txtBoxComment
+            // 
+            this.txtBoxComment.Location = new System.Drawing.Point(3, 155);
+            this.txtBoxComment.Name = "txtBoxComment";
+            this.txtBoxComment.Size = new System.Drawing.Size(108, 20);
+            this.txtBoxComment.TabIndex = 28;
+            this.txtBoxComment.TextChanged += new System.EventHandler(this.txtBoxComment_TextChanged);
+            this.txtBoxComment.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBoxComment_KeyDown);
+            this.txtBoxComment.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBoxComment_KeyPress);
+            // 
             // chBoxDrawText
             // 
             this.chBoxDrawText.AutoSize = true;
@@ -877,25 +895,6 @@ namespace PictureOnTop
             this.chBoxDrawText.Text = "draw text";
             this.chBoxDrawText.UseVisualStyleBackColor = true;
             this.chBoxDrawText.CheckedChanged += new System.EventHandler(this.chBoxDrawText_CheckedChanged);
-            // 
-            // txtBoxComment
-            // 
-            this.txtBoxComment.Location = new System.Drawing.Point(3, 155);
-            this.txtBoxComment.Name = "txtBoxComment";
-            this.txtBoxComment.Size = new System.Drawing.Size(108, 20);
-            this.txtBoxComment.TabIndex = 28;
-            this.txtBoxComment.TextChanged += new System.EventHandler(this.txtBoxComment_TextChanged);
-            this.txtBoxComment.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtBoxComment_KeyDown);
-            this.txtBoxComment.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtBoxComment_KeyPress);
-            // 
-            // colorDialog1
-            // 
-            this.colorDialog1.Color = System.Drawing.Color.LightGray;
-            // 
-            // timerCursor
-            // 
-            this.timerCursor.Interval = 500;
-            this.timerCursor.Tick += new System.EventHandler(this.timerCursor_Tick);
             // 
             // button12
             // 
@@ -916,13 +915,14 @@ namespace PictureOnTop
             this.panel1.Size = new System.Drawing.Size(116, 2);
             this.panel1.TabIndex = 31;
             // 
-            // panel2
+            // colorDialog1
             // 
-            this.panel2.BackColor = System.Drawing.Color.Silver;
-            this.panel2.Location = new System.Drawing.Point(3, 118);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(116, 2);
-            this.panel2.TabIndex = 32;
+            this.colorDialog1.Color = System.Drawing.Color.LightGray;
+            // 
+            // timerCursor
+            // 
+            this.timerCursor.Interval = 500;
+            this.timerCursor.Tick += new System.EventHandler(this.timerCursor_Tick);
             // 
             // Form1
             // 
