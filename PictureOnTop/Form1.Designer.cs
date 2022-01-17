@@ -799,7 +799,7 @@ namespace PictureOnTop
             this.pbMonitor.Location = new System.Drawing.Point(8, 56);
             this.pbMonitor.Margin = new System.Windows.Forms.Padding(8, 3, 3, 3);
             this.pbMonitor.Name = "pbMonitor";
-            this.pbMonitor.Size = new System.Drawing.Size(103, 56);
+            this.pbMonitor.Size = new System.Drawing.Size(107, 56);
             this.pbMonitor.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbMonitor.TabIndex = 26;
             this.pbMonitor.TabStop = false;
