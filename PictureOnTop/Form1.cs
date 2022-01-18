@@ -2048,9 +2048,9 @@ namespace PictureOnTop
         {
             if (DrawModeProperty == CustomTypes.EnDrawMode.text)
             {
-                if (dict_text.Count > 0)
-                    dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
-                pdCapture.Refresh();
+                //if (dict_text.Count > 0)
+                //    dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+                //pdCapture.Refresh();
             }
         }
 
@@ -2082,7 +2082,8 @@ namespace PictureOnTop
             }
             else
             {
-                dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+                //if (dict_text[i].IsPointInsideRegion(e.Location))
+                 //   dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
             }
 
             if (e.KeyChar == 13)

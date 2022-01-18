@@ -57,7 +57,7 @@
     <ManifestKeyFile>PictureOnTop_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>false</SignManifests>
@@ -145,7 +145,6 @@
     <EmbeddedResource Include="ScreenForm.resx">
       <DependentUpon>ScreenForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="PictureOnTop_TemporaryKey.pfx" />
     <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
