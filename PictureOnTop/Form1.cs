@@ -13,24 +13,355 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Windows.Forms.VisualStyles;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace PictureOnTop
 {
-    enum enActionType { pickup_color_old, pickup_color_new }
+    #region ENUM
+    enum enActionType  { pickup_color_old, pickup_color_new }
     enum enColorSource { colordialog, point }
+    enum enRotate      { left, right, flipX, flipY }
+    #endregion
 
     public delegate void copyToFatherTextBox(Rectangle r);
 
-    public partial class Form1 
+
+    public partial class Form1
     {
-        
-        public event EventHandler copyToFatherTextBox;
-
-
-       
+        #region Variables and properties
+        UndoManager m_undoManager = null;
         enActionType m_enActionType { get; set; }
-
         enColorSource m_enColorSource { get; set; }
+        Point[] m_pointsArrow { get; set; }
+        Bitmap _image;
+        public Bitmap m_image
+        {
+            get { return _image; }
+            set
+            {
+                if (_image == null)
+                {
+
+                }
+
+                _image = value;
+                if (value != null)
+                {
+                    //  PointF[] points = CreateCirclePointArray(10.0, value);
+                    //  PictureBox pb = pdCapture;
+                    //  DrawCircle(60, value, pb);
+
+                }
+            }
+        }
+
+        bool mouseDownPictBox;
+        public bool MouseDownPictBox
+        {
+            get { return mouseDownPictBox; }
+            set 
+            {
+                if (mouseDownPictBox!=value)
+                {
+                    if (mouseDownPictBox == false && value == true)
+                    {
+                        mouseDownPictBox = value;
+
+                        segment_line_id = dict_points.Count;
+                        if (DrawModeProperty == CustomTypes.EnDrawMode.arrow)
+                        {
+                            dict_points.Add(segment_line_id, new List<Point>());
+                            if (m_pointsArrow == null)
+                                m_pointsArrow = new Point[2];
+
+                            m_pointsArrow[0].X = CursorPositionmyX;
+                            m_pointsArrow[0].Y = CursorPositionmyY;
+                        }
+                        else if (DrawModeProperty == CustomTypes.EnDrawMode.text)
+                        {
+                            timerCursor.Enabled = true;
+                        }
+                    }
+                    
+                    if(mouseDownPictBox==true && value==false)
+                    {//mouse UP after been down
+
+                        switch (DrawModeProperty)
+                        {
+                            case CustomTypes.EnDrawMode.none:
+                                break;
+                            case CustomTypes.EnDrawMode.arrow:
+                                //if (bDraw_Arrow)
+                                {
+                                    dict_arrows_.Add(segment_arrow_id, new CustomTypes.Arrow(segment_arrow_id, m_pointsArrow.ToList(), clrArrow));
+
+                                    //dict_arrows.Add(segment_arrow_id, m_pointsArrow.ToList());
+
+                                    segment_arrow_id++;
+                                }
+
+                                break;
+                            case CustomTypes.EnDrawMode.text:
+                                txtBoxComment.Focus();
+                                using (Font font1 = new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                                {
+                                    System.Drawing.Graphics g;
+                                    g = pdCapture.CreateGraphics();
+                                    PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
+                                    g.DrawString("|", font1, Brushes.Red, pointF1);
+                                    g.Dispose();
+                                    pbMonitor.Refresh();
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    mouseDownPictBox = value;
+                }
+                pdCapture.Refresh();
+                
+            }
+        }
+
+        Color m_selectedByMouse;
+        public Color selectedByMouse
+        {
+            get { return m_selectedByMouse; }
+            set
+            {
+                m_selectedByMouse = value;
+                try
+                {
+
+                    switch (m_enActionType)
+                    {
+                        case enActionType.pickup_color_old:
+                            pn_color_to_replace.BackColor = value;
+
+                            break;
+                        case enActionType.pickup_color_new:
+                            pn_color_new.BackColor = value;
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+        }
+        public Color clrDialogSelection { get; set; }
+        int m_Tolerance;
+        public int Tolerance
+        {
+            get { return m_Tolerance; }
+            set { m_Tolerance = value; }
+        }
+        string m_selectedFolder;
+        public string SelectedFolder
+        {
+            get { return m_selectedFolder; }
+            set
+            {
+                m_selectedFolder = value;
+                Properties.Settings.Default.DefaultFolder = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+        string m_selectedFile;
+        public string SelectedFile
+        {
+            get { return m_selectedFile; }
+            set { m_selectedFile = value; }
+        }
+        bool m_topMostProperty;
+        public bool TopMostProperty
+        {
+            get { return m_topMostProperty; }
+            set
+            {
+                m_topMostProperty = value;
+                this.TopMost = value;
+            }
+        }
+        bool bMIxWithOriginalImage { get; set; }
+        int m_transparency = 255;
+        public int transparency
+        {
+            get { return m_transparency; }
+            set { m_transparency = value; }
+        }
+        int m_sizeMode;
+        public int sizeMode
+        {
+            get { return m_sizeMode; }
+            set { m_sizeMode = value; }
+        }
+        public DraggableForm.FormBase frmDraggable { get; set; }
+        Rectangle rect = new Rectangle(5, 5, 5, 5);
+        Point lastPoint = Point.Empty;
+        Point p1, p2;
+        List<Point> p1List = new List<Point>();
+        List<Point> p2List = new List<Point>();
+        int count = 0;
+        List<Point> myPointList { get; set; }
+
+        Dictionary<int, List<Point>> dict_points = new Dictionary<int, List<Point>>();
+        int segment_line_id { get; set; }
+
+        //------------------------------------------
+
+        #region DRAW ARROW
+        int segment_arrow_id { get; set; }
+        Dictionary<int, CustomTypes.Arrow> dict_arrows_ = new Dictionary<int, CustomTypes.Arrow>();
+        //bool m_bDraw_Arrow;
+        //public bool bDraw_Arrow
+        //{
+        //    get
+        //    {
+        //        return m_bDraw_Arrow;
+        //    }
+        //    set
+        //    {
+        //        m_bDraw_Arrow = value;
+        //    }
+        //}
+        public Bitmap bmpArrowDraw_Temp { get; set; }
+        #endregion
+
+        #region DRAW TEXT
+        //custom text
+        int segment_comment_id { get; set; }
+        Dictionary<int, CustomTypes.Comment> dict_text = new Dictionary<int, CustomTypes.Comment>();
+        
+ 
+
+        private string m_Comment;
+        public string m_CommentProperty
+        {
+            get { return m_Comment; }
+            set
+            {
+                m_Comment = value;
+            }
+        }
+
+
+
+        #endregion
+
+        //------------------------------------------
+
+        int cursorPositionmyX;
+        public int CursorPositionmyX
+        {
+            get { return cursorPositionmyX; }
+            private
+            set
+            {
+                if (cursorPositionmyX != value)
+                {
+                    lblMouseX.Text = value.ToString();
+                }
+                cursorPositionmyX = value;
+
+            }
+        }
+        int cursorPositionmyY;
+        public int CursorPositionmyY
+        {
+            get { return cursorPositionmyY; }
+            private
+                set
+            {
+                if (cursorPositionmyY != value)
+                {
+                    lblMouseY.Text = value.ToString();
+                }
+                cursorPositionmyY = value;
+            }
+        }
+        public bool isMouseDown { get; private set; }
+        bool bClearMouseDraw { get; set; }
+        Bitmap bmpCaptured;
+        public Bitmap BmpCaptured
+        {
+            get { return bmpCaptured; }
+            set
+            {
+                bmpCaptured = value;
+            }
+        }
+        bool m_clearDrawsActive;
+        public bool M_clearDrawsActive
+        {
+            get { return m_clearDrawsActive; }
+            set { m_clearDrawsActive = value; }
+        }
+        public Color clrArrow { get; private set; }
+
+        bool bLockCheckBoxChanges { get; set; }
+
+        private CustomTypes.EnDrawMode m_DrawMode;
+        public CustomTypes.EnDrawMode DrawModeProperty
+        {
+            get { return m_DrawMode; }
+            set
+            {
+                bool bUpdateOnDrawProperty = false;
+                bLockCheckBoxChanges = true;
+
+                if (m_DrawMode != value && value ==CustomTypes.EnDrawMode.text)
+                {
+                    bUpdateOnDrawProperty = true;
+                }
+                m_DrawMode = value;
+                if (true)
+                {
+                    switch (value)
+                    {
+                        case CustomTypes.EnDrawMode.none:
+                            timerCursor.Enabled = !true;
+                            txtBoxComment.Enabled = false;
+                            chBoxDrawText.Checked = false;
+                            chboxDrawArrow.Checked = false;
+                            pbMonitor.Refresh();
+
+                            break;
+                        case CustomTypes.EnDrawMode.arrow:
+                            timerCursor.Enabled = !true;
+                            txtBoxComment.Enabled = false;
+                            chBoxDrawText.Checked = false;
+                            pbMonitor.Refresh();
+                            break;
+                        case CustomTypes.EnDrawMode.text:
+                            //if mouse button is down on drawing surface
+                            //   - blink cursor
+                            chboxDrawArrow.Checked = false;
+                            timerCursor.Enabled = true;
+                            txtBoxComment.Enabled = true;
+                            pbMonitor.Refresh();                            txtBoxComment.Focus();
+
+                            //     every time char entered, draw it on surface, add to text collection
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                bLockCheckBoxChanges = false;
+            }
+        }
+
+        //------------------------------------------
+
+
+        #endregion
 
         #region make form movable
 
@@ -46,8 +377,8 @@ namespace PictureOnTop
 
         private const int HT_CAPTION = 0x2; // what does this means
         private const int WM_NCLBUTTONDOWN = 0x00A1; // what does this means
-       
-      
+
+
         protected override void OnMouseDown(MouseEventArgs e)// what does this means
         {
             base.OnMouseDown(e);
@@ -66,20 +397,14 @@ namespace PictureOnTop
 
         #region Screenshot by mouse
 
+        public delegate void Delegate_fn_show_capture_form();
+        public Delegate_fn_show_capture_form m_Delegate_fn_show_capture_form { get; set; }
+
         /*Start screenshot*/
         private void button10_Click(object sender, EventArgs e)
         {
-
             m_Delegate_fn_show_capture_form.Invoke();
-            //fn_show_capture_form();
-            
         }
-
-        public delegate void Delegate_fn_show_capture_form();
-
-        public Delegate_fn_show_capture_form m_Delegate_fn_show_capture_form { get;  set; }
-
-
         private void fn_show_capture_form()
         {
             if (frmDraggable != null)
@@ -90,14 +415,14 @@ namespace PictureOnTop
             SelectArea area = new SelectArea();
             area.KeyPreview = true;
             area.PreviewKeyDown += Area_PreviewKeyDown;
-            
+
             area.M_parentForm = this;
             area.Show();
         }
 
         private void Area_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            
+
         }
 
         /*Screenshot of subsequent operations*/
@@ -116,33 +441,6 @@ namespace PictureOnTop
 
         #endregion
 
-        //FolderBrowserDialog FolderDialog;
-
-        private string m_selectedFolder;
-
-        public string SelectedFolder
-        {
-            get { return m_selectedFolder; }
-            set
-            { 
-                m_selectedFolder = value;
-                Properties.Settings.Default.DefaultFolder = value;
-                Properties.Settings.Default.Save();
-            }
-        }
-
-        private string  m_selectedFile;
-
-        public string SelectedFile
-        {
-            get { return m_selectedFile; }
-            set { m_selectedFile = value; }
-        }
-
-        UndoManager m_undoManager =null;
-
-        
-       
         public Form1()
         {
             InitializeComponent();
@@ -160,66 +458,29 @@ namespace PictureOnTop
             clrDialogSelection = Color.White;
             this.Load += Form1_Load;
 
-            pdCapture.MouseDown += PictureBox1_MouseDown;
+           
             m_Delegate_fn_show_capture_form = new Delegate_fn_show_capture_form(fn_show_capture_form);
 
+           // pdCapture.ContextMenu = contextMenuStrip1;
 
         }
-
-        private void PictureBox1_MouseDown(object sender, MouseEventArgs e)
-        {
-            // throw new NotImplementedException();
-            if (drag)
-                return;
-
-            Bitmap capcha = (Bitmap)pdCapture.Image;
-            if (capcha == null)
-                return;
-
-            if (m_enColorSource == enColorSource.point)
-            {
-
-                //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
-                //{
-                Point mDown = Point.Round(stretched(e.Location, pdCapture));
-                PointF pf = stretched(mDown, pdCapture);
-
-                //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
-                Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
-                // do your stuff:
-                selectedByMouse = c;
-                colorDialog1.Color = clrDialogSelection = selectedByMouse;
-                //switch (m_enActionType)
-                //{
-                //    case enActionType.pickup_color_old:
-                //        lbl_color_old.BackColor = selectedByMouse;
-                //        break;
-                //    case enActionType.pickup_color_new:
-                //        lbl_color_new.BackColor = selectedByMouse;
-                //        break;
-                //    default:
-                //        break;
-                //}
-                
-            }
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            m_pointsArrow = new Point[2];
             transparency = trackBar2.Value;
             trackBar1.Value = 1;
+            clrArrow = Color.FromArgb(125, 0, 0, 255);
         }
-
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             m_undoManager.Clean();
         }
 
+        
         private void openImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderDialog.SelectedPath = Properties.Settings.Default.DefaultFolder;
-            if (FolderDialog.SelectedPath.Length==0)
+            if (FolderDialog.SelectedPath.Length == 0)
             {
                 if (FolderDialog.ShowDialog() == DialogResult.OK)
                     SelectedFolder = FolderDialog.SelectedPath;
@@ -247,25 +508,16 @@ namespace PictureOnTop
                 }
 
             }
-
-            Image image = Image.FromFile(SelectedFile);
-            // Set the PictureBox image property to this image.
-            // ... Then, adjust its height and width properties.
-            SetImageInPicturebox((Bitmap)new Bitmap(image));
+            if (SelectedFile != null)
+            {
+                Image image = Image.FromFile(SelectedFile);
+                // Set the PictureBox image property to this image.
+                // ... Then, adjust its height and width properties.
+                SetImageInPicturebox((Bitmap)new Bitmap(image), true);
+            }
 
 
         }
-
-        private bool  m_topMostProperty;
-
-        public bool  TopMostProperty
-        {
-            get { return m_topMostProperty; }
-            set { 
-                m_topMostProperty = value;
-                this.TopMost = value;            }
-        }
-
         private void setTopMostToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TopMostProperty = !TopMostProperty;
@@ -280,27 +532,18 @@ namespace PictureOnTop
                 setTopMostToolStripMenuItem.ForeColor = Color.DarkGray;
                 setTopMostToolStripMenuItem.CheckState = CheckState.Unchecked;
             }
-            
 
-            
+
+
 
         }
-
-        enum enRotate
-        {
-            left, right, flipX, flipY
-        }
-
-
-
-
         void Flip(enRotate en)
         {
             Bitmap bitmap1 = (Bitmap)pdCapture.Image;
             if (bitmap1 == null)
                 return;
 
-                switch (en)
+            switch (en)
             {
                 case enRotate.left:
                     {
@@ -325,26 +568,8 @@ namespace PictureOnTop
                 default:
                     break;
             }
-            SetImageInPicturebox((Bitmap)bitmap1.Clone());
+            SetImageInPicturebox((Bitmap)bitmap1.Clone(), true);
         }
-
-        private Bitmap _image;
-        public Bitmap m_image
-        {
-            get { return _image; }
-            set
-            {
-                _image = value;
-                if (value != null)
-                {
-                    // PointF[] points = CreateCirclePointArray(10.0, value);
-                    PictureBox pb = pdCapture;
-                    DrawCircle(60, value, pb);
-                    
-                }
-            }
-        }
-
         private void DrawCircle(int circle_diameter, Bitmap bmp, PictureBox pb)
         {
             //e.Graphics.DrawEllipse(myPen, x1, y1, width, height);
@@ -356,14 +581,13 @@ namespace PictureOnTop
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBilinear;
 
-                Pen p = new Pen  (new SolidBrush(Color.Red), 0.01f);
+                Pen p = new Pen(new SolidBrush(Color.Red), 0.01f);
                 //g.DrawEllipse(p, bmp.Width/2, bmp.Height/2, circle_diameter, circle_diameter);
-                
+
                 //g.                DrawCurve(_penAxisMain, points);
                 pb.Invalidate();
             }
         }
-
         /// <summary>
         /// 
         /// </summary>
@@ -371,7 +595,7 @@ namespace PictureOnTop
         /// <returns></returns>
         private PointF[] CreateCirclePointArray(double diameter_in_milimiters, Bitmap bmp)
         {
-            
+
             //let's see total length - circumference of the circle 2*p*r
             double len = diameter_in_milimiters * Math.PI;
             //how many pixels fits that?
@@ -383,7 +607,7 @@ namespace PictureOnTop
             double dpi_mm = dpi / 25.4;
             //now, how many pixels it would take to draw circle
             int pixels = Convert.ToInt32(Math.Round(len / dpi_mm));
-            
+
             //generate array
             PointF[] points = new PointF[pixels];
             //assign value to each point by interpolating circumference path - sort of like placing each point one after another to fill it up...
@@ -394,27 +618,36 @@ namespace PictureOnTop
             double pixel_size = (2.54 / dpi);
             //so , now it gets interesting   
 
-            return  points;
+            return points;
         }
-
-        public void SetImageInPicturebox(Bitmap bitmap1)
+        public void SetImageInPicturebox(Bitmap bitmap1, bool addToUndoManager)
         {
             m_image = bitmap1;
 
             pdCapture.Image = bitmap1;
             pdCapture.Height = bitmap1.Height;
             pdCapture.Width = bitmap1.Width;
-          //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
+            UpdateMonitor(bitmap1);
 
-            m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
+            //  pdCapture.SizeMode = PictureBoxSizeMode.StretchImage;
+            if (addToUndoManager)
+            {
+                m_undoManager.AddNewImage((Bitmap)bitmap1.Clone());
+            }
             UpdateUndoMenuEnability();
-            SetStandaloneFormImage((Bitmap)bitmap1.Clone());
-            pdCapture.Invalidate();
+            SetStandaloneFormImage(bitmap1);
+        }
+
+        private void UpdateMonitor(Bitmap bitmap1)
+        {
+            pbMonitor.Image = (Bitmap)bitmap1.Clone();
+            pbMonitor.Refresh();
+
         }
 
         public void DrawData(PointF[] points, Bitmap bitmap1)
         {
-           // b
+            // b
             var bmp = bitmap1;
             using (var g = Graphics.FromImage(bmp))
             {
@@ -427,11 +660,49 @@ namespace PictureOnTop
             pdCapture.Invalidate(); // Trigger redraw of the control.
         }
 
+        #region UNDO faunctionality
         private void UpdateUndoMenuEnability()
         {
             undoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex > 0;
-            redoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex < m_undoManager.GetTotalItemsInStorage() - 1;
+            redoToolStripMenuItem.Enabled = m_undoManager.GetCurrentIndex < m_undoManager.GetTotalItemsInStorage()-1;
         }
+        private void DoUndo()
+        {
+            //
+            
+            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.undo);
+            if (bm != null)
+            {
+                pdCapture.Image = bm;
+                pdCapture.Refresh();
+                UpdateMonitor(bm);
+            }
+            else
+            {
+                Debug.Write("Undo returned Null\n");
+            }
+        }
+        private void DoRedo()
+        {
+            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.redo);
+            if (bm != null)
+            {
+                pdCapture.Image = bm;
+                UpdateMonitor(bm);
+            }
+        }
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DoUndo();
+        }
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DoRedo();
+        }
+
+        #endregion
+
+        #region rotate image
 
         private void rorateToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -440,7 +711,7 @@ namespace PictureOnTop
             if (bitmap1 != null)
             {
                 bitmap1.RotateFlip(RotateFlipType.Rotate180FlipNone);
-                SetImageInPicturebox((Bitmap)bitmap1.Clone());
+                SetImageInPicturebox((Bitmap)bitmap1.Clone(), true);
             }
         }
 
@@ -458,36 +729,41 @@ namespace PictureOnTop
         {
             Flip(enRotate.left);
         }
+        #endregion
+
+        #region User interaction
 
         private void button1_Click(object sender, EventArgs e)
         {
             Flip(enRotate.right);
         }
-
         private void button2_Click(object sender, EventArgs e)
         {
             Flip(enRotate.left);
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
             Flip(enRotate.flipX);
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
             Flip(enRotate.flipY);
         }
-
         private void button5_Click(object sender, EventArgs e)
         {
-            Bitmap capcha = new Bitmap(pdCapture.Image);
+            Bitmap capcha = null;
+            if (pdCapture.Image == null)
+            {
+                pdCapture.Image = new Bitmap(pdCapture.Width, pdCapture.Height);
+            }
+            else
+                capcha = new Bitmap(pdCapture.Image);
             //  capcha.MakeTransparent(selectedByMouse);
             //pictureBox1.Image = capcha;
 
             Color color = pn_color_to_replace.BackColor;// m_selectedByMouse;// Color.Black; //Your desired colour
             Color clrTransparent = Color.FromArgb(transparency, clrDialogSelection.R, clrDialogSelection.G, clrDialogSelection.B);
-            
+
             Bitmap bmp = new Bitmap(pdCapture.Image);
             for (int x = 0; x < bmp.Width; x++)
             {
@@ -506,95 +782,86 @@ namespace PictureOnTop
                         }
                         else
                         {
-                            Byte R=0, G=0, B=0;
-                            R = (Byte)((clrDialogSelection.R + gotColor.R)/2 < (Byte)255 ? clrDialogSelection.R/2 + gotColor.R/2 : (Byte)255);
-                            G = (Byte)((clrDialogSelection.G + gotColor.G)/2 < (Byte)255 ? clrDialogSelection.G/2 + gotColor.G/2 : (Byte)255);
-                            B = (Byte)((clrDialogSelection.B + gotColor.B)/2 < (Byte)255 ? clrDialogSelection.B/2 + gotColor.B/2 : (Byte)255);
+                            Byte R = 0, G = 0, B = 0;
+                            R = (Byte)((clrDialogSelection.R + gotColor.R) / 2 < (Byte)255 ? clrDialogSelection.R / 2 + gotColor.R / 2 : (Byte)255);
+                            G = (Byte)((clrDialogSelection.G + gotColor.G) / 2 < (Byte)255 ? clrDialogSelection.G / 2 + gotColor.G / 2 : (Byte)255);
+                            B = (Byte)((clrDialogSelection.B + gotColor.B) / 2 < (Byte)255 ? clrDialogSelection.B / 2 + gotColor.B / 2 : (Byte)255);
 
-                            Color clr= Color.FromArgb(transparency, R, G, B);
+                            Color clr = Color.FromArgb(transparency, R, G, B);
                             bmp.SetPixel(x, y, clr);// gotColor);
                         }
                     }
-                                                  //gotColor = Color.FromArgb(r, gotColor.G, gotColor.B);
+                    //gotColor = Color.FromArgb(r, gotColor.G, gotColor.B);
 
                 }
             }
-            SetImageInPicturebox((Bitmap)bmp.Clone());
+            SetImageInPicturebox((Bitmap)bmp.Clone(), true);
 
         }
+        #endregion
 
-        private Color m_selectedByMouse;
-
-        public Color selectedByMouse
-        {
-            get { return m_selectedByMouse; }
-            set
-            {
-                m_selectedByMouse = value;
-                try
-                {
-                    
-                    switch (m_enActionType)
-                    {
-                        case enActionType.pickup_color_old:
-                            pn_color_to_replace.BackColor = value;
-
-                            break;
-                        case enActionType.pickup_color_new:
-                            pn_color_new.BackColor = value;
-                            break;
-                        default:
-                            break;
-                    }
-
-                }
-                catch (Exception)
-                {
-
-                    throw;
-                }
-            }
-        }
-
-
+       
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             if (drag)
                 return;
 
-            Bitmap capcha = (Bitmap)pdCapture.Image;
-            if (capcha == null)
+            if (e.Button == MouseButtons.Right)
+            {
+                contextMenuStrip1.Show();
                 return;
+            }
+            if (mouseDownPictBox == false)
+            {
+                CursorPositionmyX = e.X;
+                CursorPositionmyY = e.Y;
+            }
 
-            //private void originalmaster_MouseClick(object sender, MouseEventArgs e)
-            //{
-            Point mDown = Point.Round(stretched(e.Location, pdCapture));
-            PointF pf = stretched(mDown,pdCapture);
+            m_pointsArrow[0].X= m_pointsArrow[1].X = CursorPositionmyX;
+            m_pointsArrow[0].Y = m_pointsArrow[1].Y = CursorPositionmyY;
 
-            //Color c = ((Bitmap)capcha).GetPixel((int) pf.X, (int)pf.Y);
-            Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
-            // do your stuff:
-            selectedByMouse = c;
+            MouseDownPictBox = true;
+            bool bRefresh = false;
+            for (int i = 0; i < dict_text.Count; i++)
+            {
+                //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                {
+                    if (dict_text[i].IsPointInsideRegion(e.Location))
+                    {
+                        dict_text[i].MousePointerInsideRegion = true;
+                        dict_text[i].point_mouseDown = new Point(e.X, e.Y);
+                        //mouse inside region
+                        bRefresh = true;
+                    }
+                    else
+                    {
+                        dict_text[i].MousePointerInsideRegion = !true;
+                        bRefresh = true;
+                    }
 
-            //}
+                }
+            }
+
+            if (bRefresh)
+            {
+                pdCapture.Refresh();
+            }
+
+            if (pdCapture.Image == null)
+                return;
+            if (e.Button == MouseButtons.Left)
+            {
+                Bitmap capcha = (Bitmap)pdCapture.Image;
+                if (capcha == null)
+                    return;
+
+                Point mDown = Point.Round(stretched(e.Location, pdCapture));
+                PointF pf = stretched(mDown, pdCapture);
+                Color c = ((Bitmap)capcha).GetPixel((int)mDown.X, (int)mDown.Y);
+                // do your stuff:
+                selectedByMouse = c;
+            }
         }
-
-        private PointF stretched(Point p0, PictureBox pb)
-        {
-            if (pb.Image == null) return PointF.Empty;
-
-            float scaleX = 1f * pb.Image.Width / pb.ClientSize.Width;
-            float scaleY = 1f * pb.Image.Height / pb.ClientSize.Height;
-
-            return new PointF(p0.X * scaleX, p0.Y * scaleY);
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        public Color  clrDialogSelection { get; set; }
         private void button6_Click(object sender, EventArgs e)
         {
             switch (m_enColorSource)
@@ -607,25 +874,24 @@ namespace PictureOnTop
                     break;
             }
         }
-
         private void trackBar1_ValueChanged(object sender, EventArgs e)
         {
             label2.Text = trackBar1.Value.ToString();
             Tolerance = trackBar1.Value;
         }
-        private int m_Tolerance;
-
-        public int Tolerance
+        private PointF stretched(Point p0, PictureBox pb)
         {
-            get { return m_Tolerance; }
-            set { m_Tolerance = value; }
-        }
+            if (pb.Image == null) return PointF.Empty;
 
+            float scaleX = 1f * pb.Image.Width / pb.ClientSize.Width;
+            float scaleY = 1f * pb.Image.Height / pb.ClientSize.Height;
+
+            return new PointF(p0.X * scaleX, p0.Y * scaleY);
+        }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
-
         private void makeBorderlessToolStripMenuItem_MouseDown(object sender, MouseEventArgs e)
         {
             if (this.FormBorderStyle != FormBorderStyle.None)
@@ -635,52 +901,28 @@ namespace PictureOnTop
 
 
         }
-
         private void saveImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(SelectedFolder!=null)
-              saveFileDialog1.InitialDirectory = SelectedFolder;
+            if (SelectedFolder != null)
+                saveFileDialog1.InitialDirectory = SelectedFolder;
 
             saveFileDialog1.FileName = SelectedFile;
 
             saveFileDialog1.ShowDialog();
 
-            if(saveFileDialog1.FileName!=null && !String.IsNullOrEmpty(saveFileDialog1.FileName))
+            if (saveFileDialog1.FileName != null && !String.IsNullOrEmpty(saveFileDialog1.FileName))
             {
+                if (pdCapture.Image == null)
+                    return;
 
                 pdCapture.Image.Save(saveFileDialog1.FileName);
             }
-        }
-
-        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DoUndo();
-        }
-
-        private void DoUndo()
-        {
-            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.undo);
-            if (bm != null)
-                pdCapture.Image = bm;
-        }
-
-        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DoRedo();
-        }
-
-        private void DoRedo()
-        {
-            System.Drawing.Bitmap bm = m_undoManager.SetOperation(enOperation.redo);
-            if (bm != null)
-                pdCapture.Image = bm;
         }
 
         private void editToolStripMenuItem_DropDownOpened(object sender, EventArgs e)
         {
             UpdateUndoMenuEnability();
         }
-
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == (Keys.Control | Keys.Z))
@@ -694,7 +936,6 @@ namespace PictureOnTop
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
-
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.Z)
@@ -706,13 +947,10 @@ namespace PictureOnTop
                 DoRedo();
             }
         }
-
-        bool bMIxWithOriginalImage { get; set; }
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             bMIxWithOriginalImage = checkBox1.Checked;
         }
-
         private void trackBar2_ValueChanged(object sender, EventArgs e)
         {
             label5.Text = trackBar2.Value.ToString();
@@ -723,61 +961,48 @@ namespace PictureOnTop
                 frmDraggable.transparency = transparency;
             }
         }
-
-        private int m_transparency;
-
-        public int transparency
-        {
-            get { return m_transparency; }
-            set { m_transparency = value; }
-        }
-
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
 
         }
-
         private void rb_colordialog_CheckedChanged(object sender, EventArgs e)
         {
             m_enColorSource = enColorSource.colordialog;
         }
-
         private void rb_point_CheckedChanged(object sender, EventArgs e)
         {
             m_enColorSource = enColorSource.point;
         }
-
         private void pn_color_to_replace_MouseClick(object sender, MouseEventArgs e)
         {
             m_enActionType = enActionType.pickup_color_old;
             lbl_color_old.BorderStyle = BorderStyle.Fixed3D;
             lbl_color_new.BorderStyle = BorderStyle.None;
             pn_color_new.BorderStyle = BorderStyle.None;
-            pn_color_to_replace.BorderStyle=BorderStyle.Fixed3D;
-//            if( m_enColorSource == enColorSource.colordialog)
-//            {
-//                #region pickup color from dialog
-//                DialogResult result = colorDialog1.ShowDialog();
-//                // See if user pressed ok.
-//                if (result == DialogResult.OK)
-//                {
-//                    // Set form background to the selected color.
-//                    clrDialogSelection = colorDialog1.Color;
-//                    pn_color_to_replace.BackColor = clrDialogSelection;
-//                    pn_color_to_replace.Refresh();
+            pn_color_to_replace.BorderStyle = BorderStyle.Fixed3D;
+            //            if( m_enColorSource == enColorSource.colordialog)
+            //            {
+            //                #region pickup color from dialog
+            //                DialogResult result = colorDialog1.ShowDialog();
+            //                // See if user pressed ok.
+            //                if (result == DialogResult.OK)
+            //                {
+            //                    // Set form background to the selected color.
+            //                    clrDialogSelection = colorDialog1.Color;
+            //                    pn_color_to_replace.BackColor = clrDialogSelection;
+            //                    pn_color_to_replace.Refresh();
 
-//                }
-//                #endregion
+            //                }
+            //                #endregion
 
-//            }
-//            else
-//            {
-////                pn_color_to_replace.BackColor = selectedByMouse;
-////                pn_color_to_replace.Refresh();
+            //            }
+            //            else
+            //            {
+            ////                pn_color_to_replace.BackColor = selectedByMouse;
+            ////                pn_color_to_replace.Refresh();
 
-//            }
+            //            }
         }
-
         private void pn_color_new_Click(object sender, EventArgs e)
         {
             m_enActionType = enActionType.pickup_color_new;
@@ -804,40 +1029,42 @@ namespace PictureOnTop
 
         }
 
-        private int m_sizeMode;
-
-        public int sizeMode
+        #region draggable standalone windows
+        private void SetStandaloneFormImage(Bitmap bm)
         {
-            get { return m_sizeMode; }
-            set { m_sizeMode = value; }
-        }
 
-
-
-       public DraggableForm.FormBase frmDraggable { get; set; } 
-        void SetStandaloneFormImage (Bitmap bitmap1)
-        {
-            
-            if (frmDraggable!=null  && frmDraggable.Controls.Count>0)
+            if (frmDraggable != null && frmDraggable.Controls.Count > 0)
             {
+                Bitmap bitmap1 = (Bitmap)bm.Clone();
                 frmDraggable.transparency = transparency;
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
                 pb.Image = bitmap1;
                 pb.Height = bitmap1.Height;
                 pb.Width = bitmap1.Width;
-                pb.SizeMode = chImageStretch.Checked?PictureBoxSizeMode.StretchImage: PictureBoxSizeMode.CenterImage;
+                pb.SizeMode = chImageStretch.Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
+                pb.Paint += Pb_Paint;
                 frmDraggable.UpdateImage();
             }
         }
-
+        private void Pb_Paint(object sender, PaintEventArgs e)
+        {
+            bool IsDrawRect = true;
+            int shift_left = 0; int shift_right = 1; int shift_top = 0; int shift_bottom = 1;
+            if (IsDrawRect) // Flag Variable to check if need to draw rect
+            {
+                RectangleF r = e.Graphics.VisibleClipBounds;
+                Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right - 1, (int)r.Height - shift_bottom - 1); // your location to draw
+                e.Graphics.DrawRectangle(new Pen(Color.Gray, 1), RectMark);
+            }
+        }
         private void lunchWpfFormToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(frmDraggable==null)
+            if (frmDraggable == null)
             {
                 frmDraggable = new DraggableForm.FormBase();
                 frmDraggable.WindowState = FormWindowState.Normal;
                 frmDraggable.FormBorderStyle = FormBorderStyle.None;
-                
+
 
                 frmDraggable.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
                 //events
@@ -859,7 +1086,7 @@ namespace PictureOnTop
                 PictureBox pb1 = new PictureBox();
                 pb1.Tag = "pb1";
                 pb1.Name = "pb1";
-                pb1.Dock = DockStyle.Fill;pb1.BackColor = Color.DarkGray;
+                pb1.Dock = DockStyle.Fill; pb1.BackColor = Color.Transparent;
                 pb1.MouseDoubleClick += FrmDraggable_MouseDoubleClick;
 
                 //now, we need some staff to resize image by mouse
@@ -867,42 +1094,29 @@ namespace PictureOnTop
                 pb1.MouseDown += Pb1_MouseDown;
                 pb1.MouseMove += Pb1_MouseMove;
                 pb1.MouseUp += Pb1_MouseUp;
-                
-                
+
+
 
 
                 frmDraggable.ControlAdded += FrmDraggable_ControlAdded;
                 frmDraggable.Controls.Add(pb1);
-                
-
-                if (pdCapture.Image != null)
-                    SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
 
 
+                frmDraggable.WindowState = FormWindowState.Normal;
+                frmDraggable.BringToFront();
                 frmDraggable.Show();
             }
         }
-
         private void FrmDraggable_OnShift(object sender, EventArgs e)
         {
             isMouseDown = (bool)sender;
         }
-
-        Rectangle rect = new Rectangle(5, 5, 5, 5);
-        Point lastPoint = Point.Empty;
-
-        private Point p1, p2;
-        List<Point> p1List = new List<Point>();
-        List<Point> p2List = new List<Point>();
-        int count = 0;
-
         private void Pb1_MouseUp(object sender, MouseEventArgs e)
         {
-             isMouseDown = !true;
+            isMouseDown = !true;
             //lastPoint = Point.Empty;
 
         }
-
         private void Pb1_MouseMove(object sender, MouseEventArgs e)
         {
             if (isMouseDown == true)
@@ -948,8 +1162,8 @@ namespace PictureOnTop
 
                         //when making a Pen object, you can just give it color only or give it color and pen size
 
-                    //    g.DrawLine(new Pen(new SolidBrush(Color.Black),1), lastPoint, e.Location);
-                    //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//.AntiAliasing;
+                        //    g.DrawLine(new Pen(new SolidBrush(Color.Black),1), lastPoint, e.Location);
+                        //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//.AntiAliasing;
                         //this is to give the drawing a more smoother, less sharper look
 
                     }
@@ -963,7 +1177,6 @@ namespace PictureOnTop
                 Refresh();
             }
         }
-
         private void Pb1_MouseDown(object sender, MouseEventArgs e)
         {
             isMouseDown = true;
@@ -984,7 +1197,7 @@ namespace PictureOnTop
                 p2List.Add(p2);
 
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
-                
+
                 pb.Invalidate();
                 //Refresh();
                 // Sets X to 0 and choose p1 again
@@ -993,7 +1206,6 @@ namespace PictureOnTop
 
 
         }
-
         private void Pb1_Paint(object sender, PaintEventArgs e)
         {
 
@@ -1008,12 +1220,10 @@ namespace PictureOnTop
                 }
             }
         }
-
         private void FrmDraggable_Load(object sender, EventArgs e)
         {
-            
-        }
 
+        }
         private void FrmDraggable_OnShowMainFormRequest(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Normal;
@@ -1021,18 +1231,28 @@ namespace PictureOnTop
             this.Show();
             this.BringToFront();
         }
-
         private void FrmDraggable_OnCaptureRequest(object sender, EventArgs e)
         {
             m_Delegate_fn_show_capture_form.Invoke();
         }
-
         private void FrmDraggable_Shown(object sender, EventArgs e)
         {
+            Rectangle rcScreen= Screen.GetBounds(new Point(0, 0));
+            Size rcDraggableForm = frmDraggable.Size;
+            Point startPosition = Properties.Settings.Default.DraggableFormStartPostion;
+
+            if (Math.Abs(startPosition.X) > (rcScreen.Width- frmDraggable.Width))
+                Properties.Settings.Default.DraggableFormStartPostion = new Point(10, 10);
+
+            if (Math.Abs(startPosition.Y) > (rcScreen.Height- frmDraggable.Height))
+                Properties.Settings.Default.DraggableFormStartPostion = new Point(10, 10);
+
             frmDraggable.Location = Properties.Settings.Default.DraggableFormStartPostion;
+            if (pdCapture.Image != null)
+                SetStandaloneFormImage((Bitmap)pdCapture.Image);
+
             //frmDraggable.Cursor = Cursors.SizeAll;
         }
-
         private void FrmDraggable_ControlAdded(object sender, ControlEventArgs e)
         {
             //we know it is picture box :)
@@ -1044,20 +1264,19 @@ namespace PictureOnTop
                 pb.Image = (Bitmap)pdCapture.Image.Clone();
                 pb.Height = pb.Image.Height;
                 pb.Width = pb.Image.Width;
-                frmDraggable.Bounds = new Rectangle(frmDraggable.Left, frmDraggable.Top, (int)pb.Image.Width + 5, (int)pb.Image.Height + 5);
+                frmDraggable.Bounds = new Rectangle(frmDraggable.Left, frmDraggable.Top, (int)pb.Image.Width, (int)pb.Image.Height);
             }
             pb.SizeMode = PictureBoxSizeMode.AutoSize;
             pb.SizeMode = ((CheckBox)chImageStretch).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
 
 
-            
-            frmDraggable.Size= new Size((int)pb.Width + 15, (int)pb.Height + 25);
-            
-        }
 
+            frmDraggable.Size = new Size((int)pb.Width - 10, (int)pb.Height + 0);
+
+        }
         private void FrmDraggable_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
+
             Properties.Settings.Default.DraggableFormStartPostion = new Point(frmDraggable.Bounds.Location.X, frmDraggable.Bounds.Location.Y);
             Properties.Settings.Default.Save();
 
@@ -1065,10 +1284,9 @@ namespace PictureOnTop
             this.WindowState = FormWindowState.Normal;
             this.Show();
         }
-
         private void FrmDraggable_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if(frmDraggable.FormBorderStyle!=FormBorderStyle.Sizable)
+            if (frmDraggable.FormBorderStyle != FormBorderStyle.Sizable)
             {
                 frmDraggable.FormBorderStyle = FormBorderStyle.Sizable;
             }
@@ -1076,36 +1294,310 @@ namespace PictureOnTop
             {
                 frmDraggable.FormBorderStyle = FormBorderStyle.None;
             }
-            
-            
+
+
         }
+        #endregion
 
         private void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (pdCapture.Image != null)
                 SetStandaloneFormImage((Bitmap)pdCapture.Image.Clone());
         }
-
         private void chImageStretch_CheckedChanged(object sender, EventArgs e)
         {
             pdCapture.SizeMode = ((CheckBox)sender).Checked ? PictureBoxSizeMode.StretchImage : PictureBoxSizeMode.CenterImage;
 
         }
-
         private void pictureBox1_SizeModeChanged(object sender, EventArgs e)
         {
-             if (frmDraggable != null)
+            if (frmDraggable != null)
             {
                 PictureBox pb = (PictureBox)frmDraggable.Controls.Find("pb1", false)[0];
                 pb.SizeMode = pdCapture.SizeMode;
             }
         }
-
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
+            bool IsDrawRect = true;
+            bool bDrawDot = false;
+            bool bDrawVline = false;
+            int shift_left = 0; int shift_right = 1; int shift_top = 0; int shift_bottom = 1;
+            int transparency = 155;
+            int tempX = 0;
+            int tempY = 0;
+            Bitmap image = new Bitmap(pdCapture.Width, pdCapture.Height);
+            SolidBrush brush = new SolidBrush(Color.Empty);
+
+            if (pdCapture.Image == null)
+                pdCapture.Image = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+
+            Graphics G1 = Graphics.FromImage(pdCapture.Image);
+
+
+            // Bitmap bmp = new Bitmap(pdCapture.Width, pdCapture.Height, g2);
+
+            // draws border around captured image
+            if (IsDrawRect) 
+            {
+                RectangleF r = e.Graphics.VisibleClipBounds;
+                Rectangle RectMark = new Rectangle(shift_left, shift_top, (int)r.Width - shift_right-1, (int)r.Height - shift_bottom-1); // your location to draw
+                //Graphics.FromImage(bmp).DrawRectangle(new Pen(Color.Red, 1), RectMark);
+                G1.DrawRectangle(new Pen(Color.YellowGreen, 1), RectMark);
+            }
+
+            if (true)
+            {
+                try
+                {
+
+                    #region NOT USED
+                    if (MouseDownPictBox && false)
+                    
+                    {
+                        RectangleF r = e.Graphics.VisibleClipBounds;
+
+                    Color clrMouseDraw = Color.Green;// OnSystemColorsChanged(). bmp.GetPixel(x, y);
+                    brush.Color = Color.FromArgb(transparency, clrMouseDraw.R, clrMouseDraw.G, clrMouseDraw.B);
+
+                    G1.FillRectangle(brush, CursorPositionmyX, CursorPositionmyY, 2, 2);
+                    
+                    }
+                    #endregion
+
+
+                    int id = segment_line_id;
+                    //if (dict_points.Count > 0 && segment_line_id < dict_points.Count)
+                    //{
+                    //    if (dict_points[id] != null)
+                    //        //for each segment
+                    //        for (int i = 0; i < dict_points.Count; i++)
+                    //        {
+                    //            if (dict_points[i].Count >= 2)
+                    //                G1.DrawLines(Pens.Black, dict_points[i].ToArray());
+                    //        }
+                    //}
+
+                    //dict_arrows
+                    #region DRAW ARROWS
+                    int id1 = segment_arrow_id;
+
+                    if (dict_arrows_.Count > 0)
+                    {
+                        for (int i = 0; i < dict_arrows_.Count; i++)
+                        {
+                            if (dict_arrows_[i].Count >= 2)
+                            {
+                                if (!(mouseDownPictBox && (i + 2) == dict_arrows_.Count))
+                                {
+
+                                    Pen penMidlleLine = new Pen(Color.FromArgb(120, 0, 0, 200), 1);
+                                    G1.DrawLine(penMidlleLine, dict_arrows_[i].point[0], dict_arrows_[i].point[1]);
+
+                                    // make subarrows
+                                    Point[] subarrow1 = new Point[2];
+                                    Point[] subarrow2 = new Point[2];
+
+                                    subarrow1[1].X = dict_arrows_[i].point[0].X;
+                                    subarrow1[1].Y = dict_arrows_[i].point[0].Y;
+                                    subarrow1[0].X = dict_arrows_[i].point[1].X;
+                                    subarrow1[0].Y = dict_arrows_[i].point[1].Y;
+
+                                    Pen pen = new Pen(dict_arrows_[i].color, 4);
+                                    pen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+                                    pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
+                                    G1.DrawLine(pen, subarrow1[0], subarrow1[1]);
+                                }
+
+                            }
+                        }
+                    }
+                    #endregion
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+            }
+
+            if (!M_clearDrawsActive)
+            {
+                if (DrawModeProperty==CustomTypes.EnDrawMode.arrow)
+                {
+                    if (!MouseDownPictBox)
+                    {
+                        Rectangle r = new Rectangle(m_pointsArrow[0].X, m_pointsArrow[0].Y,
+                            m_pointsArrow[1].X - m_pointsArrow[0].X, m_pointsArrow[1].Y - m_pointsArrow[0].Y);
+                        Pen penMidlleLine = new Pen(Color.FromArgb(50, 20, 20, 20), 1);
+                        G1.DrawLine(penMidlleLine, m_pointsArrow[0], m_pointsArrow[1]);
+                        bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+                    }
+                    
+                }
+                else
+                {
+                    Rectangle r = new Rectangle(m_pointsArrow[0].X, m_pointsArrow[0].Y,
+                        m_pointsArrow[1].X - m_pointsArrow[0].X, m_pointsArrow[1].Y - m_pointsArrow[0].Y);
+                    if (m_pointsArrow[0].X != m_pointsArrow[1].X || m_pointsArrow[0].Y != m_pointsArrow[1].Y)
+                    {
+                        //e.Graphics.DrawLine(new Pen(Color.Red, 3), m_pointsArrow[0], m_pointsArrow[1]);
+                        //bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+                    }
+                }
+
+                if (dict_text.Count > 0)
+                {		//key	0	int
+
+                    for (int i = 0; i < dict_text.Count; i++)
+                    {
+                        using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                        {
+                            TextRenderer.DrawText(e.Graphics, 
+                                dict_text[i].text,
+                                dict_text[i].font,
+                                new Point(dict_text[i].point.X, dict_text[i].point.Y+ (int)(1.5* dict_text[i].character_size_in_pixels)),
+                                dict_text[i].color,
+                                TextFormatFlags.Bottom);
+                            if (dict_text[i].MousePointerInsideRegion)
+                            {
+                                //draw borders around text
+                                //
+                                using (Pen pn = new Pen(br))
+                                {
+                                    if (!mouseDownPictBox)
+                                    {
+                                        G1.DrawRectangle(pn, dict_text[i].RectTextBoundaries);
+                                    }
+                                    else
+                                    {
+                                        using (SolidBrush brW = new SolidBrush(pdCapture.BackColor))
+                                        {
+                                            using (Pen pn1 = new Pen(brW))
+                                            {
+                                                G1.DrawRectangle(pn1, dict_text[i].RectTextBoundaries);
+                                            }
+                                        }
+
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+
+                                using (SolidBrush brW = new SolidBrush(pdCapture.BackColor))
+                                {
+                                    using (Pen pn = new Pen(brW))
+                                    {
+                                        G1.DrawRectangle(pn, dict_text[i].RectTextBoundaries);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            m_image = new Bitmap(pdCapture.Width, pdCapture.Height, G1);
+
+            G1.Dispose();
+
+
+            if (stat_tick_start == 0) stat_tick_start = DateTime.Now.Ticks;
+            //interval 
+            long interval_in_ticks = System.DateTime.Now.Ticks - stat_tick_start;
+            //dateValue.ToString("MM/dd/yyyy hh:mm:ss.fff tt"))
+            string s_interval_in_ms = System.DateTime.FromBinary(interval_in_ticks).ToString("hh:mm:ss.fff");
+            Debug.WriteLine(stat_counter + " "+ s_interval_in_ms);
+                
+            stat_counter++;
+
+            return;
+
+            #region Not USED
+           // Graphics gOriginal = e.Graphics;// Graphics.FromImage(image)
+            
+            //try
+            //{
+            //    using (Graphics g = Graphics.FromImage(bmp))
+            //    {
+            //        for (int x = 0; x < image.Width; x++)
+            //        {
+            //            if (x != shift_left && x != (image.Width - shift_right))
+            //            {
+            //                if (x < shift_left || x > (image.Width - shift_right))
+            //                {
+            //                    bDrawDot = false; bDrawVline = false;
+            //                    continue;
+            //                }
+            //                else if (x == shift_left || x == (image.Width - shift_right))
+            //                {
+            //                    bDrawDot = false; bDrawVline = !false;
+            //                }
+            //                else if (x > shift_left && x < (image.Width - shift_right))
+            //                {
+            //                    bDrawDot = !false; bDrawVline = false;
+            //                }
+            //            }
+
+            //            if (bDrawDot == false && bDrawVline == false)
+            //                continue;
+
+
+            //            tempX = x;
+            //            if (tempX == 256)
+            //            {
+            //            }
+
+            //            for (int y = 0; y < image.Height; y++)
+            //            {
+            //                tempY = y;
+
+            //                if (bDrawDot == !false && bDrawVline == false)
+            //                {
+            //                    if ((y == shift_top) || (y == (image.Height - shift_bottom)))
+            //                    {
+            //                        Color colour = bmp.GetPixel(x, y);
+            //                        brush.Color = Color.FromArgb(transparency, colour.R, colour.G, colour.B);
+            //                        g.FillRectangle(brush, x, y, 1, 1);
+            //                    }
+
+            //                }
+            //                else if (bDrawDot == !false && bDrawVline == !false)
+            //                {
+            //                    if ((y >= shift_top) || (y <= (image.Height - shift_bottom)))
+            //                    {
+            //                        Color colour = bmp.GetPixel(x, y);
+            //                        brush.Color = Color.FromArgb(transparency, colour.R, colour.G, colour.B);
+            //                        g.FillRectangle(brush, x, y, 1, 1);
+            //                    }
+            //                }
+
+
+
+
+
+            //            }
+            //        }
+            //    }
+                
+
+            //    pdCapture.Image = bmp;
+            //}
+            //catch (Exception ex)
+            //{
+
+            //    //throw;
+            //}
+            #endregion
+
+            #region NOT USED
             // Create array of two points.
-            Point[] points = { new Point(0, 0), new Point(100, 50) };
-         //   e.Graphics.DrawLine(new Pen(Color.Blue, 3), points[0], points[1]);
+            //  Point[] points = { new Point(0, 0), new Point(100, 50) };
+            //   e.Graphics.DrawLine(new Pen(Color.Blue, 3), points[0], points[1]);
             ////if (CursorPositionmyX ==0  &&  CursorPositionmyY == 0)
             ////    return;
             //try
@@ -1145,42 +1637,550 @@ namespace PictureOnTop
 
 
             //}
-
+            #endregion
         }
 
-        private int cursorPositionmyX;
+        #region repaint event statistics
+        public long  stat_counter { get; set; }
+        public long stat_tick_start { get; set; }
 
-        public int CursorPositionmyX
-        {
-            get { return cursorPositionmyX; }
-            private set { cursorPositionmyX = value; }
-        }
 
-        private int cursorPositionmyY;
-
-        public int CursorPositionmyY
-        {
-            get { return cursorPositionmyY; }
-            private set { cursorPositionmyY = value; }
-        }
-
-        public bool isMouseDown { get; private set; }
-
+        #endregion
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            cursorPositionmyX = e.X;
-            CursorPositionmyY = e.Y;
+            if (e.Button == MouseButtons.Right)
+                return;
+
+            bool bRefresh = false;
+            if (MouseDownPictBox)
+                //mouse move while pressing left mouse button
+            {
+                if (!bClearMouseDraw)
+                {
+                    switch (DrawModeProperty)
+                    {
+                        case CustomTypes.EnDrawMode.none:
+                            break;
+
+                        case CustomTypes.EnDrawMode.arrow:
+                            m_pointsArrow[1].X = CursorPositionmyX = e.X;
+                            m_pointsArrow[1].Y = CursorPositionmyY = e.Y;
+
+                            int id = segment_line_id;
+
+                            {
+                                
+                                {
+                                    Graphics G1 = pdCapture.CreateGraphics();
+                                    Rectangle r = new Rectangle(m_pointsArrow[0].X, m_pointsArrow[0].Y,
+                                        m_pointsArrow[1].X - m_pointsArrow[0].X, m_pointsArrow[1].Y - m_pointsArrow[0].Y);
+                                    Pen penMidlleLine = new Pen(Color.FromArgb(50, 20, 20, 20), 1);
+                                    G1.DrawLine(penMidlleLine, m_pointsArrow[0], m_pointsArrow[1]);
+                                    bmpArrowDraw_Temp = new Bitmap(pdCapture.Width, pdCapture.Height, G1);
+                                    G1.Dispose();
+                                }
+
+                            }
+
+                            break;
+
+                        case CustomTypes.EnDrawMode.text:
+
+                            for (int i = 0; i < dict_text.Count; i++)
+                            {
+                                //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                                {
+                                    if (dict_text[i].IsPointInsideRegion(e.Location))
+                                    {
+                                        if (dict_text[i].point_mouseDown.X <= 0 && dict_text[i].point_mouseDown.Y <= 0)
+                                        {
+                                        }
+                                        else
+                                        {
+                                            if (MouseDownPictBox)
+                                            {
+                                                //mouse inside region
+                                                int shiftX = dict_text[i].mouseDownOffset.X;
+                                                int shiftY = dict_text[i].mouseDownOffset.Y;
+
+                                                dict_text[i].point = new Point(e.X - shiftX, e.Y - shiftY);
+
+                                                //bRefresh = true;
+                                            }
+                                        }
+
+
+                                        
+                                    }
+                                }
+                            }
+
+                            break;
+                        default:
+                            break;
+                    }
+
+                    pdCapture.Refresh(); //force a repaint
+                }
+            }
+            else
+            //mouse move while not mouse buttons pressed
+            {
+
+                //see if it over text region
+                //if so - highlight it!
+                for (int i = 0; i < dict_text.Count; i++)
+                {
+                    //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                    {
+                        if (dict_text[i].IsPointInsideRegion(e.Location))
+                        {
+                            dict_text[i].MousePointerInsideRegion = true;
+
+                            bRefresh = true;
+                        }
+                        else
+                        {
+                            dict_text[i].MousePointerInsideRegion = !true;
+                           // dict_text[i].point_mouseDown = new Point(-1, -1);
+                        }
+                    }
+                }
+            }
+
+            if (bRefresh)
+                pdCapture.Refresh();
+            else
+                pdCapture.Refresh();
+
+        }
+        // short keys main form
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Modifiers == Keys.Alt && e.KeyCode == Keys.C)
+            {
+                m_Delegate_fn_show_capture_form.Invoke();
+            }
+        }
+        private void refreshPictureboxToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pdCapture.Refresh();
+        }
+
+        bool _bActionOnMouseUp;
+        public bool bActionOnMouseUp
+        { 
+            get
+            {
+                return _bActionOnMouseUp;
+            }
+            set
+            {
+                _bActionOnMouseUp = value;
+
+                if (_bActionOnMouseUp)
+                {
+                    _bActionOnMouseUp = false;
+
+                    if (pdCapture.Image != null)
+                    {
+                        //pdCapture.Image = new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+
+                        
+
+                        Bitmap im = (Bitmap)pdCapture.Image.Clone();// new Bitmap(pdCapture.Width, pdCapture.Height, e.Graphics);
+                        SetImageInPicturebox(im, true);
+                    }
+
+                }
+            }
+        }
+        private void pdCapture_MouseUp(object sender, MouseEventArgs e)
+        {
+            MouseDownPictBox = false;
+
+            //  m_pointsArrow[1].X = CursorPositionmyX= e.X;
+            //  m_pointsArrow[1].Y = CursorPositionmyY = e.Y;
+
+            m_pointsArrow[1].X = CursorPositionmyX= e.X;
+            m_pointsArrow[1].Y = CursorPositionmyY=e.Y;
+
+            bool bRefresh = true;
+            for (int i = 0; i < dict_text.Count; i++)
+            {
+                //using (SolidBrush br = new SolidBrush(dict_text[i].color))
+                {
+                    if (dict_text[i].IsPointInsideRegion(e.Location))
+                    {
+                        dict_text[i].MousePointerInsideRegion = true;
+                        dict_text[i].point_mouseUp = new Point(e.X, e.Y);
+                        //dict_text[i].point_mouseDown = new Point(e.X, e.Y);
+                        //dict_text[i].point_mouseDown = new Point(-1, -1);
+                        //mouse inside region
+                        bRefresh = true;
+                    }
+                    else
+                    {
+                        dict_text[i].MousePointerInsideRegion = !true;
+                        bRefresh = true;
+                    }
+
+                }
+            }
+
+            if (bRefresh)
+            {
+                pdCapture.Refresh();
+            }
+
+            if ((m_pointsArrow[1].X == m_pointsArrow[0].X) && (m_pointsArrow[1].Y == m_pointsArrow[0].Y))
+                // do not act if position didn't change
+                bActionOnMouseUp = true;
+            else
+            {
+                bActionOnMouseUp = true;
+                
+            }
+            pdCapture.Refresh();
+        }
+        private void ClearMouseDraw()
+        {
+            //
+            bClearMouseDraw = false;
+            if (true)
+            {
+                segment_line_id = 0;
+                dict_points.Clear();
+
+                segment_arrow_id = 0;
+                //dict_arrows.Clear();
+                dict_arrows_.Clear();
+
+                //myPointList.Clear();
+                // m_image = BmpCaptured;
+                pdCapture.Image = BmpCaptured;
+                pdCapture.Refresh();
+                //pdCapture.Invalidate(); //force a repaint
+            }
+        }
+        private void button6_Click_1(object sender, EventArgs e)
+        {
+            bClearMouseDraw = true;
+            ClearMouseDraw();
+        }
+        private void chboxDrawArrow_CheckedChanged(object sender, EventArgs e)
+        {
+            if (bLockCheckBoxChanges)
+                return;
+
+               ActivateDrawMode(sender, CustomTypes.EnDrawMode.arrow);
+        }
+
+        private void ActivateDrawMode(object sender, CustomTypes.EnDrawMode en)
+        {
+            DrawModeProperty = en;
+        }
+
+
+        private void button6_MouseDown(object sender, MouseEventArgs e)
+        {
+            M_clearDrawsActive = true;
+            bClearMouseDraw = true;
+            ClearMouseDraw();
+            if (m_image != null && BmpCaptured != null)
+            {
+                // m_image = BmpCaptured;
+                SetImageInPicturebox((Bitmap)BmpCaptured.Clone(), false);
+            }
+        }
+        private void button6_MouseUp(object sender, MouseEventArgs e)
+        {
+            M_clearDrawsActive = !true;
+        }
+        private void button7_Click(object sender, EventArgs e)
+        {
+            #region pickup color from dialog
+            DialogResult result = colorDialog1.ShowDialog();
+            // See if user pressed ok.
+            if (result == DialogResult.OK)
+            {
+                // Set form background to the selected color.
+                clrArrow = colorDialog1.Color;
+                chboxDrawArrow.BackColor = clrArrow;
+                pboxArrow.Refresh();
+            }
+            #endregion
+        }
+        private void button8_Click(object sender, EventArgs e)
+        {
+            pdCapture.Image = null;
+            m_image = null;
+            pdCapture.Refresh();
+        }
+        private void pboxArrow_Paint(object sender, PaintEventArgs e)
+        {
+            Point[] arrow = new Point[2];
+            arrow[0].X = 0; arrow[0].Y = 0;
+            arrow[1].X = pboxArrow.Width; arrow[0].Y = pboxArrow.Height-5;
+            Pen pen = new Pen(clrArrow, 6);
+            pen.StartCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor;
+            pen.EndCap = System.Drawing.Drawing2D.LineCap.NoAnchor;
+            e.Graphics.DrawLine(pen, arrow[1], arrow[0]);
+        }
+        private void button9_Click(object sender, EventArgs e)
+        {
+            m_undoManager.Clean();
+        }
+
+        private void Form1_Load_1(object sender, EventArgs e)
+        {
+            this.Location = Properties.Settings.Default.MainformStartPosition;
+            chBoxDrawText.ForeColor = pnBlack.BackColor;
+            font_selected = new Font("Times New Roman", 14, FontStyle.Regular, GraphicsUnit.Pixel);
+        }
+
+        private void Form1_FormClosing_1(object sender, FormClosingEventArgs e)
+        {
+            
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                // save location and size if the state is normal
+                Properties.Settings.Default.MainformStartPosition = this.Location;
+            }
+            else
+            {
+                // save the RestoreBounds if the form is minimized or maximized!
+                Properties.Settings.Default.MainformStartPosition = this.RestoreBounds.Location;
+            }
+
+            // don't forget to save the settings
+            Properties.Settings.Default.Save();
+        }
+
+        private void openSaveFolderToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            fbd.SelectedPath=Properties.Settings.Default.DefaultFolder;
+            fbd.ShowDialog();
+        }
+
+        private void openSaveFolderToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenFolder(Properties.Settings.Default.DefaultFolder);
+        }
+
+        private void OpenFolder(string folderPath)
+        {
+            if (Directory.Exists(folderPath))
+            {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    Arguments = folderPath,
+                    FileName = "explorer.exe"
+                };
+                Process.Start(startInfo);
+            }
+        }
+
+        private void chBoxDrawText_CheckedChanged(object sender, EventArgs e)
+        {
+
+            if (bLockCheckBoxChanges)
+                return;
+
+
+            ActivateDrawMode(sender, CustomTypes.EnDrawMode.text);
+            //if (chBoxDrawText.Checked)
+                
+            //else
+            //{
+            //    DrawModeProperty = CustomTypes.EnDrawMode.none;
+            //}
+            
+        }
+
+        public bool bBlinkingState { get; set; }
+
+        private void timerCursor_Tick(object sender, EventArgs e)
+        {
+            switch (DrawModeProperty)
+            {
+                case CustomTypes.EnDrawMode.none:
+                    break;
+                case CustomTypes.EnDrawMode.arrow:
+                    break;
+                case CustomTypes.EnDrawMode.text:
+                    if (bBlinkingState == false)
+                        bBlinkingState = true;
+                    else
+                        bBlinkingState = false;
+                    if (bBlinkingState)
+                    {
+                        //using (Font font1 = font_selected)// new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                        {
+                            System.Drawing.Graphics g;
+                            g = pdCapture.CreateGraphics();
+                            PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
+                            g.DrawString("|", font_selected, Brushes.DodgerBlue, pointF1);
+                            pbMonitor.Refresh();
+                        }
+                        
+                    }
+                    else
+                    {
+                        //using (Font font1 = font_selected)// new Font("Times New Roman", 14, FontStyle.Bold, GraphicsUnit.Pixel))
+                        {
+                            System.Drawing.Graphics g;
+                            g = pdCapture.CreateGraphics();
+                            PointF pointF1 = new PointF(m_pointsArrow[0].X, m_pointsArrow[0].Y);
+                            g.DrawString("|", font_selected, Brushes.DimGray, pointF1);
+                            pbMonitor.Refresh();
+                        }
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void txtBoxComment_TextChanged(object sender, EventArgs e)
+        {
+            if (DrawModeProperty == CustomTypes.EnDrawMode.text)
+            {
+                //if (dict_text.Count > 0)
+                //    dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+                //pdCapture.Refresh();
+            }
+        }
+
+
+        
+        private void txtBoxComment_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (DrawModeProperty != CustomTypes.EnDrawMode.text)
+                return;
+
+            Graphics g=  pdCapture.CreateGraphics();
+            float size_in_pixels = font_selected.SizeInPoints / 72 * g.DpiX;
+            g.Dispose();
+
+            if (dict_text.Count == 0)
+            {
+                dict_text.Add
+               (
+                   dict_text.Count,
+                   new CustomTypes.Comment(
+                       dict_text.Count,
+                       new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
+                       chBoxDrawText.ForeColor,
+                       (sender as TextBox).Text,
+                       font_selected,
+                       size_in_pixels
+                     )
+              );
+            }
+            else
+            {
+                //if (dict_text[i].IsPointInsideRegion(e.Location))
+                 //   dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+            }
+
+            if (e.KeyChar == 13)
+            {
+                dict_text.Add
+                    (
+                        dict_text.Count,
+                        new CustomTypes.Comment(
+                            dict_text.Count,
+                            new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
+                            chBoxDrawText.ForeColor ,
+                            (sender as TextBox).Text,
+                            font_selected,
+                            size_in_pixels
+                          )
+                   );
+                
+                //pdCapture.Refresh();
+            }
+
+            pdCapture.Refresh();
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            segment_comment_id = 0;
+            dict_text.Clear();
+
+            pdCapture.Refresh();
+        }
+
+        private void pnGray_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pnBlack_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pnRed_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pnBlue_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void pbGreen_Click(object sender, EventArgs e)
+        {
+            chBoxDrawText.ForeColor = (sender as Panel).BackColor;
+        }
+
+        private void txtBoxComment_KeyDown(object sender, KeyEventArgs e)
+        {
+            //if (!e.Handled)
+            //{
+            //    if (dict_text.Count == 0)
+            //    {
+            //        dict_text.Add
+            //       (
+            //           dict_text.Count,
+            //           new CustomTypes.Comment(
+            //               dict_text.Count,
+            //               new Point(m_pointsArrow[0].X, m_pointsArrow[0].Y),
+            //               chBoxDrawText.ForeColor,
+            //               (sender as TextBox).Text
+            //             )
+            //      );
+            //    }
+            //    else
+            //    {
+            //        dict_text[dict_text.Count - 1].UpdateText((sender as TextBox).Text);
+            //    }
+
+            //    pdCapture.Refresh();
+            //}
+        }
+
+        Font font_selected { get; set; }
+        private void button12_Click(object sender, EventArgs e)
+        {
+            fontDialog1 = new FontDialog();
+            DialogResult dr= fontDialog1.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                font_selected = fontDialog1.Font;
+            }
+
         }
 
         private void lunchWpfFormToolStripMenuItem_DropDownOpening(object sender, EventArgs e)
         {
-            
-                refreshToolStripMenuItem.Enabled = frmDraggable != null;
-
-            
+            refreshToolStripMenuItem.Enabled = frmDraggable != null;
         }
     }
-
-
 }
-

@@ -103,9 +103,9 @@ namespace DraggableForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(369, 182);
+            this.ClientSize = new System.Drawing.Size(428, 220);
             this.Name = "FormBase";
-            this.Opacity = 0.9D;
+            this.Opacity = 0.95D;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "AlerterForm";
@@ -181,7 +181,7 @@ namespace DraggableForm
             //
             //If drag = true, drag the form
             //
-            if (this.drag)
+            if (this.drag )
             {
                 Point p1 = new Point(e.X, e.Y);
                 Point p2 = this.PointToScreen(p1);
@@ -203,9 +203,10 @@ namespace DraggableForm
             }
             get
             {
-                return this.exclude_list.Trim();
+                return this.exclude_list.Trim()  ;
             }
         }
+
 
         public bool Draggable
         {
@@ -224,7 +225,10 @@ namespace DraggableForm
         public int transparency
         {
             get { return m_transparency; }
-            set { m_transparency = value; }
+            set 
+            {
+                m_transparency = value;
+            }
         }
 
         public bool bShift { get; private set; }
